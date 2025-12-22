@@ -1,0 +1,24 @@
+{
+  "name": "quickfood",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "description": "",
+  "scripts": {
+    "setup": "echo \"setup not implemented yet\"&& exit 1",
+    "dev": "echo \"dev not implemented yet\" && exit 1",
+    "test": "echo \"no tests at root\" && exit 1"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hansgriesser/quickfood.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hansgriesser/quickfood/issues"
+  },
+  "homepage": "https://github.com/hansgriesser/quickfood#readme"
+}
