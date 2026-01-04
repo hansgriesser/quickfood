@@ -1,0 +1,56 @@
+<div class="filter-container">
+  <h2>Filter</h2>
+
+  <div class="filters">
+    <mat-form-field class="filter-field">
+      <mat-label>Nach Restaurant suchen</mat-label>
+      <input
+        matInput
+        placeholder="Restaurant-Name"
+        [(ngModel)]="searchTerm"
+        (input)="onFilterChange()"
+      />
+    </mat-form-field>
+
+    <mat-form-field class="filter-field">
+      <mat-label>Kategorie</mat-label>
+      <mat-select [(ngModel)]="category" (selectionChange)="onFilterChange()">
+        <mat-option *ngFor="let cat of categories" [value]="cat.value">
+          {{ cat.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="filter-field">
+      <mat-label>Mindestbewertung</mat-label>
+      <mat-select [(ngModel)]="minRating" (selectionChange)="onFilterChange()">
+        <mat-option *ngFor="let rating of ratings" [value]="rating.value">
+          {{ rating.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="filter-field">
+      <mat-label>Sortieren nach</mat-label>
+      <mat-select [(ngModel)]="sortBy" (selectionChange)="onFilterChange()">
+        <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+          {{ option.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="filter-field sort-order">
+      <mat-label>Reihenfolge</mat-label>
+      <mat-select [(ngModel)]="sortOrder" (selectionChange)="onFilterChange()">
+        <mat-option value="asc">Aufsteigend ↑</mat-option>
+        <mat-option value="desc">Absteigend ↓</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="filter-actions">
+    <button mat-stroked-button (click)="resetFilters()">
+      Zurücksetzen
+    </button>
+  </div>
+</div>
