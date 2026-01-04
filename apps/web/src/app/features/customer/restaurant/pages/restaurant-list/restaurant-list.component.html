@@ -1,0 +1,7 @@
+<h1>Liste aller Restaurants</h1>
+
+<ul>
+  <li *ngFor="let restaurant of restaurants">
+    <a [routerLink]="[restaurant.id]">{{ restaurant.name }}</a>
+  </li>
+</ul>
