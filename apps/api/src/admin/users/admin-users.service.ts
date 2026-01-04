@@ -5,20 +5,25 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class AdminUsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async warn(userId: number, reason?: string) {
+  async warn(userId: number, moderatorId: number, reason?: string) {
     await this.ensureUserExists(userId);
 
     return this.prisma.userModerationAction.create({
       data: {
         targetUserId: userId,
-        moderatorId: 1, // TEMP: später aus JWT
+        moderatorId,
         type: 'WARN',
         reason,
       },
     });
   }
 
-  async suspend(userId: number, until?: string, reason?: string) {
+  async suspend(
+    userId: number,
+    moderatorId: number,
+    until?: string,
+    reason?: string,
+  ) {
     await this.ensureUserExists(userId);
 
     const untilDate = until ? new Date(until) : null;
@@ -34,7 +39,7 @@ export class AdminUsersService {
     return this.prisma.userModerationAction.create({
       data: {
         targetUserId: userId,
-        moderatorId: 1, // TEMP
+        moderatorId,
         type: 'SUSPEND',
         reason,
         until: untilDate,
@@ -42,7 +47,7 @@ export class AdminUsersService {
     });
   }
 
-  async unsuspend(userId: number) {
+  async unsuspend(userId: number, moderatorId: number) {
     await this.ensureUserExists(userId);
 
     await this.prisma.user.update({
@@ -56,7 +61,7 @@ export class AdminUsersService {
     return this.prisma.userModerationAction.create({
       data: {
         targetUserId: userId,
-        moderatorId: 1, // TEMP
+        moderatorId,
         type: 'UNSUSPEND',
       },
     });

@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   Param,
-  ParseIntPipe,
   Patch,
   Query,
   UseGuards,
@@ -10,11 +9,13 @@ import {
 import { AdminRestaurantsService } from './admin-restaurants.service';
 import { Roles } from '../../auth/roles.decorator';
 import { RolesGuard } from '../../auth/roles.guard';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { Req } from '@nestjs/common';
 
 type RestaurantStatus = 'PENDING' | 'ACTIVE' | 'REJECTED' | 'SUSPENDED';
 
 @Controller('admin/restaurants')
-@UseGuards(RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN')
 export class AdminRestaurantsController {
   constructor(private readonly service: AdminRestaurantsService) {}
@@ -27,21 +28,13 @@ export class AdminRestaurantsController {
   }
 
   @Patch(':id/approve')
-  async approve(
-    @Param('id') id: string,
-    @Query('adminId', ParseIntPipe) adminId: number,
-  ) {
-    // Für jetzt: adminId als Query-Param (später aus JWT)
+  async approve(@Param('id') id: string, @Req() req: any) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return this.service.approve(id, adminId);
+    return this.service.approve(id, req.user.sub);
   }
 
   @Patch(':id/reject')
-  async reject(
-    @Param('id') id: string,
-    @Query('adminId', ParseIntPipe) adminId: number,
-  ) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return this.service.reject(id, adminId);
+  async reject(@Param('id') id: string, @Req() req: any) {
+  return this.service.reject(id, req.user.sub);
   }
 }

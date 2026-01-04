@@ -1,5 +1,6 @@
 import { config } from 'dotenv';
-config({ path: 'apps/api/.env' }); // <-- adjust if your env file is elsewhere
+import { join } from 'path';
+config({ path: join(process.cwd(), '.env') }); // Load .env from the api folder
 
 import {
   PrismaClient,

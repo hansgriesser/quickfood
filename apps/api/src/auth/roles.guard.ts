@@ -19,10 +19,10 @@ export class RolesGuard implements CanActivate {
 
     if (!requiredRoles || requiredRoles.length === 0) return true;
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const req = context.switchToHttp().getRequest();
-    const role = (
-      req.headers['x-user-role'] as string | undefined
-    )?.toUpperCase();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const role = req.user?.role;
 
     if (!role || !requiredRoles.includes(role)) {
       throw new ForbiddenException('Insufficient role');

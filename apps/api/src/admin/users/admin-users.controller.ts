@@ -9,9 +9,11 @@ import {
 import { Roles } from '../../auth/roles.decorator';
 import { RolesGuard } from '../../auth/roles.guard';
 import { AdminUsersService } from './admin-users.service';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { Req } from '@nestjs/common';
 
 @Controller('admin/users')
-@UseGuards(RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN')
 export class AdminUsersController {
   constructor(private readonly service: AdminUsersService) {}
@@ -19,22 +21,24 @@ export class AdminUsersController {
   @Post(':id/warn')
   warn(
     @Param('id', ParseIntPipe) userId: number,
+    @Req() req: any,
     @Body('reason') reason?: string,
   ) {
-    return this.service.warn(userId, reason);
+    return this.service.warn(userId, req.user.sub, reason);
   }
 
   @Post(':id/suspend')
   suspend(
     @Param('id', ParseIntPipe) userId: number,
-    @Body('until') until?: string, // ISO-Date
+    @Req() req: any,
+    @Body('until') until?: string,
     @Body('reason') reason?: string,
   ) {
-    return this.service.suspend(userId, until, reason);
+    return this.service.suspend(userId, req.user.sub, until, reason);
   }
 
   @Post(':id/unsuspend')
-  unsuspend(@Param('id', ParseIntPipe) userId: number) {
-    return this.service.unsuspend(userId);
+  unsuspend(@Param('id', ParseIntPipe) userId: number, @Req() req: any) {
+    return this.service.unsuspend(userId, req.user.sub);
   }
 }
