@@ -81,6 +81,36 @@ async function main() {
       },
     }));
 
+  const mockRestaurants = [
+    { name: 'Caf\u00e9 Latte', category: 'italian', rating: 4.5 },
+    { name: 'Espresso Bar', category: 'fast-food', rating: 4.2 },
+    { name: 'Kaffee K\u00f6nig', category: 'fast-food', rating: 3.8 },
+    { name: 'Sushi Palace', category: 'asian', rating: 4.7 },
+    { name: 'Taco Fiesta', category: 'mexican', rating: 4.1 },
+    { name: 'Sushi World', category: 'Japanisch', rating: 4.8 },
+    { name: 'Pasta Haus', category: 'Italienisch', rating: 4.5 },
+  ];
+
+  for (const restaurant of mockRestaurants) {
+    const existing = await prisma.restaurant.findFirst({
+      where: { name: restaurant.name },
+    });
+
+    if (!existing) {
+      await prisma.restaurant.create({
+        data: {
+          name: restaurant.name,
+          category: restaurant.category,
+          rating: restaurant.rating,
+          ownerId: owner.id,
+          status: RestaurantStatus.ACTIVE,
+          approvedAt: new Date(),
+          decisionById: admin.id,
+        },
+      });
+    }
+  }
+
   // 3) Delivery zones
   const zoneA = await prisma.deliveryZone.upsert({
     where: { code: 'ZONE_A' },

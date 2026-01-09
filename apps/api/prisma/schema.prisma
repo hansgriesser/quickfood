@@ -37,11 +37,18 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  orders Order[]
 }
 
 model Restaurant {
   id   String @id @default(uuid())
   name String
+
+  contactEmail String?
+  contactPhone String?
+  category     String?
+  rating       Float?
 
   ownerId Int
   owner   User @relation("OwnerRestaurants", fields: [ownerId], references: [id])
@@ -59,6 +66,91 @@ model Restaurant {
 
   @@index([status])
   @@index([ownerId])
+  dishes Dish[]
+  categories MenuCategory[]
+  orders Order[]
+  openingHours RestaurantOpeningHour[]
+}
+
+model Dish {
+  id Int @id @default(autoincrement())
+  name String
+  description String
+  price BigInt
+  restaurantId String
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  categoryId Int?
+  category MenuCategory? @relation(fields: [categoryId], references: [id])
+  pictureUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orderItems OrderItem[]
+}
+
+model MenuCategory {
+  id Int @id @default(autoincrement())
+  name String
+  sortOrder Int @default(0)
+  restaurantId String
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  dishes Dish[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([restaurantId, name])
+  @@index([restaurantId])
+}
+
+model RestaurantOpeningHour {
+  id Int @id @default(autoincrement())
+  restaurantId String
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  dayOfWeek Int
+  opensAt String
+  closesAt String
+  isClosed Boolean @default(false)
+
+  @@unique([restaurantId, dayOfWeek])
+  @@index([restaurantId])
+}
+
+model Order {
+  id String @id @default(uuid())
+  restaurantId String
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  customerId Int
+  customer User @relation(fields: [customerId], references: [id])
+  status OrderStatus @default(PENDING)
+  subtotalAmount BigInt
+  discountAmount BigInt @default(0)
+  totalAmount BigInt
+  voucherId String?
+  voucher Voucher? @relation(fields: [voucherId], references: [id])
+  estimatedArrivalAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items OrderItem[]
+
+  @@index([restaurantId])
+  @@index([customerId])
+  @@index([status])
+}
+
+model OrderItem {
+  id Int @id @default(autoincrement())
+  orderId String
+  order Order @relation(fields: [orderId], references: [id])
+  dishId Int?
+  dish Dish? @relation(fields: [dishId], references: [id])
+  name String
+  unitPrice BigInt
+  quantity Int @default(1)
+  totalPrice BigInt
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+  @@index([dishId])
 }
 
 model UserModerationAction {
@@ -110,6 +202,8 @@ model Voucher {
   usageLimit Int?
   usedCount  Int         @default(0)
   createdAt  DateTime    @default(now())
+
+  orders Order[]
 }
 
 model PlatformSetting {
@@ -140,4 +234,14 @@ enum ModerationActionType {
   WARN
   SUSPEND
   UNSUSPEND
+}
+
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  PREPARING
+  READY
+  DISPATCHED
+  REJECTED
+  CANCELLED
 }
