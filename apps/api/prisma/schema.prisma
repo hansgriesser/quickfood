@@ -14,14 +14,130 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
+  id       Int    @id @default(autoincrement())
   username String @unique
   password String
-  role Role
+  role     Role
+
+  // Moderation / Activity
+  isSuspended    Boolean   @default(false)
+  suspendedUntil DateTime?
+
+  // Restaurants owned by this user (OWNER)
+  restaurants Restaurant[] @relation("OwnerRestaurants")
+
+  // Restaurants decided by this user (ADMIN approves/rejects)
+  decidedRestaurants Restaurant[] @relation("RestaurantDecisionBy")
+
+  // Moderation actions performed by this user (ADMIN)
+  moderationActions UserModerationAction[] @relation("ModeratorActions")
+
+  // Moderation actions targeting this user
+  receivedModerationActions UserModerationAction[] @relation("TargetUserActions")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Restaurant {
+  id   String @id @default(uuid())
+  name String
+
+  ownerId Int
+  owner   User @relation("OwnerRestaurants", fields: [ownerId], references: [id])
+
+  status     RestaurantStatus @default(PENDING)
+  createdAt  DateTime         @default(now())
+  approvedAt DateTime?
+  rejectedAt DateTime?
+
+  decisionById Int?
+  decisionBy   User? @relation("RestaurantDecisionBy", fields: [decisionById], references: [id])
+
+  // Delivery zones: many-to-many
+  deliveryZones RestaurantDeliveryZone[]
+
+  @@index([status])
+  @@index([ownerId])
+}
+
+model UserModerationAction {
+  id String @id @default(uuid())
+
+  targetUserId Int
+  targetUser   User @relation("TargetUserActions", fields: [targetUserId], references: [id])
+
+  type   ModerationActionType
+  reason String?
+  until  DateTime?
+
+  moderatorId Int
+  moderator   User @relation("ModeratorActions", fields: [moderatorId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([targetUserId])
+  @@index([moderatorId])
+}
+
+model DeliveryZone {
+  id     String  @id @default(uuid())
+  code   String  @unique
+  name   String
+  active Boolean @default(true)
+
+  restaurantsLinks RestaurantDeliveryZone[]
+}
+
+model RestaurantDeliveryZone {
+  restaurantId String
+  zoneId       String
+  restaurant   Restaurant   @relation(fields: [restaurantId], references: [id])
+  zone         DeliveryZone @relation(fields: [zoneId], references: [id])
+
+  @@id([restaurantId, zoneId])
+  @@index([zoneId])
+}
+
+model Voucher {
+  id         String      @id @default(uuid())
+  code       String      @unique
+  type       VoucherType
+  value      Int // percent z.B. 5 oder fixed cents/euro-logic je nach Konzept
+  active     Boolean     @default(true)
+  validFrom  DateTime?
+  validTo    DateTime?
+  usageLimit Int?
+  usedCount  Int         @default(0)
+  createdAt  DateTime    @default(now())
+}
+
+model PlatformSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
 }
 
 enum Role {
   USER
   OWNER
   ADMIN
+}
+
+enum RestaurantStatus {
+  PENDING
+  ACTIVE
+  REJECTED
+  SUSPENDED
+}
+
+enum VoucherType {
+  PERCENT
+  FIXED
+}
+
+enum ModerationActionType {
+  WARN
+  SUSPEND
+  UNSUSPEND
 }
