@@ -1,0 +1,25 @@
+<div class="restaurant-list-container">
+  <h1>Restaurantübersicht</h1>
+
+  <app-restaurant-filter (filterChanged)="onFilterChange($event)"></app-restaurant-filter>
+
+  <div class="results-info" *ngIf="filteredRestaurants.length > 0">
+    <p>{{ filteredRestaurants.length }} Restaurant<span *ngIf="filteredRestaurants.length !== 1">s</span> gefunden</p>
+  </div>
+
+  <div *ngIf="filteredRestaurants.length > 0; else noResults" class="restaurants-grid">
+    <div *ngFor="let restaurant of filteredRestaurants" class="restaurant-card">
+      <a [routerLink]="[restaurant.id]" class="restaurant-link">
+        <h3>{{ restaurant.name }}</h3>
+        <p class="category">{{ restaurant.category }}</p>
+        <p class="rating">⭐ {{ restaurant.rating }}</p>
+      </a>
+    </div>
+  </div>
+
+  <ng-template #noResults>
+    <div class="no-results">
+      <p>Keine Restaurants gefunden. Versuche deine Filter anzupassen.</p>
+    </div>
+  </ng-template>
+</div>
