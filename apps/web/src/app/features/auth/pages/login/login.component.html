@@ -1,0 +1,80 @@
+<div class="login-page">
+  <main class="card" role="main" aria-label="Login">
+    <header class="header">
+      <h1 class="title">QuickFood</h1>
+      <p class="subtitle">Melde dich mit deinen Zugangsdaten an.</p>
+    </header>
+
+    <form class="form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <!-- Username -->
+      <div class="field">
+        <label class="label" for="username">Username</label>
+
+        <input
+          id="username"
+          class="input"
+          type="text"
+          formControlName="username"
+          autocomplete="username"
+          placeholder="username"
+          [attr.aria-invalid]="form.controls.username.touched && form.controls.username.invalid"
+          [attr.aria-describedby]="'username-hint username-error'"
+        />
+
+        <p id="username-hint" class="hint">Der Username ist im System eindeutig.</p>
+
+        <p
+          id="username-error"
+          class="error"
+          *ngIf="form.controls.username.touched && form.controls.username.invalid"
+        >
+          Username ist erforderlich.
+        </p>
+      </div>
+
+      <!-- Passwort -->
+      <div class="field">
+        <label class="label" for="password">Passwort</label>
+
+        <input
+          id="password"
+          class="input"
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          placeholder="Passwort"
+          [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid"
+          [attr.aria-describedby]="'password-error'"
+        />
+
+        <p
+          id="password-error"
+          class="error"
+          *ngIf="form.controls.password.touched && form.controls.password.invalid"
+        >
+          Passwort ist erforderlich.
+        </p>
+      </div>
+
+      <!-- Global Error -->
+      <div class="error-banner" role="alert" *ngIf="errorMessage">
+        <strong>Login fehlgeschlagen.</strong>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button
+          class="btn primary"
+          type="submit"
+          [disabled]="isSubmitting || form.invalid"
+        >
+          <span *ngIf="!isSubmitting">Anmelden</span>
+          <span *ngIf="isSubmitting">Anmelden…</span>
+        </button>
+
+
+      </div>
+    </form>
+  </main>
+</div>

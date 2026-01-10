@@ -29,12 +29,13 @@ export class AdminRestaurantsController {
 
   @Patch(':id/approve')
   async approve(@Param('id') id: string, @Req() req: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     return this.service.approve(id, req.user.sub);
   }
 
   @Patch(':id/reject')
   async reject(@Param('id') id: string, @Req() req: any) {
-  return this.service.reject(id, req.user.sub);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+    return this.service.reject(id, req.user.sub);
   }
 }

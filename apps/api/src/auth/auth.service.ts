@@ -14,9 +14,6 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { username } });
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    // Wenn eure Passwörter derzeit plaintext sind:
-    // - kurzfristig: plaintext check
-    // - langfristig: bcrypt hashes
     const isHashed = user.password.startsWith('$2');
     const ok = isHashed
       ? await bcrypt.compare(password, user.password)
