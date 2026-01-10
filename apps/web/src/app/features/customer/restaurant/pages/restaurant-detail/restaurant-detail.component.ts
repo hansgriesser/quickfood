@@ -4,8 +4,8 @@ import { RouterModule } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { RestaurantService } from '../../restaurant.service';
 import { ActivatedRoute } from '@angular/router';
-import { switchMap, map } from 'rxjs/operators';
-import { Restaurant } from '../../restaurant.model';
+import { switchMap, map, groupBy } from 'rxjs/operators';
+import { Dish, MenuCategory, Restaurant } from '../../restaurant.model';
 
 @Component({
   selector: 'app-restaurant-detail',
@@ -17,6 +17,14 @@ import { Restaurant } from '../../restaurant.model';
 export class RestaurantDetailComponent {
 
   restaurant$: Observable<Restaurant | null>;
+  categories$: Observable<MenuCategory[]> | undefined;
+
+  ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id')!;
+    this.restaurant$ = this.restaurantService.getRestaurantById(id);
+    this.categories$ = this.restaurantService.getCategoriesForRestaurant(id);
+  }
+
 
   constructor(private route: ActivatedRoute, private restaurantService: RestaurantService) {
     this.restaurant$ = this.route.paramMap.pipe(

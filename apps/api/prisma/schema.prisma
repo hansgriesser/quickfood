@@ -48,7 +48,7 @@ model Restaurant {
   contactEmail String?
   contactPhone String?
   category     String?
-  rating       Float?
+  rating       Float   @default(0)
 
   ownerId Int
   owner   User @relation("OwnerRestaurants", fields: [ownerId], references: [id])
@@ -63,72 +63,72 @@ model Restaurant {
 
   // Delivery zones: many-to-many
   deliveryZones RestaurantDeliveryZone[]
+  dishes        Dish[]
+  categories    MenuCategory[]
+  orders        Order[]
+  openingHours  RestaurantOpeningHour[]
 
   @@index([status])
   @@index([ownerId])
-  dishes Dish[]
-  categories MenuCategory[]
-  orders Order[]
-  openingHours RestaurantOpeningHour[]
 }
 
 model Dish {
-  id Int @id @default(autoincrement())
-  name String
-  description String
-  price BigInt
+  id           Int           @id @default(autoincrement())
+  name         String
+  description  String
+  price        BigInt
   restaurantId String
-  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
-  categoryId Int?
-  category MenuCategory? @relation(fields: [categoryId], references: [id])
-  pictureUrl String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orderItems OrderItem[]
+  restaurant   Restaurant    @relation(fields: [restaurantId], references: [id])
+  categoryId   Int?
+  category     MenuCategory? @relation(fields: [categoryId], references: [id])
+  pictureUrl   String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  orderItems   OrderItem[]
 }
 
 model MenuCategory {
-  id Int @id @default(autoincrement())
-  name String
-  sortOrder Int @default(0)
+  id           Int        @id @default(autoincrement())
+  name         String
+  sortOrder    Int        @default(0)
   restaurantId String
-  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
-  dishes Dish[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  dishes       Dish[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   @@unique([restaurantId, name])
   @@index([restaurantId])
 }
 
 model RestaurantOpeningHour {
-  id Int @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   restaurantId String
-  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
-  dayOfWeek Int
-  opensAt String
-  closesAt String
-  isClosed Boolean @default(false)
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  dayOfWeek    Int
+  opensAt      String
+  closesAt     String
+  isClosed     Boolean    @default(false)
 
   @@unique([restaurantId, dayOfWeek])
   @@index([restaurantId])
 }
 
 model Order {
-  id String @id @default(uuid())
-  restaurantId String
-  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
-  customerId Int
-  customer User @relation(fields: [customerId], references: [id])
-  status OrderStatus @default(PENDING)
-  subtotalAmount BigInt
-  discountAmount BigInt @default(0)
-  totalAmount BigInt
-  voucherId String?
-  voucher Voucher? @relation(fields: [voucherId], references: [id])
+  id                 String      @id @default(uuid())
+  restaurantId       String
+  restaurant         Restaurant  @relation(fields: [restaurantId], references: [id])
+  customerId         Int
+  customer           User        @relation(fields: [customerId], references: [id])
+  status             OrderStatus @default(PENDING)
+  subtotalAmount     BigInt
+  discountAmount     BigInt      @default(0)
+  totalAmount        BigInt
+  voucherId          String?
+  voucher            Voucher?    @relation(fields: [voucherId], references: [id])
   estimatedArrivalAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
 
   items OrderItem[]
 
@@ -138,16 +138,16 @@ model Order {
 }
 
 model OrderItem {
-  id Int @id @default(autoincrement())
-  orderId String
-  order Order @relation(fields: [orderId], references: [id])
-  dishId Int?
-  dish Dish? @relation(fields: [dishId], references: [id])
-  name String
-  unitPrice BigInt
-  quantity Int @default(1)
+  id         Int      @id @default(autoincrement())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id])
+  dishId     Int?
+  dish       Dish?    @relation(fields: [dishId], references: [id])
+  name       String
+  unitPrice  BigInt
+  quantity   Int      @default(1)
   totalPrice BigInt
-  createdAt DateTime @default(now())
+  createdAt  DateTime @default(now())
 
   @@index([orderId])
   @@index([dishId])

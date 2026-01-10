@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RestaurantFilterComponent, RestaurantFilter } from '../../components/restaurant-filter/restaurant-filter.component';
 import { RestaurantService } from '../../restaurant.service';
+import { Restaurant } from '../../restaurant.model';
 
 @Component({
   selector: 'app-restaurant-list',
@@ -14,17 +15,21 @@ import { RestaurantService } from '../../restaurant.service';
 })
 export class RestaurantListComponent {
   
-  allRestaurants: any[] = [];
-  filteredRestaurants: any[] = [];
+  allRestaurants: Restaurant[] = [];
+  filteredRestaurants: Restaurant[] = [];
 
   private sub = new Subscription();
 
-  constructor(private restaurantService: RestaurantService) {}
+  constructor(
+    private restaurantService: RestaurantService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void{
     const s = this.restaurantService.getRestaurants().subscribe(restaurants => {
       this.allRestaurants = restaurants || [];
-      this.filteredRestaurants = [...this.allRestaurants]
+      this.filteredRestaurants = [...this.allRestaurants];
+      this.cdr.detectChanges();
     });
     this.sub.add(s);
   }
@@ -36,7 +41,7 @@ export class RestaurantListComponent {
         .toLowerCase()
         .includes(filter.searchTerm.toLowerCase());
       
-      const matchesCategory = !filter.category || restaurant.category === filter.category;
+      const matchesCategory = !filter.category || restaurant.category?.toLowerCase() === filter.category.toLowerCase();
       const matchesRating = restaurant.rating >= filter.minRating;
 
       return matchesSearch && matchesCategory && matchesRating;
