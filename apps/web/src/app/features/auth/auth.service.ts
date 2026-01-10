@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { firstValueFrom } from "rxjs";
 import { LoginRequest, LoginResponse } from "./auth-model";
+import { decodeJWT } from "./jwt.util";
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -23,5 +24,13 @@ export class AuthService {
 
     logout(): void {
         localStorage.removeItem(this.tokenKey);
+    }
+
+    getUserRole(): 'USER' | 'OWNER' | 'ADMIN' | null {
+        const token = this.getToken();
+        if (!token) return null;
+
+        const payload = decodeJWT(token);
+        return payload?.role || null;
     }
 }

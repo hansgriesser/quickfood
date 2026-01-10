@@ -10,4 +10,3 @@ export class AuthController {
     return this.auth.login(body.username, body.password);
   }
 }
-

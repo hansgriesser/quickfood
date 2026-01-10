@@ -11,6 +11,9 @@ export const routes: Routes = [
         path: 'restaurants', loadChildren: () => import('./features/customer/restaurant/restaurant-module').then(m => m.RestaurantModule)
     },
     {
+         path: 'admin', loadChildren: () => import('./features/admin/admin-module').then(m => m.AdminModule)
+    },
+    {
         path:'**', redirectTo: 'restaurants'
     }
 ];

@@ -51,7 +51,23 @@ export class LoginComponent {
             const { username, password } = this.form.getRawValue();
             await this.auth.login({ username, password });
 
-            await this.router.navigateByUrl('/restaurants');
+            const role = this.auth.getUserRole();
+
+
+            switch (role) {
+                case 'ADMIN':
+                    await this.router.navigate(['/admin']);
+                    break;
+                case 'USER':
+                    await this.router.navigate(['/restaurants']);
+                    break;
+                case 'OWNER':
+                    await this.router.navigate(['/restaurants']);
+                    break;
+                default:
+                    await this.router.navigate(['/']);
+            }
+
         } catch (e: any) {
             this.errorMessage = e?.error?.message || 'Login failed';
         } finally {
