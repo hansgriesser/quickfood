@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: quickfood-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: quickfood
+      POSTGRES_PASSWORD: quickfood
+      POSTGRES_DB: quickfood
+    ports:
+      - "5432:5432"
+    volumes:
+      - quickfood_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quickfood -d quickfood"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  quickfood_pgdata:

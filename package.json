@@ -24,5 +24,9 @@
   "homepage": "https://github.com/hansgriesser/quickfood#readme",
   "devDependencies": {
     "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "@prisma/adapter-ppg": "^7.2.0",
+    "@prisma/ppg": "^1.0.1"
   }
 }

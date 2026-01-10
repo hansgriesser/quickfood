@@ -1,0 +1,11 @@
+ <section *ngIf="restaurant$ | async as restaurant">
+  <nav>
+    <a routerLink="/restaurants">← Zurück zur Liste</a>
+  </nav>
+
+  <header class="restaurant-header">
+      <h1>{{ restaurant.name }}</h1>
+      <p class="category">{{restaurant.category }}</p>
+      <p class="rating">Bewertung: {{ restaurant.rating }} / 5</p>
+  </header>
+</section>

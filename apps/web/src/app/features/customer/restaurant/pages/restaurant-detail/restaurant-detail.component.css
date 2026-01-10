@@ -1,0 +1,83 @@
+/* clean, card-like styling matching list page */
+:host {
+  display: block;
+  padding: 16px;
+}
+
+section {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 18px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(16, 24, 40, 0.06);
+  color: #111827;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+nav a {
+  display: inline-block;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+nav a:hover {
+  text-decoration: underline;
+}
+
+.restaurant-header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  border-bottom: 1px solid #eef2f7;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.restaurant-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  color: #0f172a;
+}
+
+.restaurant-header img.restaurant-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+  background: #f3f4f6;
+}
+
+.restaurant-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.category {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.rating {
+  margin: 0;
+  color: #111827;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* responsive */
+@media (max-width: 600px) {
+  .restaurant-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .restaurant-header img.restaurant-image {
+    width: 100%;
+    height: 180px;
+  }
+}

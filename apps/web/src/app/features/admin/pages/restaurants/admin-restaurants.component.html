@@ -1,0 +1,44 @@
+<div class="page">
+  <header class="header">
+    <div>
+      <h1>Restaurants</h1>
+      <p class="subtitle">Review & Freigabe basierend auf Backend-Status.</p>
+    </div>
+
+    <div class="controls">
+      <a class="link" routerLink="/admin">← Zur Übersicht</a>
+
+      <label class="filter">
+        Status:
+        <select [ngModel]="selected"
+                (ngModelChange)="onStatusChange($event)">
+          <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <div class="error" *ngIf="error">{{ error }}</div>
+  <div *ngIf="loading">Lade…</div>
+
+  <table class="table" *ngIf="!loading">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Status</th>
+        <th>Aktion</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of restaurants">
+        <td>{{ r.name }}</td>
+        <td>{{ r.status }}</td>
+        <td>
+          <button *ngIf="r.status === 'PENDING'" (click)="approve(r)">Approve</button>
+          <button *ngIf="r.status === 'PENDING'" (click)="reject(r)">Reject</button>
+          <span *ngIf="r.status !== 'PENDING'">–</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
