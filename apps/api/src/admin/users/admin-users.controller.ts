@@ -24,6 +24,7 @@ export class AdminUsersController {
     @Req() req: any,
     @Body('reason') reason?: string,
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     return this.service.warn(userId, req.user.sub, reason);
   }
 
@@ -34,11 +35,13 @@ export class AdminUsersController {
     @Body('until') until?: string,
     @Body('reason') reason?: string,
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     return this.service.suspend(userId, req.user.sub, until, reason);
   }
 
   @Post(':id/unsuspend')
   unsuspend(@Param('id', ParseIntPipe) userId: number, @Req() req: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     return this.service.unsuspend(userId, req.user.sub);
   }
 }

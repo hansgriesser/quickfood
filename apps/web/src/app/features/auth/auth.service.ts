@@ -1,0 +1,27 @@
+import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { firstValueFrom } from "rxjs";
+import { LoginRequest, LoginResponse } from "./auth-model";
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+    private readonly tokenKey = 'qf_access_token';
+
+    constructor(private http: HttpClient) {}
+
+    async login(req: LoginRequest): Promise<LoginResponse> {
+        const url = '/api/auth/login';
+        
+        const res = await firstValueFrom(this.http.post<LoginResponse>(url, req));
+        localStorage.setItem(this.tokenKey, res.access_token);
+        return res;
+    }
+
+    getToken(): string | null {
+        return localStorage.getItem(this.tokenKey);
+    }
+
+    logout(): void {
+        localStorage.removeItem(this.tokenKey);
+    }
+}
