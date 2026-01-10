@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminRoutingModule } from './admin-routing-module';
-import { AdminDashboardComponent } from './pages/dashboard/admin-dashboard.component';
+import { AdminOverviewComponent} from './pages/overview/admin-overview.component';
 
 @NgModule({
-  imports: [CommonModule, AdminRoutingModule, AdminDashboardComponent],
+  imports: [CommonModule, AdminRoutingModule, AdminOverviewComponent],
 })
 export class AdminModule {}

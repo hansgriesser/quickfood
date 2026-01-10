@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AdminDashboardComponent } from './pages/dashboard/admin-dashboard.component';
+import { AdminOverviewComponent } from './pages/overview/admin-overview.component';
+import { AdminRestaurantsComponent } from './pages/restaurants/admin-restaurants.components';
 
 const routes: Routes = [
-  { path: '', component: AdminDashboardComponent }, // /admin
+  { path: '', component: AdminOverviewComponent },
+  { path: 'restaurants', component: AdminRestaurantsComponent },
 ];
 
 @NgModule({

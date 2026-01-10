@@ -61,7 +61,7 @@ export class LoginComponent {
                 case 'USER':
                     await this.router.navigate(['/restaurants']);
                     break;
-                case 'OWNER':
+                case 'OWNER': 
                     await this.router.navigate(['/restaurants']);
                     break;
                 default:
