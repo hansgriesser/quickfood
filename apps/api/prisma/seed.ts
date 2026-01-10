@@ -1,8 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { config } from 'dotenv';
 import { join } from 'path';
 config({ path: join(process.cwd(), '.env') }); // Load .env from the api folder
 
 import {
+  MenuCategory,
   PrismaClient,
   Restaurant,
   RestaurantStatus,
@@ -188,6 +194,93 @@ async function main() {
       value: 200,
     },
   });
+
+  const restaurantIds = [
+    'ba0cac90-9aa9-48d8-bf1e-77c788f5367c',
+    '55413e9a-3bd5-41cb-b594-fd6d22c2e5c1',
+  ];
+
+  // MenuCategories
+  const categoriesData = [
+    // Kategorien für erstes Restaurant
+    { name: 'Vorspeisen', sortOrder: 1, restaurantId: restaurantIds[0] },
+    { name: 'Hauptgerichte', sortOrder: 2, restaurantId: restaurantIds[0] },
+    { name: 'Salate', sortOrder: 3, restaurantId: restaurantIds[0] },
+    { name: 'Desserts', sortOrder: 4, restaurantId: restaurantIds[0] },
+
+    // Kategorien für zweites Restaurant
+    { name: 'Vorspeisen', sortOrder: 1, restaurantId: restaurantIds[1] },
+    { name: 'Hauptgerichte', sortOrder: 2, restaurantId: restaurantIds[1] },
+    { name: 'Salate', sortOrder: 3, restaurantId: restaurantIds[1] },
+    { name: 'Desserts', sortOrder: 4, restaurantId: restaurantIds[1] },
+  ];
+
+  // Kategorien in DB einfügen
+  const categories: MenuCategory[] = [];
+  for (const cat of categoriesData) {
+    const created = await prisma.menuCategory.create({
+      data: cat,
+    });
+    categories.push(created);
+  }
+
+  // Hilfsfunktion: Kategorie nach Name und RestaurantId finden
+  const getCategoryId = (restaurantId: string, name: string) => {
+    return categories.find(
+      (c) => c.restaurantId === restaurantId && c.name === name,
+    )?.id;
+  };
+
+  // Dishes
+  const dishes = [
+    {
+      name: 'Margherita Pizza',
+      description:
+        'Klassische Pizza mit Tomatensauce, Mozzarella und Basilikum',
+      price: BigInt(899),
+      restaurantId: restaurantIds[0],
+      categoryId: getCategoryId(restaurantIds[0], 'Hauptgerichte'),
+      pictureUrl: 'https://example.com/margherita.jpg',
+    },
+    {
+      name: 'Spaghetti Carbonara',
+      description: 'Spaghetti mit cremiger Sauce, Speck und Parmesan',
+      price: BigInt(1299),
+      restaurantId: restaurantIds[0],
+      categoryId: getCategoryId(restaurantIds[0], 'Hauptgerichte'),
+      pictureUrl: 'https://example.com/carbonara.jpg',
+    },
+    {
+      name: 'Caesar Salad',
+      description: 'Frischer Salat mit Hähnchen, Croutons und Caesar-Dressing',
+      price: BigInt(799),
+      restaurantId: restaurantIds[1],
+      categoryId: getCategoryId(restaurantIds[1], 'Salate'),
+      pictureUrl: 'https://example.com/caesar.jpg',
+    },
+    {
+      name: 'Cheeseburger',
+      description: 'Saftiger Burger mit Käse, Salat, Tomate und Zwiebeln',
+      price: BigInt(1099),
+      restaurantId: restaurantIds[1],
+      categoryId: getCategoryId(restaurantIds[1], 'Hauptgerichte'),
+      pictureUrl: 'https://example.com/cheeseburger.jpg',
+    },
+    {
+      name: 'Sushi Platte',
+      description: 'Gemischte Sushi Platte mit Lachs, Thunfisch und Avocado',
+      price: BigInt(1599),
+      restaurantId: restaurantIds[0],
+      categoryId: getCategoryId(restaurantIds[0], 'Hauptgerichte'),
+      pictureUrl: 'https://example.com/sushi.jpg',
+    },
+  ];
+
+  for (const dish of dishes) {
+    await prisma.dish.create({
+      data: dish,
+    });
+  }
 
   console.log('Seed done:', {
     admin: { id: admin.id, username: admin.username },

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
@@ -6,7 +8,7 @@ import { Pool } from 'pg';
 @Injectable()
 export class PrismaService extends PrismaClient {
   constructor() {
-    const url = process.env.DATABASE_URL
+    const url = process.env.DATABASE_URL;
     if (!url) {
       throw new Error(
         'DATABASE_URL is not set (load your .env before Nest starts)',
@@ -21,7 +23,7 @@ export class PrismaService extends PrismaClient {
       );
     }
 
-    const pool = new Pool({ connectionString: url })
+    const pool = new Pool({ connectionString: url });
     super({ adapter: new PrismaPg(pool) });
   }
 }
