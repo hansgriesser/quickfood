@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -8,9 +7,7 @@ import { join } from 'path';
 config({ path: join(process.cwd(), '.env') }); // Load .env from the api folder
 
 import {
-  MenuCategory,
   PrismaClient,
-  Restaurant,
   RestaurantStatus,
   Role,
   VoucherType,
@@ -93,8 +90,8 @@ async function main() {
     { name: 'Kaffee K\u00f6nig', category: 'fast-food', rating: 3.8 },
     { name: 'Sushi Palace', category: 'asian', rating: 4.7 },
     { name: 'Taco Fiesta', category: 'mexican', rating: 4.1 },
-    { name: 'Sushi World', category: 'Japanisch', rating: 4.8 },
-    { name: 'Pasta Haus', category: 'Italienisch', rating: 4.5 },
+    { name: 'Sushi World', category: 'japan', rating: 4.8 },
+    { name: 'Pasta Haus', category: 'italian', rating: 4.5 },
   ];
 
   for (const restaurant of mockRestaurants) {
@@ -216,13 +213,27 @@ async function main() {
   ];
 
   // Kategorien in DB einfügen
-  const categories: MenuCategory[] = [];
-  for (const cat of categoriesData) {
-    const created = await prisma.menuCategory.create({
-      data: cat,
-    });
-    categories.push(created);
+  for (const restaurantId of restaurantIds) {
+    for (const category of categoriesData) {
+      await prisma.menuCategory.upsert({
+        where: {
+          restaurantId_name: {
+            restaurantId,
+            name: category.name,
+          },
+        },
+        update: {
+          sortOrder: category.sortOrder,
+        },
+        create: {
+          restaurantId,
+          name: category.name,
+          sortOrder: category.sortOrder,
+        },
+      });
+    }
   }
+  const categories = await prisma.menuCategory.findMany();
 
   // Hilfsfunktion: Kategorie nach Name und RestaurantId finden
   const getCategoryId = (restaurantId: string, name: string) => {
@@ -275,6 +286,12 @@ async function main() {
       pictureUrl: 'https://example.com/sushi.jpg',
     },
   ];
+
+  for (const restaurantId of restaurantIds) {
+    await prisma.dish.deleteMany({
+      where: { restaurantId },
+    });
+  }
 
   for (const dish of dishes) {
     await prisma.dish.create({
