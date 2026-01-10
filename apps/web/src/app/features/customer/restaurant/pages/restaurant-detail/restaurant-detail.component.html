@@ -1,11 +1,64 @@
- <section *ngIf="restaurant$ | async as restaurant">
+<section *ngIf="restaurant$ | async as restaurant; else loading">
+
+  <!-- Zurück-Link -->
   <nav>
     <a routerLink="/restaurants">← Zurück zur Liste</a>
   </nav>
 
+  <!-- Header -->
   <header class="restaurant-header">
-      <h1>{{ restaurant.name }}</h1>
-      <p class="category">{{restaurant.category }}</p>
-      <p class="rating">Bewertung: {{ restaurant.rating }} / 5</p>
+    <h1>{{ restaurant.name }}</h1>
+
+    <p class="category" *ngIf="restaurant.category">
+      {{ restaurant.category }}
+    </p>
+
+    <p class="rating">
+      Bewertung: {{ restaurant.rating }} / 5
+    </p>
+
+    <p *ngIf="restaurant.contactEmail">
+      E-Mail: {{ restaurant.contactEmail }}
+    </p>
+
+    <p *ngIf="restaurant.contactPhone">
+      Telefon: {{ restaurant.contactPhone }}
+    </p>
+
+    <p *ngIf="restaurant.address">
+      Adresse: {{ restaurant.address }}
+    </p>
+
+    <a *ngIf="restaurant.address"
+       [href]="'https://www.google.com/maps/search/?api=1&query=' + restaurant.address"
+       target="_blank">
+      In Google Maps öffnen
+    </a>
   </header>
+
+  <!-- Speisekarte -->
+  <section class="menu" *ngIf="categories$ | async as categories; else loading">
+    <h2>Speisekarte</h2>
+
+    <!-- Kategorien -->
+    <div *ngFor="let category of categories">
+      <h3>{{ category.name }}</h3>
+
+      <ul *ngIf="category.dishes?.length">
+        <li *ngFor="let dish of category.dishes">
+          <strong>{{ dish.name }}</strong>
+          – {{ dish.price / 100 | currency:'EUR' }}
+
+          <p *ngIf="dish.description">
+            {{ dish.description }}
+          </p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
 </section>
+
+<ng-template #loading>
+  <p>Lade Restaurant…</p>
+</ng-template>
