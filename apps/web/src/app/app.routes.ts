@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from './core/guards/admin.guard';
+
 
 export const routes: Routes = [
     {
@@ -11,7 +13,7 @@ export const routes: Routes = [
         path: 'restaurants', loadChildren: () => import('./features/customer/restaurant/restaurant-module').then(m => m.RestaurantModule)
     },
     {
-         path: 'admin', loadChildren: () => import('./features/admin/admin-module').then(m => m.AdminModule)
+         path: 'admin',canActivate:[adminGuard], loadChildren: () => import('./features/admin/admin-module').then(m => m.AdminModule)
     },
     {
         path:'**', redirectTo: 'restaurants'
