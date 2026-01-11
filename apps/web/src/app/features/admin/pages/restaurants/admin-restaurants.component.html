@@ -1,44 +1,132 @@
-<div class="page">
-  <header class="header">
+<div class="admin-page">
+  <header class="admin-header">
     <div>
-      <h1>Restaurants</h1>
-      <p class="subtitle">Review & Freigabe basierend auf Backend-Status.</p>
+      <h1 class="admin-title">Restaurants</h1>
+      <p class="admin-subtitle">Freigeben oder ablehnen von Restaurant-Anfragen.</p>
     </div>
 
-    <div class="controls">
-      <a class="link" routerLink="/admin">← Zur Übersicht</a>
+    <div class="admin-actions">
+      <a class="admin-link" routerLink="/admin">← Zur Übersicht</a>
+      <button class="admin-btn" (click)="load()">Refresh</button>
+    </div>
+  </header>
 
-      <label class="filter">
+  <div class="admin-alert admin-alert-error" *ngIf="error">{{ error }}</div>
+  <div class="admin-alert" *ngIf="loading">Lade Restaurants…</div>
+
+  <section class="admin-panel" *ngIf="!loading">
+    <div class="admin-filters">
+      <label class="admin-filter">
         Status:
-        <select [ngModel]="selected"
+        <select class="admin-select"
+                [ngModel]="selected"
                 (ngModelChange)="onStatusChange($event)">
           <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
         </select>
       </label>
     </div>
-  </header>
 
-  <div class="error" *ngIf="error">{{ error }}</div>
-  <div *ngIf="loading">Lade…</div>
+    <div class="admin-panel-inner admin-muted" *ngIf="restaurants.length === 0">
+      Keine Restaurants gefunden.
+    </div>
 
-  <table class="table" *ngIf="!loading">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Status</th>
-        <th>Aktion</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let r of restaurants">
-        <td>{{ r.name }}</td>
-        <td>{{ r.status }}</td>
-        <td>
-          <button *ngIf="r.status === 'PENDING'" (click)="approve(r)">Approve</button>
-          <button *ngIf="r.status === 'PENDING'" (click)="reject(r)">Reject</button>
-          <span *ngIf="r.status !== 'PENDING'">–</span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+    <div class="admin-table-wrap" *ngIf="restaurants.length > 0">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="width: 90px">ID</th>
+            <th>Name</th>
+            <th style="width: 130px">Status</th>
+            <th style="width: 220px">Owner</th>
+            <th style="width: 240px">Aktionen</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let r of restaurants">
+            <td>{{ r.id }}</td>
+
+            <td>
+              <div class="cell-title">{{ r.name }}</div>
+              <div class="cell-sub admin-muted">Restaurant #{{ r.id }}</div>
+            </td>
+
+            <td>
+              <span class="admin-badge"
+                    [class.admin-badge-danger]="r.status === 'REJECTED'">
+                {{ r.status }}
+              </span>
+            </td>
+
+            <td class="admin-muted">
+              {{ r.owner?.username || '—' }}
+            </td>
+
+            <td>
+              <div class="action-row" *ngIf="r.status === 'PENDING'">
+                <button
+                  class="admin-btn admin-btn-primary"
+                  type="button"
+                  (click)="openRestaurantDecisionModal(r, 'APPROVE')"
+                >
+                  Accept
+                </button>
+
+                <button
+                  class="admin-btn admin-btn-danger"
+                  type="button"
+                  (click)="openRestaurantDecisionModal(r, 'REJECT')"
+                >
+                  Decline
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="admin-modal-overlay" *ngIf="restaurantDecisionModalOpen">
+    <div class="admin-modal" role="dialog" aria-modal="true" aria-label="Restaurant decision">
+      <div class="admin-modal-header">
+        <div>
+          <div class="admin-modal-title">
+            {{ restaurantDecision === 'APPROVE' ? 'Accept Restaurant' : 'Decline Restaurant' }}
+          </div>
+          <div class="admin-modal-sub">
+            Ziel: <strong>{{ modalRestaurant?.name }}</strong> (ID {{ modalRestaurant?.id }})
+          </div>
+        </div>
+
+        <button class="admin-icon-btn" (click)="closeRestaurantDecisionModal()" title="Close">✕</button>
+      </div>
+
+      <div class="admin-modal-body">
+        <div class="admin-alert" *ngIf="restaurantDecision === 'APPROVE'">
+          Diese Aktion aktiviert das Restaurant.
+        </div>
+
+        <div class="admin-alert admin-alert-error" *ngIf="restaurantDecision === 'REJECT'">
+          Diese Aktion lehnt das Restaurant ab.
+        </div>
+
+        <div class="admin-alert admin-alert-error" *ngIf="restaurantModalError">
+          {{ restaurantModalError }}
+        </div>
+      </div>
+
+      <div class="admin-modal-footer">
+        <button class="admin-btn admin-btn-ghost" (click)="closeRestaurantDecisionModal()">Cancel</button>
+
+        <button class="admin-btn"
+                [class.admin-btn-primary]="restaurantDecision === 'APPROVE'"
+                [class.admin-btn-danger]="restaurantDecision === 'REJECT'"
+                [disabled]="restaurantModalSubmitting"
+                (click)="confirmRestaurantDecision()">
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

@@ -192,26 +192,18 @@ async function main() {
     },
   });
 
-  const restaurantIds = [activeRestaurant.id, pendingRestaurant.id];
+  const restaurantIds = [pendingRestaurant.id, activeRestaurant.id];
 
-  // MenuCategories
-  const categoriesData = [
-    // Kategorien für erstes Restaurant
-    { name: 'Vorspeisen', sortOrder: 1, restaurantId: restaurantIds[0] },
-    { name: 'Hauptgerichte', sortOrder: 2, restaurantId: restaurantIds[0] },
-    { name: 'Salate', sortOrder: 3, restaurantId: restaurantIds[0] },
-    { name: 'Desserts', sortOrder: 4, restaurantId: restaurantIds[0] },
-
-    // Kategorien für zweites Restaurant
-    { name: 'Vorspeisen', sortOrder: 1, restaurantId: restaurantIds[1] },
-    { name: 'Hauptgerichte', sortOrder: 2, restaurantId: restaurantIds[1] },
-    { name: 'Salate', sortOrder: 3, restaurantId: restaurantIds[1] },
-    { name: 'Desserts', sortOrder: 4, restaurantId: restaurantIds[1] },
+  // MenuCategories: pro Restaurant identische Kategorien
+  const baseCategories = [
+    { name: 'Vorspeisen', sortOrder: 1 },
+    { name: 'Hauptgerichte', sortOrder: 2 },
+    { name: 'Salate', sortOrder: 3 },
+    { name: 'Desserts', sortOrder: 4 },
   ];
 
-  // Kategorien in DB einfügen
   for (const restaurantId of restaurantIds) {
-    for (const category of categoriesData) {
+    for (const category of baseCategories) {
       await prisma.menuCategory.upsert({
         where: {
           restaurantId_name: {
@@ -230,6 +222,7 @@ async function main() {
       });
     }
   }
+
   const categories = await prisma.menuCategory.findMany();
 
   // Hilfsfunktion: Kategorie nach Name und RestaurantId finden
