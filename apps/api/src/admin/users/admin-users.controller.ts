@@ -5,6 +5,8 @@ import {
   ParseIntPipe,
   Body,
   UseGuards,
+  Get,
+  Query,
 } from '@nestjs/common';
 import { Roles } from '../../auth/roles.decorator';
 import { RolesGuard } from '../../auth/roles.guard';
@@ -17,6 +19,17 @@ import { Req } from '@nestjs/common';
 @Roles('ADMIN')
 export class AdminUsersController {
   constructor(private readonly service: AdminUsersService) {}
+
+  @Get()
+  list(
+    @Query('role') role?: 'USER' | 'OWNER' | 'ADMIN',
+    @Query('suspemded') suspended?: 'true' | 'false',
+  ) {
+    const suspemdedBool =
+      suspended === undefined ? undefined : suspended === 'true';
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
+    return this.service.list(role, suspemdedBool);
+  }
 
   @Post(':id/warn')
   warn(

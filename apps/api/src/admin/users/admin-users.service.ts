@@ -1,9 +1,30 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
+type Role = 'USER' | 'OWNER' | 'ADMIN';
+
 @Injectable()
 export class AdminUsersService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async list(role?: Role, suspended?: boolean) {
+    return this.prisma.user.findMany({
+      where: {
+        ...(role ? { role } : {}),
+        ...(suspended !== undefined ? { isSuspended: suspended } : {}),
+      },
+      select: {
+        id: true,
+        username: true,
+        role: true,
+        isSuspended: true,
+        suspendedUntil: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: { id: 'asc' },
+    });
+  }
 
   async warn(userId: number, moderatorId: number, reason?: string) {
     await this.ensureUserExists(userId);
