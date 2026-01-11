@@ -1,0 +1,20 @@
+.page { padding: 24px; max-width: 1200px; margin: 0 auto; }
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.subtitle { margin: 6px 0 0 0; color: #666; }
+
+.controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.link { text-decoration: none; }
+
+.filter { display: inline-flex; align-items: center; gap: 8px; }
+
+.error { padding: 10px 12px; border: 1px solid #f2b8b5; background: #fff3f3; border-radius: 10px; margin: 12px 0; }
+
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { border-bottom: 1px solid #eee; padding: 10px; vertical-align: top; }
+.table th { text-align: left; color: #333; font-weight: 600; }
+
+.actions { width: 520px; }
+.row { display: flex; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.input { padding: 8px 10px; border: 1px solid #ddd; border-radius: 10px; min-width: 200px; }
+button { padding: 8px 12px; border-radius: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
+button:hover { background: #f7f7f7; }

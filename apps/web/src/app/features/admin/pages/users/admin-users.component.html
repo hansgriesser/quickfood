@@ -1,0 +1,79 @@
+<div class="page">
+  <header class="header">
+    <div>
+      <h1>Users</h1>
+      <p class="subtitle">Warn / Suspend / Unsuspend (Admin).</p>
+    </div>
+
+    <div class="controls">
+      <a class="link" routerLink="/admin">← Zur Übersicht</a>
+
+      <label class="filter">
+        Role:
+        <select [ngModel]="selectedRole" (ngModelChange)="selectedRole = $event; onFilterChange()">
+          <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+        </select>
+      </label>
+
+      <label class="filter">
+        Suspended:
+        <select [ngModel]="selectedSuspended" (ngModelChange)="selectedSuspended = $event; onFilterChange()">
+          <option *ngFor="let f of suspendedFilters" [value]="f">{{ f }}</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <div class="error" *ngIf="error">{{ error }}</div>
+  <div *ngIf="loading">Lade…</div>
+
+  <table class="table" *ngIf="!loading">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Suspended</th>
+        <th>Until</th>
+        <th class="actions">Aktionen</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let u of users">
+        <td>{{ u.id }}</td>
+        <td>{{ u.username }}</td>
+        <td>{{ u.role }}</td>
+        <td>{{ u.isSuspended ? 'YES' : 'NO' }}</td>
+        <td>{{ u.suspendedUntil ? (u.suspendedUntil | date:'short') : '—' }}</td>
+
+        <td class="actions">
+          <div class="row">
+            <input
+              class="input"
+              placeholder="Warn reason (optional)"
+              [(ngModel)]="warnReason[u.id]"
+            />
+            <button (click)="warn(u)">Warn</button>
+          </div>
+
+          <div class="row">
+            <input
+              class="input"
+              type="datetime-local"
+              [(ngModel)]="suspendUntil[u.id]"
+              title="Suspend until (optional)"
+            />
+            <input
+              class="input"
+              placeholder="Suspend reason (optional)"
+              [(ngModel)]="suspendReason[u.id]"
+            />
+            <button (click)="suspend(u)">Suspend</button>
+            <button *ngIf="u.isSuspended" (click)="unsuspend(u)">Unsuspend</button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
