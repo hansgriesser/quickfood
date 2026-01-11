@@ -71,6 +71,7 @@ export class AdminUsersComponent {
     }
 
     openUserActionModal(u: AdminUser): void {
+        if(u.role === 'ADMIN') return;
         this.modalUser = u;
         this.modalAction = 'WARN';
         this.modalReason = '';

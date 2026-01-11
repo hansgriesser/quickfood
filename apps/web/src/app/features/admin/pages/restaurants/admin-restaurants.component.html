@@ -63,20 +63,22 @@
             </td>
 
             <td>
-              <div class="action-row">
-                <button class="admin-btn admin-btn-primary"
-                        (click)="openRestaurantDecisionModal(r, 'APPROVE')">
+              <div class="action-row" *ngIf="r.status === 'PENDING'">
+                <button
+                  class="admin-btn admin-btn-primary"
+                  type="button"
+                  (click)="openRestaurantDecisionModal(r, 'APPROVE')"
+                >
                   Accept
                 </button>
 
-                <button class="admin-btn admin-btn-danger"
-                        (click)="openRestaurantDecisionModal(r, 'REJECT')">
+                <button
+                  class="admin-btn admin-btn-danger"
+                  type="button"
+                  (click)="openRestaurantDecisionModal(r, 'REJECT')"
+                >
                   Decline
                 </button>
-              </div>
-
-              <div class="cell-sub admin-muted" *ngIf="r.status !== 'PENDING'">
-                Bereits entschieden
               </div>
             </td>
           </tr>

@@ -77,21 +77,33 @@
 
             <td>
               <div class="action-row">
-                <button class="admin-btn admin-btn-primary"
-                        (click)="openUserActionModal(u)"
-                        title="Moderationsaktion (Warn/Suspend)">
+                <button
+                  class="admin-btn admin-btn-primary"
+                  type="button"
+                  (click)="openUserActionModal(u)"
+                  [disabled]="u.role === 'ADMIN'"
+                  [title]="u.role === 'ADMIN' ? 'Admins können nicht moderiert werden.' : 'Moderationsaktion (Warn/Suspend)'"
+                >
                   Moderate
                 </button>
 
-                <button class="admin-btn admin-btn-danger"
-                        (click)="unsuspend(u)"
-                        [disabled]="!u.isSuspended">
+                <button
+                  class="admin-btn admin-btn-danger"
+                  type="button"
+                  (click)="unsuspend(u)"
+                  [disabled]="u.role === 'ADMIN' || !u.isSuspended"
+                  [title]="u.role === 'ADMIN' ? 'Admins können nicht entsperrt/gesperrt werden.' : (!u.isSuspended ? 'User ist nicht gesperrt.' : 'User entsperren')"
+                >
                   Unsuspend
                 </button>
               </div>
 
-              <div class="cell-sub admin-muted">
+              <div class="cell-sub admin-muted" *ngIf="u.role !== 'ADMIN'">
                 Moderate öffnet Warn/Suspend Dialog.
+              </div>
+
+              <div class="cell-sub admin-muted" *ngIf="u.role === 'ADMIN'">
+                Admin-Account ist geschützt.
               </div>
             </td>
           </tr>
