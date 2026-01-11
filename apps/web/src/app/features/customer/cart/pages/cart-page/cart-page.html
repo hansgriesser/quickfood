@@ -1,0 +1,38 @@
+<section class="cart-page" *ngIf="cartItems$ | async as items; else emptyCart">
+  <h2>Dein Warenkorb</h2>
+
+  <div class="cart-item-card" *ngFor="let item of items">
+  
+    <img *ngIf="item.pictureUrl" [src]="item.pictureUrl" class="dish-image">
+
+    <div class="item-info">
+        <h3>{{ item.name }}</h3>
+        <p>Preis: {{ item.price / 100 | currency:'EUR' }}</p>
+
+        <div class="quantity-control">
+        <button (click)="decreaseQuantity(item.dishId)">-</button>
+        <span>{{ item.quantity }}</span>
+        <button (click)="increaseQuantityInCart(item)">+</button>
+        </div>
+    </div>
+
+    <button class="remove-button" (click)="removeItem(item.dishId)">×</button>
+  </div>
+
+  <ng-container *ngIf="cartSummary$ | async as summary">
+    <div class="cart-summary">
+        <p>Subtotal: {{ summary.subtotal / 100 | currency:'EUR' }}</p>
+        <p>Service Fee: {{ summary.fee / 100 | currency:'EUR' }}</p>
+        <p><strong>Gesamt: {{ summary.total / 100 | currency:'EUR' }}</strong></p>
+    </div>
+  </ng-container>
+
+
+</section>
+
+<ng-template #emptyCart>
+  <p>Dein Warenkorb ist leer.</p>
+</ng-template>
+
+<!-- Fixierter Bestellen-Button -->
+<button class="checkout-button" (click)="placeOrder()">Bestellen</button>

@@ -7,6 +7,9 @@
   <!-- Zurück-Link -->
   <nav>
     <a routerLink="/restaurants">← Zurück zur Liste</a>
+    <a routerLink="/cart" class="cart-indicator">
+      🛒 {{ (cartItems$ | async)?.length || 0 }}
+    </a>
   </nav>
 
   <!-- Header -->
@@ -64,7 +67,7 @@
         </div>
 
         <!-- Add-Button -->
-        <button class="add-button" aria-label="Zum Warenkorb hinzufügen">
+        <button class="add-button" aria-label="Zum Warenkorb hinzufügen" (click)="addToCart(dish)">
           +
         </button>
       </div>
@@ -73,6 +76,8 @@
 </section>
 
 <!-- Fixierter Warenkorb-Button -->
-<button class="cart-button">
+<ng-container *ngIf="cartItems$ | async as items">
+  <button class="cart-button" routerLink="/cart" *ngIf="items.length > 0">
   🛒 Zum Einkaufswagen
 </button>
+</ng-container>

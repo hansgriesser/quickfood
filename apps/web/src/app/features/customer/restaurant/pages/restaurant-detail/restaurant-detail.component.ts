@@ -6,6 +6,8 @@ import { RestaurantService } from '../../restaurant.service';
 import { ActivatedRoute } from '@angular/router';
 import { switchMap, map, groupBy } from 'rxjs/operators';
 import { Dish, MenuCategory, Restaurant } from '../../restaurant.model';
+import { CartService } from '../../../cart/services/cart';
+import { CartItemDto } from '../../../cart/cartDTO';
 
 @Component({
   selector: 'app-restaurant-detail',
@@ -18,6 +20,7 @@ export class RestaurantDetailComponent {
 
   restaurant$: Observable<Restaurant | null>;
   categories$: Observable<MenuCategory[]> | undefined;
+  cartItems$: Observable<CartItemDto[]>;
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
@@ -26,7 +29,7 @@ export class RestaurantDetailComponent {
   }
 
 
-  constructor(private route: ActivatedRoute, private restaurantService: RestaurantService) {
+  constructor(private route: ActivatedRoute, private restaurantService: RestaurantService, private cartService: CartService) {
     this.restaurant$ = this.route.paramMap.pipe(
       map(params => params.get('id')),
         switchMap(id => {
@@ -34,5 +37,10 @@ export class RestaurantDetailComponent {
         return this.restaurantService.getRestaurantById(id) as Observable<Restaurant | null>;
       })                     
     );
+    this.cartItems$ = this.cartService.cartItems$;
+  }
+
+  addToCart(dish: Dish){
+    this.cartService.addDish(dish);
   }
 }

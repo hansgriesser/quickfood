@@ -192,10 +192,7 @@ async function main() {
     },
   });
 
-  const restaurantIds = [
-    'ba0cac90-9aa9-48d8-bf1e-77c788f5367c',
-    '55413e9a-3bd5-41cb-b594-fd6d22c2e5c1',
-  ];
+  const restaurantIds = [activeRestaurant.id, pendingRestaurant.id];
 
   // MenuCategories
   const categoriesData = [
