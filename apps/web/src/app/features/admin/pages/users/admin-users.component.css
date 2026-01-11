@@ -1,20 +1,45 @@
-.page { padding: 24px; max-width: 1200px; margin: 0 auto; }
-.header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
-.subtitle { margin: 6px 0 0 0; color: #666; }
+@import '../../admin-ui.css';
 
-.controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.link { text-decoration: none; }
+.actions-col { width: 560px; }
+.action-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
 
-.filter { display: inline-flex; align-items: center; gap: 8px; }
+:host .admin-btn,
+:host button.admin-btn {
+  background-color: #ffffff !important;
+  border-color: #e5e7eb !important;
+  color: #111827 !important;
+}
 
-.error { padding: 10px 12px; border: 1px solid #f2b8b5; background: #fff3f3; border-radius: 10px; margin: 12px 0; }
+:host .admin-btn-primary,
+:host button.admin-btn-primary {
+  background-color: #111827 !important;
+  border-color: #111827 !important;
+  color: #ffffff !important;
+}
 
-.table { width: 100%; border-collapse: collapse; }
-.table th, .table td { border-bottom: 1px solid #eee; padding: 10px; vertical-align: top; }
-.table th { text-align: left; color: #333; font-weight: 600; }
+:host .admin-btn-danger,
+:host button.admin-btn-danger {
+  background-color: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+}
 
-.actions { width: 520px; }
-.row { display: flex; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
-.input { padding: 8px 10px; border: 1px solid #ddd; border-radius: 10px; min-width: 200px; }
-button { padding: 8px 12px; border-radius: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
-button:hover { background: #f7f7f7; }
+/* Disabled should still be readable */
+:host .admin-btn:disabled,
+:host button.admin-btn:disabled {
+  opacity: 0.75 !important;
+  filter: grayscale(0.1);
+}
+
+input[type="datetime-local"]::-webkit-datetime-edit-hour-field,
+input[type="datetime-local"]::-webkit-datetime-edit-minute-field,
+input[type="datetime-local"]::-webkit-datetime-edit-second-field,
+input[type="datetime-local"]::-webkit-datetime-edit-ampm-field,
+input[type="datetime-local"]::-webkit-datetime-edit-time-field {
+  display: none;
+}
+
+/* Hide the separators around the time */
+input[type="datetime-local"]::-webkit-datetime-edit-text {
+  display: none;
+}

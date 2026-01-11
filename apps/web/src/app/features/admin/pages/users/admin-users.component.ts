@@ -26,6 +26,14 @@ export class AdminUsersComponent {
     suspendReason: Record<number, string> = {};
     suspendUntil: Record<number, string> = {};
 
+    userActionModalOpen = false;
+    modalUser: AdminUser | null = null;
+    modalAction: 'WARN' | 'SUSPEND' = 'WARN';
+    modalReason = '';
+    modalUntil = ''; // datetime-local
+    modalSubmitting = false;
+    modalError: string | null = null;
+
     constructor(
         private readonly adminUsers: AdminUsersService,
         private readonly cdr: ChangeDetectorRef,
@@ -61,6 +69,53 @@ export class AdminUsersComponent {
             this.cdr.detectChanges();
         }
     }
+
+    openUserActionModal(u: AdminUser): void {
+        this.modalUser = u;
+        this.modalAction = 'WARN';
+        this.modalReason = '';
+        this.modalUntil = '';
+        this.modalError = null;
+        this.userActionModalOpen = true;
+    }
+
+    closeUserActionModal(): void {
+        this.userActionModalOpen = false;
+        this.modalUser = null;
+        this.modalSubmitting = false;
+        this.modalError = null;
+    }
+
+    async confirmUserAction(): Promise<void> {
+        if (!this.modalUser) return;
+
+        this.modalSubmitting = true;
+        this.modalError = null;
+        this.cdr.detectChanges();
+
+        try {
+            const reason = this.modalReason.trim() || undefined;
+
+            if (this.modalAction === 'WARN') {
+                await this.adminUsers.warn(this.modalUser.id, reason);
+                this.closeUserActionModal();
+                return;
+            }
+
+            const untilLocal = this.modalUntil.trim();
+            const until = untilLocal ? new Date(untilLocal).toISOString() : undefined;
+
+            await this.adminUsers.suspend(this.modalUser.id, until, reason);
+            this.closeUserActionModal();
+            await this.load();
+        } catch (e: any) {
+            this.modalError = e?.error?.message || e?.message || 'Action failed';
+        } finally {
+            this.modalSubmitting = false;
+            this.cdr.detectChanges();
+        }
+    }
+
 
     async warn(user: AdminUser): Promise<void> {
         try {
