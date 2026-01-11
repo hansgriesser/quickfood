@@ -1,8 +1,15 @@
+<ng-template #loading>
+  <p>Lade Restaurant…</p>
+</ng-template>
+
 <section *ngIf="restaurant$ | async as restaurant; else loading">
 
   <!-- Zurück-Link -->
   <nav>
     <a routerLink="/restaurants">← Zurück zur Liste</a>
+    <a routerLink="/cart" class="cart-indicator">
+      🛒 {{ (cartItems$ | async)?.length || 0 }}
+    </a>
   </nav>
 
   <!-- Header -->
@@ -37,28 +44,40 @@
   </header>
 
   <!-- Speisekarte -->
-  <section class="menu" *ngIf="categories$ | async as categories; else loading">
-    <h2>Speisekarte</h2>
+<section class="menu" *ngIf="categories$ | async as categories; else loading">
+  <h2>Speisekarte</h2>
 
-    <!-- Kategorien -->
-    <div *ngFor="let category of categories">
-      <h3>{{ category.name }}</h3>
+  <div *ngFor="let category of categories" class="menu-category">
+    <!-- Kategorie-Überschrift -->
+    <h3 class="category-title">{{ category.name }}</h3>
 
-      <ul *ngIf="category.dishes?.length">
-        <li *ngFor="let dish of category.dishes">
-          <strong>{{ dish.name }}</strong>
-          – {{ dish.price / 100 | currency:'EUR' }}
+    <!-- Gerichte -->
+    <div class="dish-list">
+      <div class="dish-card" *ngFor="let dish of category.dishes">
+        <div class="dish-info">
+          <h4>{{ dish.name }}</h4>
 
-          <p *ngIf="dish.description">
+          <p class="dish-description" *ngIf="dish.description">
             {{ dish.description }}
           </p>
-        </li>
-      </ul>
-    </div>
-  </section>
 
+          <span class="dish-price">
+            {{ dish.price / 100 | currency:'EUR' }}
+          </span>
+        </div>
+
+        <!-- Add-Button -->
+        <button class="add-button" aria-label="Zum Warenkorb hinzufügen" (click)="addToCart(dish)">
+          +
+        </button>
+      </div>
+    </div>
+  </div>
 </section>
 
-<ng-template #loading>
-  <p>Lade Restaurant…</p>
-</ng-template>
+<!-- Fixierter Warenkorb-Button -->
+<ng-container *ngIf="cartItems$ | async as items">
+  <button class="cart-button" routerLink="/cart" *ngIf="items.length > 0">
+  🛒 Zum Einkaufswagen
+</button>
+</ng-container>

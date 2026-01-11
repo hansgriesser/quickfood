@@ -18,6 +18,9 @@ export const routes: Routes = [
          path: 'admin',canActivate:[adminGuard], loadChildren: () => import('./features/admin/admin-module').then(m => m.AdminModule)
     },
     {
-        path:'**', redirectTo: 'restaurants'
+        path: 'cart', loadChildren: () => import('./features/customer/cart/cart-module').then(m => m.CartModule)
+    },
+    {
+        path:'**', redirectTo: 'login'
     }
 ];
