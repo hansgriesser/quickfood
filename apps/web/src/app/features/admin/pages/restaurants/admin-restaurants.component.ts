@@ -19,6 +19,12 @@ export class AdminRestaurantsComponent {
   error: string | null = null;
   restaurants: AdminRestaurant[] = [];
 
+  restaurantDecisionModalOpen = false;
+  modalRestaurant: AdminRestaurant | null = null;
+  restaurantDecision: 'APPROVE' | 'REJECT' = 'APPROVE';
+  restaurantModalSubmitting = false;
+  restaurantModalError: string | null = null;
+
   constructor(private readonly adminRestaurants: AdminRestaurantsService,
               private readonly cdr: ChangeDetectorRef
   ) {}
@@ -62,6 +68,47 @@ export class AdminRestaurantsComponent {
       await this.load();
     } catch (e: any) {
       this.error = e?.error?.message || e?.message || 'Reject failed';
+    }
+  }
+
+  openRestaurantDecisionModal(
+    r: AdminRestaurant,
+    decision: 'APPROVE' | 'REJECT'
+  ): void {
+    this.modalRestaurant = r;
+    this.restaurantDecision = decision;
+    this.restaurantModalError = null;
+    this.restaurantModalSubmitting = false;
+    this.restaurantDecisionModalOpen = true;
+  }
+
+  closeRestaurantDecisionModal(): void {
+    this.restaurantDecisionModalOpen = false;
+    this.modalRestaurant = null;
+    this.restaurantModalSubmitting = false;
+    this.restaurantModalError = null;
+  }
+
+  async confirmRestaurantDecision(): Promise<void> {
+    if (!this.modalRestaurant) return;
+
+    this.restaurantModalSubmitting = true;
+    this.restaurantModalError = null;
+    this.cdr.detectChanges();
+
+    try {
+      if (this.restaurantDecision === 'APPROVE') {
+        await this.approve(this.modalRestaurant);
+      } else {
+        await this.reject(this.modalRestaurant);
+      }
+      this.closeRestaurantDecisionModal();
+    } catch (e: any) {
+      this.restaurantModalError =
+        e?.error?.message || e?.message || 'Action failed';
+    } finally {
+      this.restaurantModalSubmitting = false;
+      this.cdr.detectChanges();
     }
   }
 }

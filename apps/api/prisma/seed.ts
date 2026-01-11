@@ -192,29 +192,18 @@ async function main() {
     },
   });
 
-  const restaurantIds = [
-    'ba0cac90-9aa9-48d8-bf1e-77c788f5367c',
-    '55413e9a-3bd5-41cb-b594-fd6d22c2e5c1',
+  const restaurantIds = [pendingRestaurant.id, activeRestaurant.id];
+
+  // MenuCategories: pro Restaurant identische Kategorien
+  const baseCategories = [
+    { name: 'Vorspeisen', sortOrder: 1 },
+    { name: 'Hauptgerichte', sortOrder: 2 },
+    { name: 'Salate', sortOrder: 3 },
+    { name: 'Desserts', sortOrder: 4 },
   ];
 
-  // MenuCategories
-  const categoriesData = [
-    // Kategorien für erstes Restaurant
-    { name: 'Vorspeisen', sortOrder: 1, restaurantId: restaurantIds[0] },
-    { name: 'Hauptgerichte', sortOrder: 2, restaurantId: restaurantIds[0] },
-    { name: 'Salate', sortOrder: 3, restaurantId: restaurantIds[0] },
-    { name: 'Desserts', sortOrder: 4, restaurantId: restaurantIds[0] },
-
-    // Kategorien für zweites Restaurant
-    { name: 'Vorspeisen', sortOrder: 1, restaurantId: restaurantIds[1] },
-    { name: 'Hauptgerichte', sortOrder: 2, restaurantId: restaurantIds[1] },
-    { name: 'Salate', sortOrder: 3, restaurantId: restaurantIds[1] },
-    { name: 'Desserts', sortOrder: 4, restaurantId: restaurantIds[1] },
-  ];
-
-  // Kategorien in DB einfügen
   for (const restaurantId of restaurantIds) {
-    for (const category of categoriesData) {
+    for (const category of baseCategories) {
       await prisma.menuCategory.upsert({
         where: {
           restaurantId_name: {
@@ -233,6 +222,7 @@ async function main() {
       });
     }
   }
+
   const categories = await prisma.menuCategory.findMany();
 
   // Hilfsfunktion: Kategorie nach Name und RestaurantId finden

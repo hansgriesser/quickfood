@@ -1,12 +1,13 @@
 @import '../../admin-ui.css';
 
+.actions-col { width: 560px; }
+.action-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+
 :host .admin-btn,
 :host button.admin-btn {
   background-color: #ffffff !important;
-  border: 1px solid #e5e7eb !important;
+  border-color: #e5e7eb !important;
   color: #111827 !important;
-  font-weight: 700 !important;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.04) !important;
 }
 
 :host .admin-btn-primary,
@@ -23,18 +24,10 @@
   color: #ffffff !important;
 }
 
-:host .admin-btn:hover {
-  background-color: #f9fafb !important;
+/* Disabled should still be readable */
+:host .admin-btn:disabled,
+:host button.admin-btn:disabled {
+  opacity: 0.75 !important;
+  filter: grayscale(0.1);
 }
 
-:host .admin-btn:disabled {
-  opacity: 0.75 !important; 
-}
-
-
-.action-row {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
-}

@@ -1,0 +1,175 @@
+<div class="admin-page">
+  <header class="admin-header">
+    <div>
+      <h1 class="admin-title">Users</h1>
+      <p class="admin-subtitle">Moderation: Warn, Suspend, Unsuspend.</p>
+    </div>
+
+    <div class="admin-actions">
+      <a class="admin-link" routerLink="/admin">← Zur Übersicht</a>
+      <button class="admin-btn" (click)="load()">Refresh</button>
+    </div>
+  </header>
+
+  <div class="admin-alert admin-alert-error" *ngIf="error">{{ error }}</div>
+  <div class="admin-alert" *ngIf="loading">Lade Users…</div>
+
+  <section class="admin-panel" *ngIf="!loading">
+    <div class="admin-filters">
+      <label class="admin-filter">
+        Role:
+        <select class="admin-select"
+                [ngModel]="selectedRole"
+                (ngModelChange)="selectedRole = $event; onFilterChange()">
+          <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+        </select>
+      </label>
+
+      <label class="admin-filter">
+        Suspended:
+        <select class="admin-select"
+                [ngModel]="selectedSuspended"
+                (ngModelChange)="selectedSuspended = $event; onFilterChange()">
+          <option *ngFor="let f of suspendedFilters" [value]="f">{{ f }}</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="admin-panel-inner admin-muted" *ngIf="users.length === 0">
+      Keine Users gefunden.
+    </div>
+
+    <div class="admin-table-wrap" *ngIf="users.length > 0">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="width: 80px">ID</th>
+            <th>Username</th>
+            <th style="width: 120px">Role</th>
+            <th style="width: 140px">Status</th>
+            <th style="width: 190px">Suspended Until</th>
+            <th style="width: 280px">Aktionen</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let u of users">
+            <td>{{ u.id }}</td>
+
+            <td>
+              <div class="cell-title">{{ u.username }}</div>
+              <div class="cell-sub">User #{{ u.id }}</div>
+            </td>
+
+            <td>
+              <span class="admin-badge">{{ u.role }}</span>
+            </td>
+
+            <td>
+              <span class="admin-badge" [class.admin-badge-danger]="u.isSuspended">
+                {{ u.isSuspended ? 'SUSPENDED' : 'ACTIVE' }}
+              </span>
+            </td>
+
+            <td class="admin-muted">
+              {{ u.suspendedUntil ? (u.suspendedUntil | date:'short') : '—' }}
+            </td>
+
+            <td>
+              <div class="action-row">
+                <button
+                  class="admin-btn admin-btn-primary"
+                  type="button"
+                  (click)="openUserActionModal(u)"
+                  [disabled]="u.role === 'ADMIN'"
+                  [title]="u.role === 'ADMIN' ? 'Admins können nicht moderiert werden.' : 'Moderationsaktion (Warn/Suspend)'"
+                >
+                  Moderate
+                </button>
+
+                <button
+                  class="admin-btn admin-btn-danger"
+                  type="button"
+                  (click)="unsuspend(u)"
+                  [disabled]="u.role === 'ADMIN' || !u.isSuspended"
+                  [title]="u.role === 'ADMIN' ? 'Admins können nicht entsperrt/gesperrt werden.' : (!u.isSuspended ? 'User ist nicht gesperrt.' : 'User entsperren')"
+                >
+                  Unsuspend
+                </button>
+              </div>
+
+              <div class="cell-sub admin-muted" *ngIf="u.role !== 'ADMIN'">
+                Moderate öffnet Warn/Suspend Dialog.
+              </div>
+
+              <div class="cell-sub admin-muted" *ngIf="u.role === 'ADMIN'">
+                Admin-Account ist geschützt.
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- USER MODAL -->
+  <div class="admin-modal-overlay" *ngIf="userActionModalOpen">
+    <div class="admin-modal" role="dialog" aria-modal="true" aria-label="User moderation">
+      <div class="admin-modal-header">
+        <div>
+          <div class="admin-modal-title">User Moderation</div>
+          <div class="admin-modal-sub">
+            Ziel: <strong>{{ modalUser?.username }}</strong> (ID {{ modalUser?.id }})
+          </div>
+        </div>
+
+        <button class="admin-icon-btn" (click)="closeUserActionModal()" title="Close">✕</button>
+      </div>
+
+      <div class="admin-modal-body">
+        <label class="admin-field">
+          <div class="admin-field-label">Action</div>
+          <div class="admin-segment">
+            <button class="admin-seg-btn"
+                    [class.active]="modalAction === 'WARN'"
+                    (click)="modalAction = 'WARN'">
+              Warn
+            </button>
+            <button class="admin-seg-btn"
+                    [class.active]="modalAction === 'SUSPEND'"
+                    (click)="modalAction = 'SUSPEND'">
+              Suspend
+            </button>
+          </div>
+        </label>
+
+        <label class="admin-field">
+          <div class="admin-field-label">Reason (optional)</div>
+          <textarea class="admin-textarea"
+                    [(ngModel)]="modalReason"
+                    placeholder="Kurze Begründung…"
+                    rows="3"></textarea>
+        </label>
+
+        <label class="admin-field" *ngIf="modalAction === 'SUSPEND'">
+          <div class="admin-field-label">Suspend until (optional)</div>
+          <input class="admin-input" type="date" [(ngModel)]="modalUntil" />
+        </label>
+
+        <div class="admin-alert admin-alert-error" *ngIf="modalError">
+          {{ modalError }}
+        </div>
+      </div>
+
+      <div class="admin-modal-footer">
+        <button class="admin-btn admin-btn-ghost" (click)="closeUserActionModal()">Cancel</button>
+
+        <button class="admin-btn admin-btn-primary"
+                [disabled]="modalSubmitting"
+                (click)="confirmUserAction()">
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
