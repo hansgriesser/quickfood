@@ -1,11 +1,83 @@
- <section *ngIf="restaurant$ | async as restaurant">
+<ng-template #loading>
+  <p>Lade Restaurant…</p>
+</ng-template>
+
+<section *ngIf="restaurant$ | async as restaurant; else loading">
+
+  <!-- Zurück-Link -->
   <nav>
     <a routerLink="/restaurants">← Zurück zur Liste</a>
+    <a routerLink="/cart" class="cart-indicator">
+      🛒 {{ (cartItems$ | async)?.length || 0 }}
+    </a>
   </nav>
 
+  <!-- Header -->
   <header class="restaurant-header">
-      <h1>{{ restaurant.name }}</h1>
-      <p class="category">{{restaurant.category }}</p>
-      <p class="rating">Bewertung: {{ restaurant.rating }} / 5</p>
+    <h1>{{ restaurant.name }}</h1>
+
+    <p class="category" *ngIf="restaurant.category">
+      {{ restaurant.category }}
+    </p>
+
+    <p class="rating">
+      Bewertung: {{ restaurant.rating }} / 5
+    </p>
+
+    <p *ngIf="restaurant.contactEmail">
+      E-Mail: {{ restaurant.contactEmail }}
+    </p>
+
+    <p *ngIf="restaurant.contactPhone">
+      Telefon: {{ restaurant.contactPhone }}
+    </p>
+
+    <p *ngIf="restaurant.address">
+      Adresse: {{ restaurant.address }}
+    </p>
+
+    <a *ngIf="restaurant.address"
+       [href]="'https://www.google.com/maps/search/?api=1&query=' + restaurant.address"
+       target="_blank">
+      In Google Maps öffnen
+    </a>
   </header>
+
+  <!-- Speisekarte -->
+<section class="menu" *ngIf="categories$ | async as categories; else loading">
+  <h2>Speisekarte</h2>
+
+  <div *ngFor="let category of categories" class="menu-category">
+    <!-- Kategorie-Überschrift -->
+    <h3 class="category-title">{{ category.name }}</h3>
+
+    <!-- Gerichte -->
+    <div class="dish-list">
+      <div class="dish-card" *ngFor="let dish of category.dishes">
+        <div class="dish-info">
+          <h4>{{ dish.name }}</h4>
+
+          <p class="dish-description" *ngIf="dish.description">
+            {{ dish.description }}
+          </p>
+
+          <span class="dish-price">
+            {{ dish.price / 100 | currency:'EUR' }}
+          </span>
+        </div>
+
+        <!-- Add-Button -->
+        <button class="add-button" aria-label="Zum Warenkorb hinzufügen" (click)="addToCart(dish)">
+          +
+        </button>
+      </div>
+    </div>
+  </div>
 </section>
+
+<!-- Fixierter Warenkorb-Button -->
+<ng-container *ngIf="cartItems$ | async as items">
+  <button class="cart-button" routerLink="/cart" *ngIf="items.length > 0">
+  🛒 Zum Einkaufswagen
+</button>
+</ng-container>

@@ -37,6 +37,15 @@ export class RestaurantFilterComponent {
   sortBy = 'name';
   sortOrder: 'asc' | 'desc' = 'asc';
 
+  onSortByChange(): void {
+    if (this.sortBy === 'rating') {
+      this.sortOrder = 'desc';
+    } else {
+      this.sortOrder = 'asc';
+    }
+    this.onFilterChange();
+  }
+  //TODO: use category list from backend instead
   categories = [
     { value: '', label: 'Alle Kategorien' },
     { value: 'italian', label: 'Italienisch' },

@@ -70,6 +70,105 @@ nav a:hover {
   font-size: 0.95rem;
 }
 
+/* ===== MENU ===== */
+
+.menu h2 {
+  margin-bottom: 16px;
+  color: #111827;
+}
+
+.menu-category {
+  margin-bottom: 28px;
+}
+
+.category-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ea580c; /* orange-rot */
+  margin: 16px 0 12px;
+}
+
+/* Dish cards */
+.dish-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dish-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #fff7ed; /* sehr helles Orange */
+  border: 1px solid #fed7aa;
+}
+
+.dish-info h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.dish-description {
+  margin: 4px 0 6px;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.dish-price {
+  font-weight: 600;
+  color: #9a3412;
+}
+
+/* Add button */
+.add-button {
+  background: #f97316;
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.add-button:hover {
+  background: #ea580c;
+}
+
+/* ===== FIXED CART BUTTON ===== */
+
+.cart-button {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: white;
+  border: none;
+  padding: 14px 22px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 999px;
+  box-shadow: 0 10px 20px rgba(234, 88, 12, 0.35);
+  cursor: pointer;
+  z-index: 1000;
+}
+
+.cart-button:hover {
+  opacity: 0.95;
+}
+
+/* Platz schaffen, damit Button nichts überdeckt */
+:host {
+  padding-bottom: 90px;
+}
+
+
 /* responsive */
 @media (max-width: 600px) {
   .restaurant-header {

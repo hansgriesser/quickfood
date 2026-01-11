@@ -1,29 +1,26 @@
-// restaurant.service.ts
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { Restaurant } from './restaurant.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Dish, MenuCategory, Restaurant } from './restaurant.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RestaurantService {
 
-  private readonly mockRestaurants: Restaurant[] = [
-    
-    { id: '1', name: 'Café Latte', category: 'italian', rating: 4.5 },
-    { id: '2', name: 'Espresso Bar', category: 'fast-food', rating: 4.2 },
-    { id: '3', name: 'Kaffee König', category: 'fast-food', rating: 3.8 },
-    { id: '4', name: 'Sushi Palace', category: 'asian', rating: 4.7 },
-    { id: '5', name: 'Taco Fiesta', category: 'mexican', rating: 4.1 },
-    { id: '6', name: 'Sushi World', category: 'Japanisch', rating: 4.8},
-    { id: '7', name: 'Pasta Haus', category: 'Italienisch', rating: 4.5}
-  ];
+  private readonly apiUrl = 'http://localhost:3000/api/restaurants';
+
+  constructor(private http: HttpClient) {}
 
   getRestaurants(): Observable<Restaurant[]> {
-    return of(this.mockRestaurants);
+    return this.http.get<Restaurant[]>(this.apiUrl);
   }
 
-  getRestaurantById(id: string): Observable<Restaurant | null> {
-    return of(this.mockRestaurants.find(r => r.id === id) ?? null);
+  getRestaurantById(id: string): Observable<Restaurant> {
+    return this.http.get<Restaurant>(`${this.apiUrl}/${id}`);
+  }
+
+  getCategoriesForRestaurant(id: string): Observable<MenuCategory[]> {
+    return this.http.get<MenuCategory[]>(`${this.apiUrl}/${id}/dishes`);
   }
 }

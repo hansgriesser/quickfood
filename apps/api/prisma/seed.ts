@@ -1,10 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { config } from 'dotenv';
 import { join } from 'path';
 config({ path: join(process.cwd(), '.env') }); // Load .env from the api folder
 
 import {
   PrismaClient,
-  Restaurant,
   RestaurantStatus,
   Role,
   VoucherType,
@@ -87,8 +90,8 @@ async function main() {
     { name: 'Kaffee K\u00f6nig', category: 'fast-food', rating: 3.8 },
     { name: 'Sushi Palace', category: 'asian', rating: 4.7 },
     { name: 'Taco Fiesta', category: 'mexican', rating: 4.1 },
-    { name: 'Sushi World', category: 'Japanisch', rating: 4.8 },
-    { name: 'Pasta Haus', category: 'Italienisch', rating: 4.5 },
+    { name: 'Sushi World', category: 'japan', rating: 4.8 },
+    { name: 'Pasta Haus', category: 'italian', rating: 4.5 },
   ];
 
   for (const restaurant of mockRestaurants) {
@@ -188,6 +191,103 @@ async function main() {
       value: 200,
     },
   });
+
+  const restaurantIds = [pendingRestaurant.id, activeRestaurant.id];
+
+  // MenuCategories: pro Restaurant identische Kategorien
+  const baseCategories = [
+    { name: 'Vorspeisen', sortOrder: 1 },
+    { name: 'Hauptgerichte', sortOrder: 2 },
+    { name: 'Salate', sortOrder: 3 },
+    { name: 'Desserts', sortOrder: 4 },
+  ];
+
+  for (const restaurantId of restaurantIds) {
+    for (const category of baseCategories) {
+      await prisma.menuCategory.upsert({
+        where: {
+          restaurantId_name: {
+            restaurantId,
+            name: category.name,
+          },
+        },
+        update: {
+          sortOrder: category.sortOrder,
+        },
+        create: {
+          restaurantId,
+          name: category.name,
+          sortOrder: category.sortOrder,
+        },
+      });
+    }
+  }
+
+  const categories = await prisma.menuCategory.findMany();
+
+  // Hilfsfunktion: Kategorie nach Name und RestaurantId finden
+  const getCategoryId = (restaurantId: string, name: string) => {
+    return categories.find(
+      (c) => c.restaurantId === restaurantId && c.name === name,
+    )?.id;
+  };
+
+  // Dishes
+  const dishes = [
+    {
+      name: 'Margherita Pizza',
+      description:
+        'Klassische Pizza mit Tomatensauce, Mozzarella und Basilikum',
+      price: BigInt(899),
+      restaurantId: restaurantIds[0],
+      categoryId: getCategoryId(restaurantIds[0], 'Hauptgerichte'),
+      pictureUrl: 'https://example.com/margherita.jpg',
+    },
+    {
+      name: 'Spaghetti Carbonara',
+      description: 'Spaghetti mit cremiger Sauce, Speck und Parmesan',
+      price: BigInt(1299),
+      restaurantId: restaurantIds[0],
+      categoryId: getCategoryId(restaurantIds[0], 'Hauptgerichte'),
+      pictureUrl: 'https://example.com/carbonara.jpg',
+    },
+    {
+      name: 'Caesar Salad',
+      description: 'Frischer Salat mit Hähnchen, Croutons und Caesar-Dressing',
+      price: BigInt(799),
+      restaurantId: restaurantIds[1],
+      categoryId: getCategoryId(restaurantIds[1], 'Salate'),
+      pictureUrl: 'https://example.com/caesar.jpg',
+    },
+    {
+      name: 'Cheeseburger',
+      description: 'Saftiger Burger mit Käse, Salat, Tomate und Zwiebeln',
+      price: BigInt(1099),
+      restaurantId: restaurantIds[1],
+      categoryId: getCategoryId(restaurantIds[1], 'Hauptgerichte'),
+      pictureUrl: 'https://example.com/cheeseburger.jpg',
+    },
+    {
+      name: 'Sushi Platte',
+      description: 'Gemischte Sushi Platte mit Lachs, Thunfisch und Avocado',
+      price: BigInt(1599),
+      restaurantId: restaurantIds[0],
+      categoryId: getCategoryId(restaurantIds[0], 'Hauptgerichte'),
+      pictureUrl: 'https://example.com/sushi.jpg',
+    },
+  ];
+
+  for (const restaurantId of restaurantIds) {
+    await prisma.dish.deleteMany({
+      where: { restaurantId },
+    });
+  }
+
+  for (const dish of dishes) {
+    await prisma.dish.create({
+      data: dish,
+    });
+  }
 
   console.log('Seed done:', {
     admin: { id: admin.id, username: admin.username },
