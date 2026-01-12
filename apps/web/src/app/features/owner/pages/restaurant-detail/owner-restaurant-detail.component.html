@@ -1,0 +1,15 @@
+<section class="owner-restaurant-detail">
+  <a routerLink="/owner/restaurants">Back to restaurants</a>
+  <h1>Restaurant Profile</h1>
+
+  <div class="status error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <ng-container *ngIf="restaurant">
+    <p>Status: {{ restaurant.status }}</p>
+    <app-owner-restaurant-form
+      [restaurant]="restaurant"
+      submitLabel="Save"
+      (submitForm)="saveRestaurant($event)"
+    ></app-owner-restaurant-form>
+  </ng-container>
+</section>

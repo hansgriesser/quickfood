@@ -1,0 +1,13 @@
+.owner-restaurant-detail {
+  padding: 24px;
+}
+
+.status.error {
+  color: #b91c1c;
+  margin: 12px 0;
+}
+
+.owner-restaurant-detail a {
+  color: #1f6feb;
+  text-decoration: none;
+}

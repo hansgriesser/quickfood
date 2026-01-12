@@ -1,13 +1,13 @@
 import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { OwnerRestaurantsService } from './owner-restaurants.service';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { DevJwtAuthGuard } from '../../auth/dev-jwt-auth.guard';
 import { RolesGuard } from '../../auth/roles.guard';
 import { Roles } from '../../auth/roles.decorator';
 import { CreateOwnerRestaurantDto } from './dto/create-owner-restaurant.dto';
 import { UpdateOwnerRestaurantDto } from './dto/update-owner-restaurant.dto';
 
 @Controller('owner/restaurants')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(DevJwtAuthGuard, RolesGuard)
 @Roles('OWNER')
 export class OwnerRestaurantsController {
   constructor(private readonly service: OwnerRestaurantsService) {}
