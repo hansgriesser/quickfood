@@ -1,7 +1,13 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import bcrypt from 'bcrypt';
+import { Role } from '@generated/prisma/enums';
 
 @Injectable()
 export class AuthService {
@@ -25,5 +31,49 @@ export class AuthService {
     return {
       access_token: await this.jwt.signAsync(payload),
     };
+  }
+  async register(username: string, password: string, roleRaw: string) {
+    const role = this.normalizeRole(roleRaw);
+
+    if (!username?.trim())
+      throw new BadRequestException('Username cannot be empty');
+    if (!password?.trim())
+      throw new BadRequestException('Password cannot be empty');
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    try {
+      const user = await this.prisma.user.create({
+        data: {
+          username: username.trim(),
+          password: passwordHash,
+          role,
+        },
+        select: { id: true, username: true, role: true },
+      });
+
+      const payload = {
+        sub: user.id,
+        username: user.username,
+        role: user.role,
+      };
+      return {
+        access_token: await this.jwt.signAsync(payload),
+        user,
+      };
+    } catch (e: any) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (e.code === 'P2002') {
+        throw new ConflictException('Username already taken');
+      }
+      throw e;
+    }
+  }
+
+  private normalizeRole(roleRaw: string): Role {
+    const r = (roleRaw || '').toLocaleUpperCase().trim();
+    if (r === 'OWNER') return Role.OWNER;
+    if (r === 'USER') return Role.USER;
+    throw new BadRequestException('Role must be USER or OWNER');
   }
 }
