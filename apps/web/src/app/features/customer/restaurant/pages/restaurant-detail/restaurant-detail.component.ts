@@ -21,9 +21,10 @@ export class RestaurantDetailComponent {
   restaurant$: Observable<Restaurant | null>;
   categories$: Observable<MenuCategory[]> | undefined;
   cartItems$: Observable<CartItemDto[]>;
+  id: String | undefined;
 
   ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id')!;
+    this.id = this.route.snapshot.paramMap.get('id')!;
     this.restaurant$ = this.restaurantService.getRestaurantById(id);
     this.categories$ = this.restaurantService.getCategoriesForRestaurant(id);
   }
