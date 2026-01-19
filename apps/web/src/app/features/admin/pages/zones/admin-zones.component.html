@@ -31,6 +31,7 @@
       <div class="row head">
         <div class="cell code">Code</div>
         <div class="cell name">Name</div>
+        <div class="cell time">Typical Time</div>
         <div class="cell status">Status</div>
         <div class="cell actions">Actions</div>
       </div>
@@ -38,6 +39,9 @@
       <div class="row" *ngFor="let z of zones">
         <div class="cell code">{{ z.code }}</div>
         <div class="cell name">{{ z.name }}</div>
+        <div class="cell time">
+          {{ z.typicalDeliveryMin }}–{{ z.typicalDeliveryMax }} min
+        </div>
         <div class="cell status">
           <span class="badge" [class.inactive]="!z.active">
             {{ z.active ? 'ACTIVE' : 'INACTIVE' }}
@@ -78,6 +82,24 @@
         <label class="field">
           Name:
           <input [(ngModel)]="formName" placeholder="North Area" />
+        </label>
+
+        <label class="field">
+          Typical Delivery Time Min (minutes):
+          <input
+            type="number"
+            [(ngModel)]="formTypicalMin"
+            placeholder="20"
+          />
+        </label>
+
+        <label class="field">
+          Typical Delivery Time Max (minutes):
+          <input
+            type="number"
+            [(ngModel)]="formTypicalMax"
+            placeholder="40"
+          />
         </label>
 
         <label class="field checkbox">

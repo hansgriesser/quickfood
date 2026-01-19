@@ -30,6 +30,8 @@ export class AdminZonesComponent {
     formName = '';
     formActive = true;
     rowBusy = new Set<string>();
+    formTypicalMin = 20;
+    formTypicalMax = 35;
 
     constructor(
         private readonly adminZones: AdminZonesService,
@@ -73,6 +75,8 @@ export class AdminZonesComponent {
         this.modalErrors = null;
         this.modalSubmitting = false;
         this.modalOpen = true;
+        this.formTypicalMin = 20;
+        this.formTypicalMax = 35;
     }
 
     openEdit(z: DeliveryZone): void {
@@ -84,6 +88,8 @@ export class AdminZonesComponent {
         this.modalErrors = null;
         this.modalSubmitting = false;
         this.modalOpen = true;
+        this.formTypicalMin = z.typicalDeliveryMin;
+        this.formTypicalMax = z.typicalDeliveryMax;
     }
 
     closeModal(): void {
@@ -117,40 +123,60 @@ export class AdminZonesComponent {
     async submitModal(): Promise<void> {
         this.modalSubmitting = true;
         this.modalErrors = null;
+
+        const code = this.formCode.trim();
+        const name = this.formName.trim();
+        const min = Number(this.formTypicalMin);
+        const max = Number(this.formTypicalMax);
+
+        if (!code || !name) {
+            this.modalErrors = 'Code and Name are required.';
+            this.modalSubmitting = false;
+            this.cdr.detectChanges();
+            return;
+        }
+
+        if (!Number.isFinite(min) || !Number.isFinite(max) || min <= 0 || max <= 0 || min > max) {
+            this.modalErrors = 'Typical delivery time must be > 0 and min <= max.';
+            this.modalSubmitting = false;
+            this.cdr.detectChanges();
+            return;
+        }
+
+        const wasOpen = this.modalOpen;
+
+        this.modalOpen = false;
         this.cdr.detectChanges();
 
         try {
-            const code = this.formCode.trim();
-            const name = this.formName.trim();
-
-            if (!code || !name) {
-                this.modalErrors = 'Code and Name are required.';
-                return; 
-            }
-
             if (this.modalMode === 'CREATE') {
                 await this.adminZones.create({
                     code,
                     name,
                     active: this.formActive,
+                    typicalDeliveryMin: min,
+                    typicalDeliveryMax: max,
                 });
             } else {
-                if (!this.modalZoneId) return;
-                
-                await this.adminZones.update(this.modalZoneId, {
-                    code,
-                    name,
-                    active: this.formActive,
-                });
+            if (!this.modalZoneId) throw new Error('Missing zone id');
+            await this.adminZones.update(this.modalZoneId, {
+                code,
+                name,
+                active: this.formActive,
+                typicalDeliveryMin: min,
+                typicalDeliveryMax: max,
+            });
             }
 
-            this.closeModal();
             await this.load();
         } catch (e: any) {
-            this.modalErrors = e?.message || e?.message || 'Submission failed.';
+    // Bei Fehler: Modal wieder öffnen + Fehlermeldung anzeigen
+            this.modalOpen = wasOpen;
+            this.modalErrors = e?.error?.message || e?.message || 'Submission failed.';
         } finally {
             this.modalSubmitting = false;
             this.cdr.detectChanges();
         }
     }
+
 }
