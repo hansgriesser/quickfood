@@ -117,14 +117,36 @@ async function main() {
   // 3) Delivery zones
   const zoneA = await prisma.deliveryZone.upsert({
     where: { code: 'ZONE_A' },
-    update: { name: 'Zone A', active: true },
-    create: { code: 'ZONE_A', name: 'Zone A', active: true },
+    update: {
+      name: 'Zone A',
+      active: true,
+      typicalDeliveryMin: 20,
+      typicalDeliveryMax: 35,
+    },
+    create: {
+      code: 'ZONE_A',
+      name: 'Zone A',
+      active: true,
+      typicalDeliveryMin: 20,
+      typicalDeliveryMax: 35,
+    },
   });
 
   const zoneB = await prisma.deliveryZone.upsert({
     where: { code: 'ZONE_B' },
-    update: { name: 'Zone B', active: true },
-    create: { code: 'ZONE_B', name: 'Zone B', active: true },
+    update: {
+      name: 'Zone B',
+      active: true,
+      typicalDeliveryMin: 35,
+      typicalDeliveryMax: 50,
+    },
+    create: {
+      code: 'ZONE_B',
+      name: 'Zone B',
+      active: true,
+      typicalDeliveryMin: 35,
+      typicalDeliveryMax: 50,
+    },
   });
 
   // 4) Link zones to restaurants (M:N via join table)

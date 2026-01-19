@@ -177,6 +177,9 @@ model DeliveryZone {
   code   String  @unique
   name   String
   active Boolean @default(true)
+ 
+  typicalDeliveryMin Int @default(20)
+  typicalDeliveryMax Int @default(40)
 
   restaurantsLinks RestaurantDeliveryZone[]
 }

@@ -23,8 +23,21 @@ export class AdmiZonesService {
     const code = dto.code.trim().toUpperCase();
     const name = dto.name.trim();
 
+    const min = Number(dto.typicalDeliveryMin);
+    const max = Number(dto.typicalDeliveryMax);
+
     if (!code) throw new BadRequestException('Code cannot be empty');
     if (!name) throw new BadRequestException('Name cannot be empty');
+
+    if (!Number.isFinite(min) || !Number.isFinite(max)) {
+      throw new BadRequestException('typicalDeliveryMin/Max must be numbers');
+    }
+
+    if (min <= 0 || max <= 0 || min > max) {
+      throw new BadRequestException(
+        'typicalDeliveryMin must be <= typicalDeliveryMax and both > 0',
+      );
+    }
 
     try {
       return await this.prisma.deliveryZone.create({
@@ -32,6 +45,8 @@ export class AdmiZonesService {
           code,
           name,
           active: dto.active ?? true,
+          typicalDeliveryMin: min,
+          typicalDeliveryMax: max,
         },
       });
     } catch (e: any) {
@@ -64,6 +79,29 @@ export class AdmiZonesService {
       if (!code) throw new BadRequestException('Code cannot be empty');
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       data.code = code;
+    }
+
+    if (dto.typicalDeliveryMin !== undefined)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      data.typicalDeliveryMin = Number(dto.typicalDeliveryMin);
+
+    if (dto.typicalDeliveryMax !== undefined)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      data.typicalDeliveryMax = Number(dto.typicalDeliveryMax);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const min = data.typicalDeliveryMin ?? existing.typicalDeliveryMin;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const max = data.typicalDeliveryMax ?? existing.typicalDeliveryMax;
+
+    if (!Number.isFinite(min) || !Number.isFinite(max)) {
+      throw new BadRequestException('typicalDeliveryMin/Max must be numbers');
+    }
+
+    if (min <= 0 || max <= 0 || min > max) {
+      throw new BadRequestException(
+        'typicalDeliveryMin must be <= typicalDeliveryMax and both > 0',
+      );
     }
 
     try {
