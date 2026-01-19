@@ -45,11 +45,11 @@ export class CartPage {
 
 
   placeOrder(){
-    //TODO: add backend call
+    this.cartService.placeOrder();
   }
 
   increaseQuantity(dish: Dish) {
-    this.cartService.addDish(dish);
+    this.cartService.addDish(dish, undefined);
   }
 
   increaseQuantityInCart(item: CartItemDto){

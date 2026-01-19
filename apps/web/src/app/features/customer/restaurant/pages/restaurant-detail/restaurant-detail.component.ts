@@ -21,12 +21,12 @@ export class RestaurantDetailComponent {
   restaurant$: Observable<Restaurant | null>;
   categories$: Observable<MenuCategory[]> | undefined;
   cartItems$: Observable<CartItemDto[]>;
-  id: String | undefined;
+  id: string | undefined;
 
   ngOnInit() {
     this.id = this.route.snapshot.paramMap.get('id')!;
-    this.restaurant$ = this.restaurantService.getRestaurantById(id);
-    this.categories$ = this.restaurantService.getCategoriesForRestaurant(id);
+    this.restaurant$ = this.restaurantService.getRestaurantById(this.id);
+    this.categories$ = this.restaurantService.getCategoriesForRestaurant(this.id);
   }
 
 
@@ -42,6 +42,6 @@ export class RestaurantDetailComponent {
   }
 
   addToCart(dish: Dish){
-    this.cartService.addDish(dish);
+    this.cartService.addDish(dish, this.id);
   }
 }
