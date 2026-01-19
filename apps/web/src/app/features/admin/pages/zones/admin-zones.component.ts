@@ -29,6 +29,7 @@ export class AdminZonesComponent {
     formCode = '';
     formName = '';
     formActive = true;
+    rowBusy = new Set<string>();
 
     constructor(
         private readonly adminZones: AdminZonesService,
@@ -88,17 +89,30 @@ export class AdminZonesComponent {
     closeModal(): void {
         this.modalOpen = false;
         this.modalErrors = null;
-        this.modalSubmitting
+        this.modalSubmitting = false;
+        this.cdr.detectChanges();
     }
 
     async toogleActive(z: DeliveryZone): Promise<void> {
+        if (this.rowBusy.has(z.id)) return;
+
+        this.rowBusy.add(z.id);
+
+        const previous = z.active;
+        z.active = !z.active;
+        this.cdr.detectChanges();
+
         try {
-            await this.adminZones.update(z.id, { active: !z.active });
-            await this.load();
+            await this.adminZones.update(z.id, { active: z.active });
         } catch (e: any) {
-            alert(e?.message || e?.message || 'Update failed.');
-        }
-    }
+            z.active = previous;
+            this.error = e?.error?.message || e?.message || 'Update failed.';
+            this.cdr.detectChanges();
+        } finally {
+            this.rowBusy.delete(z.id);
+            this.cdr.detectChanges();
+  }
+}
 
     async submitModal(): Promise<void> {
         this.modalSubmitting = true;
