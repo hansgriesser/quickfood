@@ -57,11 +57,11 @@ activityLabel(a: ActivityLog): string {
       case 'AUTH_LOGIN_SUCCESS':
         return `User ${a.actor?.username} logged in`;
       case 'ADMIN_USER_WARN':
-        return `Admin ${a.actor?.username} warned user #${a.targetId}`;
+        return `Admin ${a.actor?.username} warned user ${a.meta?.targetUsername ?? '#' + a.targetId}`;
       case 'ADMIN_USER_SUSPEND':
-        return `Admin ${a.actor?.username} suspended user #${a.targetId}`;
+        return `Admin ${a.actor?.username} suspended user ${a.meta?.targetUsername ?? '#' + a.targetId}`;
       case 'ADMIN_USER_UNSUSPEND':
-        return `Admin ${a.actor?.username} unsuspended user #${a.targetId}`;
+        return `Admin ${a.actor?.username} unsuspended user ${a.meta?.targetUsername ?? '#' + a.targetId}`;
       case 'ADMIN_RESTAURANT_APPROVE':
         return `Restaurant approved (${a.meta?.name ?? a.targetId})`;
       case 'ADMIN_RESTAURANT_REJECT':

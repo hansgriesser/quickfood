@@ -1,7 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ActivityService } from '../../activity/activity.service';
-import { ActivityTargetType, ActivityType, ModerationActionType } from '@generated/prisma/enums';
+import {
+  ActivityTargetType,
+  ActivityType,
+  ModerationActionType,
+} from '@generated/prisma/enums';
 
 type Role = 'USER' | 'OWNER' | 'ADMIN';
 
@@ -38,6 +42,11 @@ export class AdminUsersService {
       data: { targetUserId: userId, moderatorId, type: 'WARN', reason },
     });
 
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { username: true },
+    });
+
     await this.activity.log({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       type: ActivityType.ADMIN_USER_WARN,
@@ -45,7 +54,11 @@ export class AdminUsersService {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       targetType: ActivityTargetType.USER,
       targetId: String(userId),
-      meta: { reason, moderationActionId: action.id },
+      meta: {
+        reason,
+        moderationActionId: action.id,
+        targetUsername: targetUser?.username,
+      },
     });
 
     return this.prisma.userModerationAction.create({
@@ -85,13 +98,23 @@ export class AdminUsersService {
       },
     });
 
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { username: true },
+    });
+
     await this.activity.log({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       type: ActivityType.ADMIN_USER_SUSPEND,
       actorId: moderatorId,
       targetType: ActivityTargetType.USER,
       targetId: String(userId),
-      meta: { reason, until: untilDate, ModerationActionId: action.id },
+      meta: {
+        reason,
+        until: untilDate,
+        ModerationActionId: action.id,
+        targetUsername: targetUser?.username,
+      },
     });
 
     return this.prisma.userModerationAction.create({
@@ -120,12 +143,20 @@ export class AdminUsersService {
       data: { targetUserId: userId, moderatorId, type: 'UNSUSPEND' },
     });
 
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { username: true },
+    });
+
     await this.activity.log({
       type: ActivityType.ADMIN_USER_UNSUSPEND,
       actorId: moderatorId,
       targetType: ActivityTargetType.USER,
       targetId: String(userId),
-      meta: { moderationActionId: action.id },
+      meta: {
+        moderationActionId: action.id,
+        targetUsername: targetUser?.username,
+      },
     });
 
     return this.prisma.userModerationAction.create({
