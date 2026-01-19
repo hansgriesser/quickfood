@@ -8,6 +8,8 @@ import { AdminStatsService } from './stats/admin-stats.service';
 
 import { AdminZonesController } from './zones/admin-zones.controller';
 import { AdmiZonesService } from './zones/admin-zones.service';
+import { AdminActivityController } from './activity/admin-activity.controller';
+import { AdminActivityService } from './activity/admin-activity.service';
 
 @Module({
   controllers: [
@@ -15,12 +17,15 @@ import { AdmiZonesService } from './zones/admin-zones.service';
     AdminUsersController,
     AdminStatsController,
     AdminZonesController,
+    AdminActivityController,
   ],
   providers: [
     AdminRestaurantsService,
     AdminUsersService,
     AdminStatsService,
     AdmiZonesService,
+    AdmiZonesService,
+    AdminActivityService,
   ],
 })
 export class AdminModule {}

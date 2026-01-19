@@ -7,10 +7,12 @@ import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { OwnerModule } from './owner/owner.module';
 import { RestaurantsModule } from './restaurants/restaurants.module';
+import { ActivityModule } from './activity/activity.module';
 
 @Module({
   imports: [
     PrismaModule,
+    ActivityModule,
     UserModule,
     AdminModule,
     AuthModule,

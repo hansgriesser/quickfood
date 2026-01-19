@@ -1,11 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { ActivityService } from '../../activity/activity.service';
+import { ActivityTargetType, ActivityType, ModerationActionType } from '@generated/prisma/enums';
 
 type Role = 'USER' | 'OWNER' | 'ADMIN';
 
 @Injectable()
 export class AdminUsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly activity: ActivityService,
+  ) {}
 
   async list(role?: Role, suspended?: boolean) {
     return this.prisma.user.findMany({
@@ -29,6 +34,20 @@ export class AdminUsersService {
   async warn(userId: number, moderatorId: number, reason?: string) {
     await this.ensureUserExists(userId);
 
+    const action = await this.prisma.userModerationAction.create({
+      data: { targetUserId: userId, moderatorId, type: 'WARN', reason },
+    });
+
+    await this.activity.log({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      type: ActivityType.ADMIN_USER_WARN,
+      actorId: moderatorId,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      targetType: ActivityTargetType.USER,
+      targetId: String(userId),
+      meta: { reason, moderationActionId: action.id },
+    });
+
     return this.prisma.userModerationAction.create({
       data: {
         targetUserId: userId,
@@ -46,7 +65,6 @@ export class AdminUsersService {
     reason?: string,
   ) {
     await this.ensureUserExists(userId);
-
     const untilDate = until ? new Date(until) : null;
 
     await this.prisma.user.update({
@@ -55,6 +73,25 @@ export class AdminUsersService {
         isSuspended: true,
         suspendedUntil: untilDate,
       },
+    });
+
+    const action = await this.prisma.userModerationAction.create({
+      data: {
+        targetUserId: userId,
+        moderatorId,
+        type: 'SUSPEND',
+        reason,
+        until: untilDate,
+      },
+    });
+
+    await this.activity.log({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      type: ActivityType.ADMIN_USER_SUSPEND,
+      actorId: moderatorId,
+      targetType: ActivityTargetType.USER,
+      targetId: String(userId),
+      meta: { reason, until: untilDate, ModerationActionId: action.id },
     });
 
     return this.prisma.userModerationAction.create({
@@ -77,6 +114,18 @@ export class AdminUsersService {
         isSuspended: false,
         suspendedUntil: null,
       },
+    });
+
+    const action = await this.prisma.userModerationAction.create({
+      data: { targetUserId: userId, moderatorId, type: 'UNSUSPEND' },
+    });
+
+    await this.activity.log({
+      type: ActivityType.ADMIN_USER_UNSUSPEND,
+      actorId: moderatorId,
+      targetType: ActivityTargetType.USER,
+      targetId: String(userId),
+      meta: { moderationActionId: action.id },
     });
 
     return this.prisma.userModerationAction.create({

@@ -9,11 +9,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import bcrypt from 'bcrypt';
 import { Role } from '@generated/prisma/enums';
 
+import { ActivityService } from '../activity/activity.service';
+import { ActivityType } from '@generated/prisma/enums';
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
+    private readonly activity: ActivityService,
   ) {}
 
   async login(username: string, password: string) {
@@ -26,6 +29,15 @@ export class AuthService {
       : password === user.password;
 
     if (!ok) throw new UnauthorizedException('Invalid credentials');
+
+    await this.activity.log({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      type: ActivityType.AUTH_LOGIN_SUCCESS,
+      actorId: user.id,
+      targetType: null,
+      targetId: null,
+      meta: { username: user.username },
+    });
 
     const payload = { sub: user.id, username: user.username, role: user.role };
     return {
@@ -50,6 +62,15 @@ export class AuthService {
           role,
         },
         select: { id: true, username: true, role: true },
+      });
+
+      await this.activity.log({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        type: ActivityType.AUTH_REGISTER,
+        actorId: user.id,
+        meta: { username: user.username, role: user.role },
+        targetType: null,
+        targetId: null,
       });
 
       const payload = {
