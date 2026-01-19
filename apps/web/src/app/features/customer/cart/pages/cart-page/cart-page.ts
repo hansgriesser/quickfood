@@ -45,7 +45,11 @@ export class CartPage {
 
 
   placeOrder(){
-    this.cartService.placeOrder();
+    console.log('Placing order...');
+    this.cartService.placeOrder().subscribe({
+      next: () => console.log('Order done'),
+      error: err => console.error(err),
+    });
   }
 
   increaseQuantity(dish: Dish) {

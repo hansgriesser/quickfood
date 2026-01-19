@@ -7,6 +7,7 @@ import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { OwnerModule } from './owner/owner.module';
 import { RestaurantsModule } from './restaurants/restaurants.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
     AuthModule,
     OwnerModule,
     RestaurantsModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService],
