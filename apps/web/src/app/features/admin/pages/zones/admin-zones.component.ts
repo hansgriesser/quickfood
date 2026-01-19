@@ -1,0 +1,142 @@
+import { Component, ChangeDetectorRef } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { RouterModule } from "@angular/router";
+import { AdminZonesService, DeliveryZone } from "../../services/admin-zones.service";
+
+type ZoneFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
+
+@Component({
+    selector: 'app-admin-zones',
+    standalone: true,
+    imports: [CommonModule, FormsModule, RouterModule],
+    templateUrl: './admin-zones.component.html',
+    styleUrls: ['./admin-zones.component.css'],
+})
+export class AdminZonesComponent {
+    loading = false;
+    error: string | null = null;
+
+    zones: DeliveryZone[] = [];
+    filter: ZoneFilter = 'ALL';
+
+    modalOpen = false;
+    modalMode: 'CREATE' | 'EDIT' = 'CREATE'
+    modalSubmitting = false;
+    modalErrors: string | null = null
+
+    modalZoneId: string | null = null;
+    formCode = '';
+    formName = '';
+    formActive = true;
+
+    constructor(
+        private readonly adminZones: AdminZonesService,
+        private readonly cdr: ChangeDetectorRef,
+    ) {}
+
+    ngOnInit(): void {
+        void this.load()
+    }
+
+    async load(): Promise<void> {
+        this.loading = true;
+        this.error = null;
+        this.cdr.detectChanges();
+
+        try {
+            let active: boolean | undefined = undefined;
+            if (this.filter === 'ACTIVE') active = true;
+            if (this.filter === 'INACTIVE') active = false;
+
+            this.zones = await this.adminZones.list(active);
+        } catch (e: any) {
+            this.error = e?.message || e?.message || 'An error occurred while loading zones.';
+        } finally {
+            this.loading = false;
+            this.cdr.detectChanges();
+        }
+    }
+
+    async onFilterChange(value: ZoneFilter): Promise<void> {
+        this.filter = value;
+        await this.load();
+    }
+
+    openCreate(): void {
+        this.modalMode = 'CREATE';
+        this.modalZoneId = null;
+        this.formCode = '';
+        this.formName = '';
+        this.formActive = true;
+        this.modalErrors = null;
+        this.modalSubmitting = false;
+        this.modalOpen = true;
+    }
+
+    openEdit(z: DeliveryZone): void {
+        this.modalMode = 'EDIT';
+        this.modalZoneId = z.id;
+        this.formCode = z.code;
+        this.formName = z.name;
+        this.formActive = z.active;
+        this.modalErrors = null;
+        this.modalSubmitting = false;
+        this.modalOpen = true;
+    }
+
+    closeModal(): void {
+        this.modalOpen = false;
+        this.modalErrors = null;
+        this.modalSubmitting
+    }
+
+    async toogleActive(z: DeliveryZone): Promise<void> {
+        try {
+            await this.adminZones.update(z.id, { active: !z.active });
+            await this.load();
+        } catch (e: any) {
+            alert(e?.message || e?.message || 'Update failed.');
+        }
+    }
+
+    async submitModal(): Promise<void> {
+        this.modalSubmitting = true;
+        this.modalErrors = null;
+        this.cdr.detectChanges();
+
+        try {
+            const code = this.formCode.trim();
+            const name = this.formName.trim();
+
+            if (!code || !name) {
+                this.modalErrors = 'Code and Name are required.';
+                return; 
+            }
+
+            if (this.modalMode === 'CREATE') {
+                await this.adminZones.create({
+                    code,
+                    name,
+                    active: this.formActive,
+                });
+            } else {
+                if (!this.modalZoneId) return;
+                
+                await this.adminZones.update(this.modalZoneId, {
+                    code,
+                    name,
+                    active: this.formActive,
+                });
+            }
+
+            this.closeModal();
+            await this.load();
+        } catch (e: any) {
+            this.modalErrors = e?.message || e?.message || 'Submission failed.';
+        } finally {
+            this.modalSubmitting = false;
+            this.cdr.detectChanges();
+        }
+    }
+}
