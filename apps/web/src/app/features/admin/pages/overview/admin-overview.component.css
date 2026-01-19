@@ -110,3 +110,12 @@
   font-size: 14px;
 }
 
+.recent-activity ul {
+  list-style: none;
+  padding: 0;
+}
+.recent-activity li {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}

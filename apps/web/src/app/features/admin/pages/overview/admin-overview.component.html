@@ -56,4 +56,23 @@
       </a>
     </div>
   </section>
+  <section class="recent-activity">
+  <h3>Recent Activity</h3>
+
+  <div *ngIf="loadingActivity">Loading activity...</div>
+
+  <ul *ngIf="!loadingActivity && recentActivity.length">
+    <li *ngFor="let a of recentActivity">
+      <strong>{{ activityLabel(a) }}</strong>
+      <span class="time">
+        {{ a.createdAt | date:'short' }}
+      </span>
+    </li>
+  </ul>
+
+  <div *ngIf="!loadingActivity && !recentActivity.length">
+    No recent activity.
+  </div>
+</section>
+
 </div>
