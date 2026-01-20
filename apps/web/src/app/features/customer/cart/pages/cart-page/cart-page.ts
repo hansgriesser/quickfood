@@ -4,6 +4,7 @@ import { map, Observable, combineLatest, startWith} from 'rxjs';
 import { CartService } from '../../services/cart';
 import { Dish } from '../../../restaurant/restaurant.model';
 import { CartItemDto } from '../../cartDTO';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cart-page',
@@ -25,7 +26,7 @@ export class CartPage {
     total: number;
   }>
 
-  constructor(public cartService: CartService){
+  constructor(public cartService: CartService, private router: Router) {
     this.totalPrice$ = this.cartService.totalPrice$;
     this.subtotal$ = this.cartService.cartItems$.pipe(
       map(items => items.reduce((sum, i) => sum + i.price * i.quantity, 0)), startWith(0)
@@ -45,11 +46,9 @@ export class CartPage {
 
 
   placeOrder(){
-    console.log('Placing order...');
-    this.cartService.placeOrder().subscribe({
-      next: () => console.log('Order done'),
-      error: err => console.error(err),
-    });
+    console.log('Preparing order...');
+    this.cartService.prepareOrder();
+    this.router.navigate(['/order/review']);
   }
 
   increaseQuantity(dish: Dish) {

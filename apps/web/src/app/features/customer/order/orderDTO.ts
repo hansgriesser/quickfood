@@ -1,14 +1,17 @@
 //alle Preise in Cent
+export interface OrderDraftDto {
+  restaurantId: string;
+  items: OrderItemDto[];
+  voucherCode?: string;
+  paymentMethodId?: PaymentMethod;
+}
 
 export interface OrderDto {
   id: string;
   restaurantId: string;
   customerId: number;
   status: OrderStatus;
-  subtotalAmount: number; 
-  discountAmount: number; 
-  totalAmount: number;    
-  voucherId?: string;
+  voucherCode?: string;
   estimatedArrivalAt?: string; 
   createdAt: string;           
   updatedAt: string;          
@@ -45,3 +48,9 @@ export const OrderStatusLabel: Record<OrderStatus, string> = {
   [OrderStatus.REJECTED]: 'Abgelehnt',
   [OrderStatus.CANCELLED]: 'Storniert',
 };
+
+export enum PaymentMethod {
+  CASH = 'CASH',
+  CARD = 'CARD',
+  ONLINE = 'ONLINE',
+}

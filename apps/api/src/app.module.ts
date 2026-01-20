@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { OwnerModule } from './owner/owner.module';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { OrderModule } from './order/order.module';
+import { VoucherController } from './voucher/voucher.controller';
+import { VoucherModule } from './voucher/voucher.module';
 
 @Module({
   imports: [
@@ -18,8 +20,9 @@ import { OrderModule } from './order/order.module';
     OwnerModule,
     RestaurantsModule,
     OrderModule,
+    VoucherModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, VoucherController],
   providers: [AppService],
 })
 export class AppModule {}
