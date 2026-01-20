@@ -4,6 +4,7 @@ import { AdminOverviewComponent } from './pages/overview/admin-overview.componen
 import { AdminRestaurantsComponent } from './pages/restaurants/admin-restaurants.component';
 import { AdminUsersComponent } from './pages/users/admin-users.component';
 import { AdminZonesComponent } from './pages/zones/admin-zones.component';
+import { AdminReportsComponent } from './pages/reports/admin-reports.component';
 
 
 const routes: Routes = [
@@ -11,6 +12,8 @@ const routes: Routes = [
   { path: 'restaurants', component: AdminRestaurantsComponent },
   { path: 'users', component: AdminUsersComponent },
   { path: 'zones', component: AdminZonesComponent },
+  { path: 'reports', component: AdminReportsComponent },
+
 ];
 
 @NgModule({
