@@ -1,7 +1,12 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { firstValueFrom } from "rxjs";
-import { LoginRequest, LoginResponse } from "./auth-model";
+import {
+    LoginRequest,
+    LoginResponse,
+    RegisterRequest,
+    RegisterResponse,
+} from "./auth-model";
 import { decodeJWT } from "./jwt.util";
 
 @Injectable({ providedIn: 'root' })
@@ -14,6 +19,14 @@ export class AuthService {
         const url = '/api/auth/login';
         
         const res = await firstValueFrom(this.http.post<LoginResponse>(url, req));
+        localStorage.setItem(this.tokenKey, res.access_token);
+        return res;
+    }
+
+    async register(req: RegisterRequest): Promise<RegisterResponse> {
+        const url = '/api/auth/register';
+
+        const res = await firstValueFrom(this.http.post<RegisterResponse>(url, req));
         localStorage.setItem(this.tokenKey, res.access_token);
         return res;
     }
