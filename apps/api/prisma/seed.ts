@@ -8,6 +8,7 @@ config({ path: join(process.cwd(), '.env') }); // Load .env from the api folder
 
 import {
   PrismaClient,
+  OrderStatus,
   RestaurantStatus,
   Role,
   VoucherType,
@@ -23,6 +24,17 @@ const adapter = new PrismaPg({
 });
 
 const prisma = new PrismaClient({ adapter });
+
+function randInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function daysAgo(n: number) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  d.setHours(randInt(10, 21), randInt(0, 59), 0, 0);
+  return d;
+}
 
 async function main() {
   // 1) Users
@@ -117,14 +129,36 @@ async function main() {
   // 3) Delivery zones
   const zoneA = await prisma.deliveryZone.upsert({
     where: { code: 'ZONE_A' },
-    update: { name: 'Zone A', active: true },
-    create: { code: 'ZONE_A', name: 'Zone A', active: true },
+    update: {
+      name: 'Zone A',
+      active: true,
+      typicalDeliveryMin: 20,
+      typicalDeliveryMax: 35,
+    },
+    create: {
+      code: 'ZONE_A',
+      name: 'Zone A',
+      active: true,
+      typicalDeliveryMin: 20,
+      typicalDeliveryMax: 35,
+    },
   });
 
   const zoneB = await prisma.deliveryZone.upsert({
     where: { code: 'ZONE_B' },
-    update: { name: 'Zone B', active: true },
-    create: { code: 'ZONE_B', name: 'Zone B', active: true },
+    update: {
+      name: 'Zone B',
+      active: true,
+      typicalDeliveryMin: 35,
+      typicalDeliveryMax: 50,
+    },
+    create: {
+      code: 'ZONE_B',
+      name: 'Zone B',
+      active: true,
+      typicalDeliveryMin: 35,
+      typicalDeliveryMax: 50,
+    },
   });
 
   // 4) Link zones to restaurants (M:N via join table)
@@ -277,6 +311,101 @@ async function main() {
     },
   ];
 
+  for (const dish of dishes) {
+    await prisma.dish.create({
+      data: dish,
+    });
+  }
+
+  // 7) Orders (for reporting / dashboard demo)
+  // If you already have orders from manual testing, we keep them.
+  // Otherwise, create a small dataset for the last 30 days.
+  const existingOrders = await prisma.order.count();
+
+  if (existingOrders === 0) {
+    const customer = await prisma.user.findUnique({
+      where: { username: 'charlie' },
+    });
+
+    if (!customer) {
+      console.log('No customer "charlie" found, skipping order seed');
+    } else {
+      const activeRestaurants = await prisma.restaurant.findMany({
+        where: { status: RestaurantStatus.ACTIVE },
+      });
+
+      if (!activeRestaurants.length) {
+        console.log('No ACTIVE restaurants found, skipping order seed');
+      } else {
+        // fetch created dishes (we deleted & re-inserted above)
+        const allDishes = await prisma.dish.findMany();
+
+        const orderCount = 40;
+        for (let i = 0; i < orderCount; i++) {
+          const restaurant =
+            activeRestaurants[randInt(0, activeRestaurants.length - 1)];
+
+          // pick 1-4 dishes that belong to the chosen restaurant
+          const restaurantDishes = allDishes.filter(
+            (d) => d.restaurantId === restaurant.id,
+          );
+          if (!restaurantDishes.length) continue;
+
+          const itemCount = randInt(1, Math.min(4, restaurantDishes.length));
+          const picked = Array.from({ length: itemCount }, () => {
+            return restaurantDishes[randInt(0, restaurantDishes.length - 1)];
+          });
+
+          const createdAt = daysAgo(randInt(0, 29));
+
+          const statusPool: OrderStatus[] = [
+            OrderStatus.ACCEPTED,
+            OrderStatus.PREPARING,
+            OrderStatus.READY,
+            OrderStatus.DISPATCHED,
+          ];
+          const status = statusPool[randInt(0, statusPool.length - 1)];
+
+          const itemsData = picked.map((dish) => {
+            const qty = randInt(1, 3);
+            const unit = BigInt(dish.price);
+            const total = unit * BigInt(qty);
+
+            return {
+              dishId: dish.id,
+              name: dish.name,
+              unitPrice: unit,
+              quantity: qty,
+              totalPrice: total,
+            };
+          });
+
+          const subtotal = itemsData.reduce(
+            (acc, it) => acc + it.totalPrice,
+            0n,
+          );
+          const discount = randInt(0, 200) === 0 ? 200n : 0n; // occasionally apply 2€ discount
+          const total = subtotal - discount;
+
+          await prisma.order.create({
+            data: {
+              restaurantId: restaurant.id,
+              customerId: customer.id,
+              status,
+              subtotalAmount: subtotal,
+              discountAmount: discount,
+              totalAmount: total,
+              estimatedArrivalAt: new Date(
+                createdAt.getTime() + randInt(20, 90) * 60_000,
+              ),
+              createdAt,
+              items: { create: itemsData },
+            },
+          });
+        }
+      }
+    }
+  }
   for (const restaurantId of restaurantIds) {
     await prisma.dish.deleteMany({
       where: { restaurantId },

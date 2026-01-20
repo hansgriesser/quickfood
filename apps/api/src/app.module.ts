@@ -10,10 +10,12 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
 import { OrderModule } from './order/order.module';
 import { VoucherController } from './voucher/voucher.controller';
 import { VoucherModule } from './voucher/voucher.module';
+import { ActivityModule } from './activity/activity.module';
 
 @Module({
   imports: [
     PrismaModule,
+    ActivityModule,
     UserModule,
     AdminModule,
     AuthModule,
