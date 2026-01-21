@@ -1,0 +1,166 @@
+@import '../../admin-ui.css';
+
+/* kleine, seiten-spezifische Anpassungen, aber KEIN Dark-Theme */
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.section {
+  padding: 16px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.section-title {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.section-subtitle {
+  margin: 0 0 12px 0;
+  color: var(--admin-muted);
+  font-size: 13px;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.w-240 { width: 240px; }
+.w-200 { width: 200px; }
+.w-full { width: 100%; }
+
+.actions-right {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* ===== Input Fixes (Admin Settings only) ===== */
+
+/* Chrome / Edge / Safari: number spinner entfernen */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+/* datetime-local: komische native Striche / Controls entschärfen */
+input[type="datetime-local"] {
+  position: relative;
+}
+
+/* Chrome: Separator & Clear-Button */
+input[type="datetime-local"]::-webkit-clear-button,
+input[type="datetime-local"]::-webkit-inner-spin-button {
+  display: none;
+}
+
+/* Buttons klar sichtbar machen */
+.admin-btn {
+  background: var(--admin-primary);
+  color: white;
+  border: none;
+}
+
+.admin-btn:hover {
+  background: var(--admin-primary-hover);
+}
+
+.admin-btn-danger {
+  background: #dc2626;
+}
+
+.admin-btn-danger:hover {
+  background: #b91c1c;
+}
+
+.admin-input,
+.admin-select {
+  height: 38px;
+}
+
+/* ===== Force visible buttons on this page ===== */
+.admin-page .admin-btn {
+  background: #2563eb !important;   /* blau */
+  color: #fff !important;
+  border: 1px solid #2563eb !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.admin-page .admin-btn:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}
+
+.admin-page .admin-btn:disabled {
+  background: #93c5fd !important;
+  border-color: #93c5fd !important;
+  color: #fff !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}
+
+/* Danger button (Deactivate) */
+.admin-page .admin-btn.admin-btn-danger,
+.admin-page .admin-btn-danger {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+}
+
+.admin-page .admin-btn.admin-btn-danger:hover,
+.admin-page .admin-btn-danger:hover {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+}
+
+/* Date + Time nebeneinander erzwingen */
+.dt-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  align-items: center;
+}
+
+/* Inputs in der dt-row NICHT auf 100% blocken lassen */
+.dt-row .admin-input {
+  width: 100% !important;
+  display: block;
+}
+
+/* Nur auf kleinen Screens untereinander */
+@media (max-width: 600px) {
+  .dt-row {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.dt-row input[type="time"] {
+  max-width: 160px;
+}
