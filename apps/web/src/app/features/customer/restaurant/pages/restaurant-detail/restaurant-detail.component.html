@@ -5,7 +5,7 @@
 <section *ngIf="restaurant$ | async as restaurant; else loading">
 
   <!-- Zurück-Link -->
-  <nav>
+  <nav class="restaurant-nav">
     <a routerLink="/restaurants">← Zurück zur Liste</a>
     <a routerLink="/cart" class="cart-indicator">
       🛒 {{ (cartItems$ | async)?.length || 0 }}
@@ -13,35 +13,10 @@
   </nav>
 
   <!-- Header -->
-  <header class="restaurant-header">
-    <h1>{{ restaurant.name }}</h1>
-
-    <p class="category" *ngIf="restaurant.category">
-      {{ restaurant.category }}
-    </p>
-
-    <p class="rating">
-      Bewertung: {{ restaurant.rating }} / 5
-    </p>
-
-    <p *ngIf="restaurant.contactEmail">
-      E-Mail: {{ restaurant.contactEmail }}
-    </p>
-
-    <p *ngIf="restaurant.contactPhone">
-      Telefon: {{ restaurant.contactPhone }}
-    </p>
-
-    <p *ngIf="restaurant.address">
-      Adresse: {{ restaurant.address }}
-    </p>
-
-    <a *ngIf="restaurant.address"
-       [href]="'https://www.google.com/maps/search/?api=1&query=' + restaurant.address"
-       target="_blank">
-      In Google Maps öffnen
-    </a>
-  </header>
+  <app-restaurant-header class="restaurant-header"
+    *ngIf="restaurant$ | async as restaurant"
+    [restaurant]="restaurant">
+  </app-restaurant-header>
 
   <!-- Speisekarte -->
 <section class="menu" *ngIf="categories$ | async as categories; else loading">

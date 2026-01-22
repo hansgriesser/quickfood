@@ -7,21 +7,37 @@ export class OrderService {
   constructor(private prisma: PrismaService) {}
 
   async placeOrder(order: OrderDto, userId: number) {
+    const itemsWithTotals = order.items.map((item) => {
+      const totalPrice = BigInt(item.quantity) * BigInt(item.unitPrice ?? 0);
+      return {
+        ...item,
+        totalPrice,
+      };
+    });
+
+    const subtotalAmount = itemsWithTotals.reduce(
+      (sum, item) => sum + item.totalPrice,
+      BigInt(0),
+    );
+
+    const discountAmount = BigInt(0); // Platzhalter, Berechnung einfügen
+    const totalAmount = subtotalAmount - discountAmount;
+
     const created = await this.prisma.order.create({
       data: {
         restaurantId: order.restaurantId,
         customerId: userId,
         status: order.status,
-        subtotalAmount: BigInt(order.subtotalAmount),
-        discountAmount: BigInt(order.discountAmount),
-        totalAmount: BigInt(order.totalAmount),
+        subtotalAmount: subtotalAmount,
+        discountAmount: discountAmount,
+        totalAmount: totalAmount,
         items: {
           create: order.items.map((item) => ({
             dishId: item.dishId,
             name: item.name,
             unitPrice: BigInt(item.unitPrice),
             quantity: item.quantity,
-            totalPrice: BigInt(item.totalPrice),
+            totalPrice: item.totalPrice,
           })),
         },
       },

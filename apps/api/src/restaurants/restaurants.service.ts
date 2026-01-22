@@ -25,7 +25,7 @@ export class RestaurantsService {
   async getById(id: string) {
     return this.prisma.restaurant.findUnique({
       where: { id },
-      select: { category: true, rating: true },
+      select: { category: true, rating: true, name: true },
     });
   }
 

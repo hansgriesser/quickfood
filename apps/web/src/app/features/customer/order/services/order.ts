@@ -13,30 +13,29 @@ export class OrderService {
   constructor(private http: HttpClient) {}
 
   placeOrder(orderDraft: OrderDraftDto) {
-    const order : OrderDto = this.mapToOrderDto(orderDraft);
-    console.log('Sending order to server:', order);
-    return this.http.post(`${this.baseUrl}`, order)
-    .pipe(
-      tap({
-        next: (res) => console.log('Server response:', res),
-        error: (err) => console.error('HTTP Error:', err)
-      })
-    );
+    console.log('Preparing to place order with draft:', orderDraft);
+    const order : Partial<OrderDto> = this.mapToOrderDto(orderDraft);
+    console.log('Placing order:', order);
+    return this.http.post(`${this.baseUrl}`, order);
   }
 
   
-  //Hilfsfunktionen
-  mapToOrderDto(draft: OrderDraftDto): OrderDto {
-    return {
-      id: '', //wird vom Server gesetzt
-      restaurantId: draft.restaurantId,
-      customerId: 0, //wird vom Server gesetzt
-      status: OrderStatus.PENDING,
-      items: draft.items,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      voucherCode: draft.voucherCode
-    };
-  }
+  mapToOrderDto(draft: OrderDraftDto): Partial<OrderDto> {
+  return {
+    restaurantId: draft.restaurantId,
+    customerId: 0,//draft.customerId, // muss gültig sein
+    status: OrderStatus.PENDING,
+    voucherCode: draft.voucherCode ?? null,
+    items: draft.items.map(item => ({
+      dishId: item.dishId,
+      name: item.name,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      totalPrice: item.totalPrice
+      // id, orderId, createdAt weglassen → Backend setzt
+    }))
+  };
+}
+
 
 }

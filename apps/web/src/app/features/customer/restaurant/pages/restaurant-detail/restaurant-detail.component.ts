@@ -8,11 +8,12 @@ import { switchMap, map, groupBy } from 'rxjs/operators';
 import { Dish, MenuCategory, Restaurant } from '../../restaurant.model';
 import { CartService } from '../../../cart/services/cart';
 import { CartItemDto } from '../../../cart/cartDTO';
+import { RestaurantHeader } from '../../components/restaurant-header/restaurant-header';
 
 @Component({
   selector: 'app-restaurant-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, RestaurantHeader],
   templateUrl: './restaurant-detail.component.html',
   styleUrls: ['./restaurant-detail.component.css'],
 })

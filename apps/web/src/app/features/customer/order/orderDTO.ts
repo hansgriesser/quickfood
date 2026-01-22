@@ -11,7 +11,7 @@ export interface OrderDto {
   restaurantId: string;
   customerId: number;
   status: OrderStatus;
-  voucherCode?: string;
+  voucherCode: string | null;
   estimatedArrivalAt?: string; 
   createdAt: string;           
   updatedAt: string;          
@@ -19,14 +19,14 @@ export interface OrderDto {
 }
 
 export interface OrderItemDto {
-  id: number;
-  orderId: string;
+  id?: number;
+  orderId?: string;
   dishId?: number;      
   name: string;
   unitPrice: number;    
   quantity: number;
   totalPrice: number;  
-  createdAt: string;   
+  createdAt?: string;   
 }
 
 export enum OrderStatus {

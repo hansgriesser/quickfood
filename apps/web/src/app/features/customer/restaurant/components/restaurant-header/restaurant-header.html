@@ -1,0 +1,12 @@
+<div *ngIf="restaurant" class="restaurant-header">
+  <div class="restaurant-header-content">
+    <div class="restaurant-main">
+      <h2 class="name">{{ restaurant.name }}</h2>
+      <p class="category">{{ restaurant.category }}</p>
+    </div>
+
+    <div class="restaurant-meta">
+      <span class="rating">⭐ {{ restaurant.rating }}</span>
+    </div>
+  </div>
+</div>

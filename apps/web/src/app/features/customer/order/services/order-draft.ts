@@ -18,15 +18,17 @@ export class OrderDraft {
   });
   draft$ = this.draftSubject.asObservable();
 
-  prepareOrder(cart : CartDto) {
-      const items = this.getOrderItems(cart.items);
-      const order : OrderDraftDto = {
-        restaurantId: cart.restaurantId,
-        items: items,
-      };
-      console.log('Preparing order:', order);
-      this.draftSubject.value.restaurantId = order.restaurantId;
-      this.draftSubject.value.items = order.items;
+  prepareOrder(cart: CartDto) {
+    const items = this.getOrderItems(cart.items);
+
+    const order: OrderDraftDto = {
+      restaurantId: cart.restaurantId,
+      items: items,
+    };
+
+    console.log('Preparing order:', order);
+
+    this.draftSubject.next(order);
   }
 
   private getOrderItems(items: CartItemDto[]): OrderItemDto[] {
