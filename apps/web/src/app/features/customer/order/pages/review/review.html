@@ -1,4 +1,10 @@
 <section class="review-page" *ngIf="draft$ | async as draft">
+
+  <app-restaurant-header class="restaurant-header"
+    *ngIf="restaurant$ | async as restaurant"
+    [restaurant]="restaurant">
+  </app-restaurant-header>
+  
   <h2>Bestellung prüfen</h2>
 
   <div class="cart-item-card" *ngFor="let item of draft.items">

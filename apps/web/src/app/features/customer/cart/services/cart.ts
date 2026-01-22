@@ -20,6 +20,9 @@ export class CartService {
   cartItems$ = this.cart$.pipe(
     map(cart => cart.items)
   );
+  restaurantId$ = this.cart$.pipe(
+    map(cart => cart.restaurantId)
+  );
   totalPrice$ = this.cart$.pipe(
     map(cart => {
       const subtotal = cart.items.reduce(

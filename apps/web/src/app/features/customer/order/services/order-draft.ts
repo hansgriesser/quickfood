@@ -3,7 +3,7 @@ import { OrderDraftDto, OrderItemDto } from '../orderDTO';
 import { CartDto, CartItemDto } from '../../cart/cartDTO';
 import { OrderService } from './order';
 import { Voucher } from './voucher';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -17,6 +17,9 @@ export class OrderDraft {
     items: []
   });
   draft$ = this.draftSubject.asObservable();
+  restaurantId$ = this.draft$.pipe(
+      map(draft => draft.restaurantId)
+    );
 
   prepareOrder(cart: CartDto) {
     const items = this.getOrderItems(cart.items);

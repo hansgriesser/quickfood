@@ -1,4 +1,10 @@
 <section class="cart-page" *ngIf="cartItems$ | async as items; else emptyCart">
+
+  <app-restaurant-header class="restaurant-header"
+    *ngIf="restaurant$ | async as restaurant"
+    [restaurant]="restaurant">
+  </app-restaurant-header>
+
   <h2>Dein Warenkorb</h2>
 
   <div class="cart-item-card" *ngFor="let item of items">
