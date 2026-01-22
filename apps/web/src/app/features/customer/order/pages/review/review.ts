@@ -5,6 +5,7 @@ import { OrderDraftDto } from '../../orderDTO';
 import { Observable } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { Voucher } from '../../services/voucher';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-review',
@@ -14,7 +15,7 @@ import { Voucher } from '../../services/voucher';
 })
 export class Review {
 
-  constructor(private orderDraftService: OrderDraft, private voucherService: Voucher) {
+  constructor(private orderDraftService: OrderDraft, private voucherService: Voucher, private router: Router) {
     this.draft$ = this.orderDraftService.draft$;
     this.subtotalAmount$ = this.orderDraftService.subtotalAmount;
     this.discountAmount$ = this.orderDraftService.discountAmount;
@@ -38,6 +39,7 @@ export class Review {
 
   goToPayment() {
     console.log('Navigating to payment...');
+    this.router.navigate(['/order/payment']);
   }
 
 }
