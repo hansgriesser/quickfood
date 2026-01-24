@@ -1,28 +1,71 @@
 import { Injectable } from '@angular/core';
 import { Dish } from '../../restaurant/restaurant.model';
-import { BehaviorSubject, map, Observable } from 'rxjs';
-import { CartItemDto } from '../cartDTO';
+import { BehaviorSubject, map} from 'rxjs';
+import { CartDto, CartItemDto } from '../cartDTO';
+import { OrderDraft } from '../../order/services/order-draft';
+import { ServiceFee } from '../../order/services/service-fee';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CartService {
 
-  private cartItemsSubject = new BehaviorSubject<CartItemDto[]>([]);
-  cartItems$ = this.cartItemsSubject.asObservable();
-  serviceFee = 0.1; //replace with database call
+  private cartSubject = new BehaviorSubject<CartDto>({
+    restaurantId: '',
+    items: [],
+    totalPrice: 0
+  });
 
-  constructor() {
+  cart$ = this.cartSubject.asObservable();
+  cartItems$ = this.cart$.pipe(
+    map(cart => cart.items)
+  );
+  restaurantId$ = this.cart$.pipe(
+    map(cart => cart.restaurantId)
+  );
+  totalPrice$ = this.cart$.pipe(
+    map(cart => {
+      const subtotal = cart.items.reduce(
+        (acc, i) => acc + i.price * i.quantity,
+        0
+      );
+
+      const fee = Math.round(subtotal * this.serviceFee);
+      return subtotal + fee;
+    })
+  );
+
+  serviceFee = 0.1; 
+
+  constructor(private orderDraftService: OrderDraft, private feeService: ServiceFee) {
     const saved = localStorage.getItem('cart');
     if (saved) {
-      this.cartItemsSubject.next(JSON.parse(saved));
+      this.cartSubject.next(JSON.parse(saved) as CartDto);
     }
-
     // automatisch speichern bei jeder Änderung
-    this.cartItems$.subscribe(items => localStorage.setItem('cart', JSON.stringify(items)));
+    this.cart$.subscribe(cart => localStorage.setItem('cart', JSON.stringify(cart)));
+    this.serviceFee = this.feeService.getServiceFee();
   }
 
-  addDish(dish: Dish){
+  //Kommunikation mit Services
+  
+  prepareOrder() {
+    return this.orderDraftService.prepareOrder(this.cartSubject.value);
+  }
+
+  //Cart Operationen
+
+  clearCart() {
+    this.cartSubject.next({
+      restaurantId: '',
+      items: [],
+      totalPrice: 0
+    });
+  }
+  
+  addDish(dish: Dish, restaurantId?: string) {
+    const cart = this.cartSubject.value;
+
     const item: CartItemDto = {
       dishId: dish.id,
       name: dish.name,
@@ -31,58 +74,87 @@ export class CartService {
       pictureUrl: dish.pictureUrl
     };
 
-  this.addItem(item);
+    const updatedCart: CartDto = {
+      ...cart,
+      restaurantId: cart.restaurantId || restaurantId || '',
+      items: this.addOrUpdateItem(cart.items, item),
+    };
+
+    this.updateCart(updatedCart);
   }
 
   addItem(item: CartItemDto) {
-    const items = this.cartItemsSubject.value;
-    const existing = items.find(i => i.dishId === item.dishId);
+    const cart = this.cartSubject.value;
+    const existing = cart.items.find(i => i.dishId === item.dishId);
 
     if (existing) {
       existing.quantity++;
     } else {
-      items.push(item);
+      cart.items.push(item);
     }
 
-    // Subject push → UI updated automatisch
-    this.cartItemsSubject.next([...items]);
+    this.updateCart(cart);
   }
 
   removeItem(dishId: number) {
-    const items = this.cartItemsSubject.value.filter(i => i.dishId !== dishId);
-    this.cartItemsSubject.next(items);
+    const cart = this.cartSubject.value;
+
+    this.updateCart({
+      ...cart,
+      items: cart.items.filter(i => i.dishId !== dishId)
+    });
   }
 
-  removeOneItem(dishId: number){
-    const items = this.cartItemsSubject.value;
-    const item = this.getItemById(dishId);
-    if(item === undefined) return;
-    if(item.quantity > 1) {
-      item.quantity--;
-      this.cartItemsSubject.next([...items]);
-    } else if(item.quantity === 1) {
-      this.removeItem(dishId);
+  removeOneItem(dishId: number) {
+    const cart = this.cartSubject.value;
+
+    const updatedItems = cart.items
+      .map(i =>
+        i.dishId === dishId
+          ? { ...i, quantity: i.quantity - 1 }
+          : i
+      )
+      .filter(i => i.quantity > 0);
+
+    this.updateCart({
+      ...cart,
+      items: updatedItems
+    });
+  }
+
+  //Hiilfsfunktionen
+
+  private updateCart(cart: CartDto) {
+    const subtotal = cart.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    const totalPrice = subtotal + Math.round(subtotal * this.serviceFee);
+
+    this.cartSubject.next({
+      ...cart,
+      totalPrice
+    });
+  }
+
+
+  private addOrUpdateItem(
+    items: CartItemDto[],
+    item: CartItemDto
+  ): CartItemDto[] {
+    const safeItems = items || [];
+    const existing = safeItems.find(i => i.dishId === item.dishId);
+
+    if (!existing) {
+      return [... safeItems, item];
     }
-  }
 
-  clearCart() {
-    this.cartItemsSubject.next([]);
-  }
-
-  get totalPrice$(): Observable<number> {
-    return this.cartItems$.pipe(
-      map(items => {
-        const sum = items.reduce((acc, i) => acc + i.price * i.quantity, 0);
-        const total = sum + sum * this.serviceFee;
-        return total;
-      })
+    return safeItems.map(i =>
+      i.dishId === item.dishId
+        ? { ...i, quantity: i.quantity + 1 }
+        : i
     );
   }
-
-  getItemById(dishId: number) : CartItemDto | undefined{
-    return this.cartItemsSubject.value.find(item => item.dishId === dishId);
-  }
-
-  
 
 }

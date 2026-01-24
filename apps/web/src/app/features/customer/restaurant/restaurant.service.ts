@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Dish, MenuCategory, Restaurant } from './restaurant.model';
 
 @Injectable({
@@ -17,8 +17,9 @@ export class RestaurantService {
   }
 
   getRestaurantById(id: string): Observable<Restaurant> {
-    return this.http.get<Restaurant>(`${this.apiUrl}/${id}`);
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
+
 
   getCategoriesForRestaurant(id: string): Observable<MenuCategory[]> {
     return this.http.get<MenuCategory[]>(`${this.apiUrl}/${id}/dishes`);

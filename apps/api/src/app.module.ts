@@ -7,6 +7,9 @@ import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { OwnerModule } from './owner/owner.module';
 import { RestaurantsModule } from './restaurants/restaurants.module';
+import { OrderModule } from './order/order.module';
+import { VoucherController } from './voucher/voucher.controller';
+import { VoucherModule } from './voucher/voucher.module';
 import { ActivityModule } from './activity/activity.module';
 
 @Module({
@@ -18,8 +21,10 @@ import { ActivityModule } from './activity/activity.module';
     AuthModule,
     OwnerModule,
     RestaurantsModule,
+    OrderModule,
+    VoucherModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, VoucherController],
   providers: [AppService],
 })
 export class AppModule {}

@@ -22,9 +22,20 @@ nav a {
   font-weight: 500;
   margin-bottom: 12px;
 }
+
 nav a:hover {
   text-decoration: underline;
 }
+
+.restaurant-nav {
+  display: flex;
+  justify-content: space-between; /* links/rechts */
+  align-items: center;            /* vertikal zentrieren */
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+
 
 .restaurant-header {
   display: flex;

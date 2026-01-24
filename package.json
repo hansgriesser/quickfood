@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@prisma/adapter-ppg": "^7.2.0",
+    "@prisma/client": "^7.3.0",
     "@prisma/ppg": "^1.0.1"
   }
 }

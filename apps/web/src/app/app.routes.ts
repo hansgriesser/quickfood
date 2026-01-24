@@ -24,6 +24,9 @@ export const routes: Routes = [
         path: 'cart', loadChildren: () => import('./features/customer/cart/cart-module').then(m => m.CartModule)
     },
     {
+        path: 'order', loadChildren: () => import('./features/customer/order/order-module').then(m => m.OrderModule )
+    },
+    {
         path:'**', redirectTo: 'login'
     }
 ];
