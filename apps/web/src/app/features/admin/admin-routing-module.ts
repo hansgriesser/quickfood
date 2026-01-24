@@ -5,6 +5,7 @@ import { AdminRestaurantsComponent } from './pages/restaurants/admin-restaurants
 import { AdminUsersComponent } from './pages/users/admin-users.component';
 import { AdminZonesComponent } from './pages/zones/admin-zones.component';
 import { AdminReportsComponent } from './pages/reports/admin-reports.component';
+import { AdminSettingsComponent } from './pages/settings/admin-settings.component';
 
 
 const routes: Routes = [
@@ -13,6 +14,8 @@ const routes: Routes = [
   { path: 'users', component: AdminUsersComponent },
   { path: 'zones', component: AdminZonesComponent },
   { path: 'reports', component: AdminReportsComponent },
+  { path: 'settings', component: AdminSettingsComponent },
+
 
 ];
 
