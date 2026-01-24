@@ -16,8 +16,6 @@ import { AdminSettingsComponent } from './pages/settings/admin-settings.componen
     AdminRestaurantsComponent,
     AdminUsersComponent,
     AdminZonesComponent,
-    //AdminSettingsComponent,
-
   ],
 })
 export class AdminModule {}

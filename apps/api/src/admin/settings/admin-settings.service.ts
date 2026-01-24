@@ -139,8 +139,9 @@ export class AdminSettingService {
       data.value = Math.trunc(value);
     }
 
+    // set active only when provided in DTO
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (dto.active! == undefined) data.active = dto.active;
+    if (dto.active !== undefined) data.active = dto.active;
 
     if (dto.usageLimit !== undefined) {
       const usageLimit = Number(dto.usageLimit);

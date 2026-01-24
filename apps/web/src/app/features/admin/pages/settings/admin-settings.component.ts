@@ -26,6 +26,9 @@ export class AdminSettingsComponent implements OnInit {
     vouchers: Voucher[] = [];
     creatingVoucher = false;
 
+    // track vouchers being updated to disable buttons and show state
+    updatingVoucherIds: Set<string> = new Set();
+
     validFromDate = '';
     validToDate = '';
 
@@ -121,12 +124,19 @@ export class AdminSettingsComponent implements OnInit {
 
     async toggleVoucher(v: Voucher) {
         this.error = null;
+        // mark as updating so button can be disabled
+        this.updatingVoucherIds.add(v.id);
         this.cdr.detectChanges();
 
         try {
             const updated = await this.settings.updateVoucher(v.id, { active: !v.active });
+
+            // update the local voucher object with server response so UI reflects change
+            Object.assign(v, updated);
         } catch (e: any) {
             this.error = e?.error?.message ?? 'Failed to update voucher';
+        } finally {
+            this.updatingVoucherIds.delete(v.id);
             this.cdr.detectChanges();
         }
     }

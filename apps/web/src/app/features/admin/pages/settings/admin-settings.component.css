@@ -1,6 +1,5 @@
 @import '../../admin-ui.css';
 
-/* kleine, seiten-spezifische Anpassungen, aber KEIN Dark-Theme */
 
 .grid-2 {
   display: grid;
@@ -60,9 +59,7 @@
   margin-top: 12px;
 }
 
-/* ===== Input Fixes (Admin Settings only) ===== */
 
-/* Chrome / Edge / Safari: number spinner entfernen */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -70,18 +67,15 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 
-/* datetime-local: komische native Striche / Controls entschärfen */
 input[type="datetime-local"] {
   position: relative;
 }
 
-/* Chrome: Separator & Clear-Button */
 input[type="datetime-local"]::-webkit-clear-button,
 input[type="datetime-local"]::-webkit-inner-spin-button {
   display: none;
 }
 
-/* Buttons klar sichtbar machen */
 .admin-btn {
   background: var(--admin-primary);
   color: white;
@@ -105,9 +99,9 @@ input[type="datetime-local"]::-webkit-inner-spin-button {
   height: 38px;
 }
 
-/* ===== Force visible buttons on this page ===== */
+
 .admin-page .admin-btn {
-  background: #2563eb !important;   /* blau */
+  background: #2563eb !important;
   color: #fff !important;
   border: 1px solid #2563eb !important;
   opacity: 1 !important;
@@ -127,7 +121,7 @@ input[type="datetime-local"]::-webkit-inner-spin-button {
   opacity: 1 !important;
 }
 
-/* Danger button (Deactivate) */
+
 .admin-page .admin-btn.admin-btn-danger,
 .admin-page .admin-btn-danger {
   background: #dc2626 !important;
@@ -140,7 +134,7 @@ input[type="datetime-local"]::-webkit-inner-spin-button {
   border-color: #b91c1c !important;
 }
 
-/* Date + Time nebeneinander erzwingen */
+
 .dt-row {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
@@ -148,13 +142,11 @@ input[type="datetime-local"]::-webkit-inner-spin-button {
   align-items: center;
 }
 
-/* Inputs in der dt-row NICHT auf 100% blocken lassen */
 .dt-row .admin-input {
   width: 100% !important;
   display: block;
 }
 
-/* Nur auf kleinen Screens untereinander */
 @media (max-width: 600px) {
   .dt-row {
     grid-template-columns: 1fr !important;

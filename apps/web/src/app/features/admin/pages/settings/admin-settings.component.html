@@ -107,8 +107,9 @@
                     class="admin-btn"
                     [class.admin-btn-danger]="v.active"
                     (click)="toggleVoucher(v)"
+                    [disabled]="updatingVoucherIds.has(v.id)"
                   >
-                    {{ v.active ? 'Deactivate' : 'Activate' }}
+                    {{ updatingVoucherIds.has(v.id) ? (v.active ? 'Deactivating…' : 'Activating…') : (v.active ? 'Deactivate' : 'Activate') }}
                   </button>
                 </td>
               </tr>
