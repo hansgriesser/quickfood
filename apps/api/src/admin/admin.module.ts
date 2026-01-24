@@ -11,6 +11,8 @@ import { AdminActivityController } from './activity/admin-activity.controller';
 import { AdminActivityService } from './activity/admin-activity.service';
 import { AdminReportsController } from './reports/admin-reports.controller';
 import { AdminReportsService } from './reports/admin-reports.service';
+import { AdminSettingsController } from './settings/admin-settings.controller';
+import { AdminSettingService } from './settings/admin-settings.service';
 
 @Module({
   controllers: [
@@ -20,6 +22,7 @@ import { AdminReportsService } from './reports/admin-reports.service';
     AdminZonesController,
     AdminActivityController,
     AdminReportsController,
+    AdminSettingsController,
   ],
   providers: [
     AdminRestaurantsService,
@@ -29,6 +32,7 @@ import { AdminReportsService } from './reports/admin-reports.service';
     AdmiZonesService,
     AdminActivityService,
     AdminReportsService,
+    AdminSettingService,
   ],
 })
 export class AdminModule {}
