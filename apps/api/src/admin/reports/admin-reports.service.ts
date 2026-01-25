@@ -38,24 +38,6 @@ export class AdminReportsService {
     return this.buildOrdersRevenueReport({ from, to, groupBy });
   }
 
-  async ordersReportCsv(args: {
-    from?: string;
-    to?: string;
-    groupBy?: ReportGroupBy;
-  }) {
-    const report = await this.ordersReport(args);
-    return this.toCsv(report);
-  }
-
-  async revenueReportCsv(args: {
-    from?: string;
-    to?: string;
-    groupBy?: ReportGroupBy;
-  }) {
-    const report = await this.revenueReport(args);
-    return this.toCsv(report);
-  }
-
   private normalizeArgs(args: {
     from?: string;
     to?: string;
@@ -237,28 +219,5 @@ export class AdminReportsService {
       totals,
       points,
     };
-  }
-
-  private toCsv(report: any): string {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (report.groupBy === 'day') {
-      const header = 'date,orders,revenueCents';
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      const lines = report.points.map(
-        (p: DailyOrdersRevenuePoint) =>
-          `${p.date},${p.orders},${p.revenueCents}`,
-      );
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      return [header, ...lines].join('\n');
-    }
-
-    const header = 'restaurantId,restaurantName,orders,revenueCents';
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const lines = report.points.map(
-      (p: RestaurantOrdersRevenuePoint) =>
-        `${p.restaurantId},"${String(p.restaurantName).replace(/"/g, '""')}",${p.orders},${p.revenueCents}`,
-    );
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    return [header, ...lines].join('\n');
   }
 }

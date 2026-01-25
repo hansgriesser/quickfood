@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { NumberSymbol } from '@angular/common';
 
 export type ReportGroupBy = 'day' | 'restaurant';
 
@@ -51,14 +50,6 @@ export class AdminReportsService {
   const qp = this.buildQuery(params);
   return this.http.get<OrdersRevenueReport>(`/api/admin/reports/revenue${qp}`);
 }
-
-  ordersCsvUrl(params: { from?: string; to?: string; groupBy?: ReportGroupBy }) {
-    return `/api/admin/reports/orders.csv${this.buildQuery(params)}`;
-  }
-
-  revenueCsvUrl(params: { from?: string; to?: string; groupBy?: ReportGroupBy }) {
-    return `/api/admin/reports/revenue.csv${this.buildQuery(params)}`;
-  }
 
   private buildQuery(params: { from?: string; to?: string; groupBy?: ReportGroupBy }) {
     const q: string[] = [];

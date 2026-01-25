@@ -29,26 +29,4 @@ export class AdminReportsController {
   ) {
     return this.service.revenueReport({ from, to, groupBy });
   }
-
-  @Get('orders.csv')
-  @Header('Cache-Control', 'no-store')
-  @Header('Content-Type', 'text/csv; charset=utf-8')
-  async ordersCsv(
-    @Query('from') from?: string,
-    @Query('to') to?: string,
-    @Query('groupBy') groupBy?: ReportGroupBy,
-  ) {
-    return this.service.ordersReportCsv({ from, to, groupBy });
-  }
-
-  @Get('revenue.csv')
-  @Header('Cache-Control', 'no-store')
-  @Header('Content-Type', 'text/csv; charset=utf-8')
-  async revenueCsv(
-    @Query('from') from?: string,
-    @Query('to') to?: string,
-    @Query('groupBy') groupBy?: ReportGroupBy,
-  ) {
-    return this.service.revenueReportCsv({ from, to, groupBy });
-  }
 }
