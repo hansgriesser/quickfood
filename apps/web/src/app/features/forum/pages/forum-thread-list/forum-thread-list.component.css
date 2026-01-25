@@ -1,0 +1,45 @@
+.thread-list { display: grid; gap: 12px; }
+
+.thread-card {
+  display: block;
+  padding: 14px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  text-decoration: none;
+  color: var(--admin-text);
+  background: #fff;
+}
+
+.thread-card:hover { background: var(--admin-surface); }
+
+.thread-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.thread-title { font-weight: 800; font-size: 16px; }
+
+.thread-meta { margin-top: 6px; color: var(--admin-muted); font-size: 13px; }
+
+.thread-preview {
+  margin-top: 10px;
+  color: var(--admin-text);
+  font-size: 14px;
+  opacity: 0.95;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sep {
+  border: none;
+  border-top: 1px solid var(--admin-border);
+  margin: 16px 0;
+}
+
+.create-box h3 { margin: 0 0 12px 0; }
+
+.area { width: 100%; }

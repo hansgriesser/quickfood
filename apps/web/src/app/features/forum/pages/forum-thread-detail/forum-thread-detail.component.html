@@ -1,0 +1,85 @@
+<div class="admin-page" *ngIf="!loading && thread; else loadingTpl">
+  <div class="admin-header">
+    <div>
+      <h1 class="admin-title">{{ thread.title }}</h1>
+      <p class="admin-subtitle">
+        Restaurant: <b>{{ thread.restaurant.name }}</b> · von <b>{{ thread.author.username }}</b> · {{ thread.createdAt | date:'short' }}
+        <span class="admin-badge" *ngIf="thread.isClosed">Closed</span>
+      </p>
+    </div>
+
+    <div class="admin-actions">
+      <a class="admin-link" [routerLink]="['/forum/restaurant', thread.restaurantId]">← Zurück</a>
+      <a class="admin-link" [routerLink]="['/restaurants', thread.restaurantId]">Zum Restaurant</a>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="admin-alert admin-alert-error">{{ error }}</div>
+
+  <div class="admin-panel">
+    <div class="admin-panel-inner">
+
+      <div class="question">
+        <h3>Frage</h3>
+        <div class="box">{{ thread.content }}</div>
+      </div>
+
+      <div class="moderation" *ngIf="isOwner">
+        <button class="admin-btn" (click)="closeThread()" [disabled]="thread.isClosed">Thread schließen</button>
+        <button class="admin-btn admin-btn-danger" (click)="deleteThread()">Thread löschen</button>
+        <p class="admin-muted hint">
+          Moderation ist nur erlaubt, wenn du Owner dieses Restaurants bist (Backend prüft das).
+        </p>
+      </div>
+
+      <hr class="sep" />
+
+      <div class="answers">
+        <h3>Antworten ({{ thread.post.length }})</h3>
+
+        <div class="post" *ngFor="let p of thread.post">
+          <div class="post-meta">
+            <b>{{ p.author.username }}</b> · {{ p.createdAt | date:'short' }}
+            <button *ngIf="isOwner" class="admin-btn admin-btn-ghost small" (click)="deletePost(p.id)">
+              löschen
+            </button>
+          </div>
+          <div class="box">{{ p.content }}</div>
+        </div>
+
+        <div class="admin-muted" *ngIf="thread.post.length === 0">
+          Noch keine Antworten.
+        </div>
+      </div>
+
+      <hr class="sep" />
+
+      <div *ngIf="isLoggedIn; else loginHint" class="reply-box">
+        <h3>Antwort schreiben</h3>
+
+        <textarea class="admin-input area" [(ngModel)]="reply" rows="4" [disabled]="thread.isClosed"
+          placeholder="Deine Antwort..."></textarea>
+
+        <div class="reply-actions">
+          <button class="admin-btn admin-btn-primary" (click)="sendReply()"
+            [disabled]="thread.isClosed || !reply.trim()">
+            Antworten
+          </button>
+          <span class="admin-muted" *ngIf="thread.isClosed">Thread ist geschlossen.</span>
+        </div>
+      </div>
+
+      <ng-template #loginHint>
+        <div class="admin-muted">Bitte einloggen, um zu antworten.</div>
+      </ng-template>
+
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="admin-page">
+    <div *ngIf="loading">Lade Thread…</div>
+    <div *ngIf="!loading && error" class="admin-alert admin-alert-error">{{ error }}</div>
+  </div>
+</ng-template>

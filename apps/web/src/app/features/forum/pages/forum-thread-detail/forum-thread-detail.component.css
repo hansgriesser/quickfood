@@ -1,0 +1,42 @@
+.box {
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  padding: 12px;
+  background: #fff;
+  white-space: pre-wrap;
+}
+
+.sep {
+  border: none;
+  border-top: 1px solid var(--admin-border);
+  margin: 16px 0;
+}
+
+.area { width: 100%; }
+
+.post { margin-top: 12px; }
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--admin-muted);
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.small {
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.reply-actions {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hint { margin-top: 8px; }

@@ -1,0 +1,86 @@
+<div class="admin-page">
+  <div class="admin-header">
+    <div>
+      <h1 class="admin-title">Forum</h1>
+      <p class="admin-subtitle">Fragen & Antworten zu diesem Restaurant</p>
+    </div>
+
+    <div class="admin-actions">
+      <a class="admin-link" routerLink="/restaurants">← Zurück zu Restaurants</a>
+    </div>
+  </div>
+
+  <div class="admin-panel">
+    <div class="admin-panel-inner">
+
+      <div *ngIf="loading">Lade Threads…</div>
+
+      <div *ngIf="!loading && error" class="admin-alert admin-alert-error">
+        {{ error }}
+      </div>
+
+      <div *ngIf="!loading && !error && threads.length === 0" class="admin-muted">
+        Noch keine Threads. Stell die erste Frage.
+      </div>
+
+      <div *ngIf="!loading && !error && threads.length > 0" class="thread-list">
+        <a
+          class="thread-card"
+          *ngFor="let t of threads"
+          [routerLink]="['/forum/thread', t.id]"
+        >
+          <div class="thread-top">
+            <div class="thread-title">{{ t.title }}</div>
+            <span class="admin-badge" *ngIf="t.isClosed">Closed</span>
+          </div>
+
+          <div class="thread-meta">
+            von <b>{{ t.author.username }}</b> · {{ t.createdAt | date:'short' }} · Antworten: {{ t._count.post }}
+          </div>
+
+          <div class="thread-preview">{{ t.content }}</div>
+        </a>
+      </div>
+
+      <hr class="sep" />
+
+      <div *ngIf="isLoggedIn; else loginHint" class="create-box">
+        <h3>Neue Frage</h3>
+
+        <label class="admin-filter">
+          Titel
+          <input
+            class="admin-input"
+            [(ngModel)]="title"
+            placeholder="z.B. Lieferzeit / Zutaten / ..."
+          />
+        </label>
+
+        <label class="admin-filter">
+          Text
+          <textarea
+            class="admin-input area"
+            [(ngModel)]="content"
+            rows="4"
+            placeholder="Deine Frage..."
+          ></textarea>
+        </label>
+
+        <button
+          class="admin-btn admin-btn-primary"
+          (click)="createThread()"
+          [disabled]="!title.trim() || !content.trim()"
+        >
+          Thread erstellen
+        </button>
+      </div>
+
+      <ng-template #loginHint>
+        <div class="admin-muted">
+          Bitte einloggen, um Threads zu erstellen oder zu antworten.
+        </div>
+      </ng-template>
+
+    </div>
+  </div>
+</div>
