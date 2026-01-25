@@ -31,7 +31,7 @@
 }
 
 .link-back {
-  color: #4f46e5;
+  color: #000000;
   text-decoration: none;
   font-weight: 700;
   margin-top: 6px;
@@ -121,7 +121,7 @@
   height: 18px;
   border-radius: 50%;
   border: 2px solid #e5e7eb;
-  border-top-color: #4f46e5;
+  border-top-color: #000000;
   animation: spin 0.9s linear infinite;
 }
 
@@ -178,7 +178,7 @@
 }
 
 .textarea:focus {
-  border-color: #4f46e5;
+  border-color: #000000;
   box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
 }
 
@@ -214,8 +214,8 @@
   cursor: not-allowed;
 }
 
-.btn--primary { background: #4f46e5; color: #fff; }
-.btn--primary:hover { background: #4338ca; }
+.btn--primary { background: #000000; color: #fff; }
+.btn--primary:hover { background: #000000; }
 
 .btn--ghost { background: #fff; color: #111827; border-color: #e5e7eb; }
 .btn--ghost:hover { background: #f9fafb; }
