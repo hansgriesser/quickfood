@@ -1,86 +1,103 @@
-<div class="admin-page">
-  <div class="admin-header">
-    <div>
-      <h1 class="admin-title">Forum</h1>
-      <p class="admin-subtitle">Fragen & Antworten zu diesem Restaurant</p>
+<section class="forum-page">
+  <header class="forum-header">
+    <div class="forum-header__titles">
+      <h1>Forum</h1>
+      <p class="muted">Fragen & Antworten zu diesem Restaurant</p>
     </div>
 
-    <div class="admin-actions">
-      <a class="admin-link" routerLink="/restaurants">← Zurück zu Restaurants</a>
+    <a class="link-back" routerLink="/restaurants">← Zurück zu Restaurants</a>
+  </header>
+
+  <div *ngIf="loading" class="state state--loading">
+    <div class="spinner" aria-hidden="true"></div>
+    <div>
+      <div class="state__title">Lade Inhalte…</div>
+      <div class="state__text">Bitte einen Moment.</div>
     </div>
   </div>
 
-  <div class="admin-panel">
-    <div class="admin-panel-inner">
+  <div *ngIf="!loading && error" class="state state--error">
+    <div class="state__title">Konnte nicht geladen werden</div>
+    <div class="state__text">{{ error }}</div>
+  </div>
 
-      <div *ngIf="loading">Lade Threads…</div>
-
-      <div *ngIf="!loading && error" class="admin-alert admin-alert-error">
-        {{ error }}
+  <ng-container *ngIf="!loading && !error">
+    <div class="card">
+      <div class="card__head">
+        <h2>Fragen</h2>
+        <span class="pill">{{ threads.length }}</span>
       </div>
 
-      <div *ngIf="!loading && !error && threads.length === 0" class="admin-muted">
-        Noch keine Threads. Stell die erste Frage.
+      <div *ngIf="threads.length === 0" class="empty">
+        <div class="empty__title">Noch keine Fragen vorhanden</div>
+        <div class="empty__text">Stelle die erste Frage – das hilft anderen Nutzerinnen und Nutzern.</div>
       </div>
 
-      <div *ngIf="!loading && !error && threads.length > 0" class="thread-list">
-        <a
-          class="thread-card"
-          *ngFor="let t of threads"
-          [routerLink]="['/forum/thread', t.id]"
-        >
-          <div class="thread-top">
-            <div class="thread-title">{{ t.title }}</div>
-            <span class="admin-badge" *ngIf="t.isClosed">Closed</span>
-          </div>
+      <ul *ngIf="threads.length > 0" class="list">
+        <li *ngFor="let t of threads" class="list__item">
+          <a class="q" [routerLink]="['/forum/thread', t.id]">
+            <div class="q__title">{{ t.title }}</div>
 
-          <div class="thread-meta">
-            von <b>{{ t.author.username }}</b> · {{ t.createdAt | date:'short' }} · Antworten: {{ t._count.post }}
-          </div>
+            <div class="q__meta muted">
+              von <strong>{{ t.author.username }}</strong>
+              · {{ t.createdAt | date:'dd.MM.yyyy, HH:mm' }}
+              · Antworten: {{ t._count.post }}
+              <span *ngIf="t.isClosed">· <strong>geschlossen</strong></span>
+            </div>
 
-          <div class="thread-preview">{{ t.content }}</div>
-        </a>
+            <div class="q__preview">{{ t.content }}</div>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card card--form">
+      <div class="card__head">
+        <h2>Neue Frage</h2>
+        <span class="muted">Formuliere kurz und klar.</span>
       </div>
 
-      <hr class="sep" />
-
-      <div *ngIf="isLoggedIn; else loginHint" class="create-box">
-        <h3>Neue Frage</h3>
-
-        <label class="admin-filter">
-          Titel
+      <form (ngSubmit)="createThread()" class="form">
+        <div class="form__row">
+          <label class="label" for="title">Titel</label>
           <input
-            class="admin-input"
+            id="title"
+            class="input"
+            name="title"
             [(ngModel)]="title"
-            placeholder="z.B. Lieferzeit / Zutaten / ..."
+            maxlength="120"
+            placeholder="z. B. Lieferzeit, Zutaten, Allergene…"
+            required
           />
-        </label>
+        </div>
 
-        <label class="admin-filter">
-          Text
+        <div class="form__row">
+          <label class="label" for="content">Text</label>
           <textarea
-            class="admin-input area"
+            id="content"
+            class="textarea"
+            name="content"
             [(ngModel)]="content"
             rows="4"
-            placeholder="Deine Frage..."
+            maxlength="2000"
+            placeholder="Deine Frage…"
+            required
           ></textarea>
-        </label>
-
-        <button
-          class="admin-btn admin-btn-primary"
-          (click)="createThread()"
-          [disabled]="!title.trim() || !content.trim()"
-        >
-          Thread erstellen
-        </button>
-      </div>
-
-      <ng-template #loginHint>
-        <div class="admin-muted">
-          Bitte einloggen, um Threads zu erstellen oder zu antworten.
+          <div class="hint muted">{{ content.length }}/2000</div>
         </div>
-      </ng-template>
 
+        <div class="form__actions">
+          <button class="btn btn--primary" type="submit" [disabled]="!title.trim() || !content.trim() || loading">
+            Frage veröffentlichen
+          </button>
+
+          <button class="btn btn--ghost" type="button" (click)="title=''; content='';">
+            Zurücksetzen
+          </button>
+
+          <span *ngIf="!isLoggedIn" class="muted">Zum Schreiben bitte anmelden.</span>
+        </div>
+      </form>
     </div>
-  </div>
-</div>
+  </ng-container>
+</section>

@@ -1,103 +1,157 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subject, from, of } from 'rxjs';
+import { catchError, distinctUntilChanged, finalize, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { ForumService } from '../../forum.service';
 import { ForumThreadDetail } from '../../forum.model';
 import { AuthService } from '../../../auth/auth.service';
 
 @Component({
-    selector: 'app-forum-thread-detail',
-    templateUrl: './forum-thread-detail.component.html',
-    styleUrls: ['./forum-thread-detail.component.css'],
-    imports: [CommonModule, FormsModule, RouterModule]
+  selector: 'app-forum-thread-detail',
+  templateUrl: './forum-thread-detail.component.html',
+  styleUrls: ['./forum-thread-detail.component.css'],
+  imports: [CommonModule, FormsModule, RouterModule],
 })
-export class ForumThreadDetailComponent implements OnInit {
-    threadId!: number;
-    
-    loading = true;
-    error: string | null = null;
-    
-    thread: ForumThreadDetail | null = null;
+export class ForumThreadDetailComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
 
-    reply = '';
+  threadId!: number;
 
-    constructor(
-        private route: ActivatedRoute,
-        private forum: ForumService,
-        private auth: AuthService,
-    ) {}
+  loading = true;
+  error: string | null = null;
 
-    get isLoggedIn(): boolean {
-        return !!this.auth.getToken();
-    }
+  thread: ForumThreadDetail | null = null;
+  reply = '';
 
-    get isOwner(): boolean {
-        return this.auth.getUserRole() === 'OWNER';
-    }
+  constructor(
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly forum: ForumService,
+    private readonly auth: AuthService,
+    private readonly cdr: ChangeDetectorRef,
+  ) {}
 
-    async ngOnInit() {
-        this.threadId = Number(this.route.snapshot.paramMap.get('id'));
-        await this.reload();
-    }
-    
-    async reload() {
-        try {
-            this.loading = true;
-            this.error = null;
-            this.thread = await this.forum.getThread(this.threadId);
-        } catch (e: any) {
-            this.error = e?.error?.message ?? 'Fehler beim Laden des Threads';
-        } finally {
+  get isLoggedIn(): boolean {
+    return !!this.auth.getToken();
+  }
+
+  get isOwner(): boolean {
+    return this.auth.getUserRole() === 'OWNER';
+  }
+
+  ngOnInit() {
+    this.route.paramMap
+      .pipe(
+        map(pm => pm.get('id')),
+        distinctUntilChanged(),
+        switchMap((id) => {
+          const num = Number(id);
+          if (!id || Number.isNaN(num) || num <= 0) {
+            this.threadId = NaN as any;
+            this.thread = null;
+            this.error = 'Ungültige Thread-ID in der URL.';
             this.loading = false;
-        }
-    }
+            this.cdr.detectChanges();
+            return of(null);
+          }
 
-    async sendReply() {
-        if (!this.reply.trim()) return;
+          this.threadId = num;
+          this.loading = true;
+          this.error = null;
+          this.thread = null;
+          this.cdr.detectChanges();
 
-        try {
-            this.error = null;
-            await this.forum.createPost(this.threadId, this.reply);
-            this.reply = '';
-            await this.reload();
-        } catch (e: any) {
-            this.error = e?.error?.message ?? 'Fehler beim Posten';
-        }
-    }
+          return from(this.forum.getThread(this.threadId)).pipe(
+            catchError((e: any) => {
+              console.error('[Forum] getThread ERROR', e);
+              this.error = e?.error?.message ?? 'Fehler beim Laden des Threads';
+              return of(null);
+            }),
+            finalize(() => {
+              this.loading = false;
+              this.cdr.detectChanges();
+            }),
+          );
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((thread) => {
+        this.thread = thread;
+        this.cdr.detectChanges();
+      });
+  }
 
-    async closeThread() {
-        try {
-            this.error = null;
-            await this.forum.closeThread(this.threadId);
-            await this.reload();
-        } catch (e: any) {
-            this.error = e?.error?.message ?? 'Fehler beim Schließen';
-        }
-    }
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
-    async deleteThread() {
-        try {
-            this.error = null;
-            await this.forum.deleteThread(this.threadId);
-                //zurück zu restaurant seite(gehört vlt noch geändert)
-            if (this.thread) {
-                location.href = `/forum/restaurant/${this.thread.restaurantId}`;
-            }
-        } catch (e: any) {
-            this.error = e?.error?.message ?? 'Fehler beim löschen';
-        }
-    }
+  async sendReply() {
+    if (!this.reply.trim() || !this.threadId || Number.isNaN(this.threadId)) return;
 
-    async deletePost(postId: number) {
-        try {
-            this.error = null;
-            await this.forum.deletePost(postId);
-            await this.reload();
-        } catch (e: any) {
-            this.error = e?.error?.message ?? 'Fehler beim Löschen des Posts';
-        }
+    try {
+      this.error = null;
+      await this.forum.createPost(this.threadId, this.reply);
+      this.reply = '';
+      // neu laden:
+      this.loading = true;
+      this.cdr.detectChanges();
+      this.thread = await this.forum.getThread(this.threadId);
+    } catch (e: any) {
+      this.error = e?.error?.message ?? 'Fehler beim Posten';
+    } finally {
+      this.loading = false;
+      this.cdr.detectChanges();
     }
-    
+  }
+
+  async closeThread() {
+    try {
+      this.error = null;
+      await this.forum.closeThread(this.threadId);
+      this.loading = true;
+      this.cdr.detectChanges();
+      this.thread = await this.forum.getThread(this.threadId);
+    } catch (e: any) {
+      this.error = e?.error?.message ?? 'Fehler beim Schließen';
+    } finally {
+      this.loading = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  async deleteThread() {
+    try {
+      this.error = null;
+      await this.forum.deleteThread(this.threadId);
+
+      // statt location.href (Full reload) sauber per Router navigieren
+      if (this.thread) {
+        await this.router.navigate(['/forum/restaurant', this.thread.restaurantId]);
+      } else {
+        await this.router.navigate(['/restaurants']);
+      }
+    } catch (e: any) {
+      this.error = e?.error?.message ?? 'Fehler beim Löschen';
+      this.cdr.detectChanges();
+    }
+  }
+
+  async deletePost(postId: number) {
+    try {
+      this.error = null;
+      await this.forum.deletePost(postId);
+      this.loading = true;
+      this.cdr.detectChanges();
+      this.thread = await this.forum.getThread(this.threadId);
+    } catch (e: any) {
+      this.error = e?.error?.message ?? 'Fehler beim Löschen des Posts';
+    } finally {
+      this.loading = false;
+      this.cdr.detectChanges();
+    }
+  }
 }

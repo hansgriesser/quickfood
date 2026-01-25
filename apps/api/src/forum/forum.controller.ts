@@ -67,7 +67,7 @@ export class ForumController {
   @Delete('posts/:postId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('OWNER')
-  deletpost(@Req() req: any, @Param('psotId') postId: string) {
+  deletePost(@Req() req: any, @Param('postId') postId: string) {
     return this.service.deletePost(req.user.sub, Number(postId));
   }
 }
