@@ -1,12 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { mapOrderToDto, OrderDto } from './order.dto';
+import { VoucherService } from 'src/voucher/voucher.service';
 
 export const SERVICE_FEE_KEY = 'SERVICE_FEE_PERCENT';
 
 @Injectable()
 export class OrderService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private voucherService: VoucherService,
+  ) {}
 
   async placeOrder(order: OrderDto, userId: number) {
     const itemsWithTotals = order.items.map((item) => {
@@ -22,8 +26,20 @@ export class OrderService {
       BigInt(0),
     );
 
-    const discountAmount = BigInt(0); // Platzhalter, Berechnung einfügen
-    const totalAmount = subtotalAmount - discountAmount;
+    const discountAmount = await this.getDiscountAmount(
+      Number(subtotalAmount),
+      order.voucherCode,
+    );
+
+    const voucherId = await this.getVoucherId(order.voucherCode);
+
+    const discountAmountBigInt = BigInt(discountAmount);
+
+    const serviceFeeAmount = await this.getServiceFeeAmount(
+      Number(subtotalAmount),
+    );
+    const totalAmount =
+      subtotalAmount - discountAmountBigInt + BigInt(serviceFeeAmount);
 
     const created = await this.prisma.order.create({
       data: {
@@ -32,7 +48,9 @@ export class OrderService {
         status: order.status,
         subtotalAmount: subtotalAmount,
         discountAmount: discountAmount,
+        serviceAmount: serviceFeeAmount,
         totalAmount: totalAmount,
+        voucherId: voucherId,
         items: {
           create: order.items.map((item) => ({
             dishId: item.dishId,
@@ -80,5 +98,40 @@ export class OrderService {
     return {
       percent: Number.isFinite(percent) ? percent : 0,
     };
+  }
+
+  async getDiscountAmount(subtotal: number, voucherCode: string | undefined) {
+    if (!voucherCode) return 0;
+    const voucher = await this.voucherService.validateVoucher(voucherCode);
+    if (voucher?.active) {
+      switch (voucher.type) {
+        case 'FIXED':
+          return Math.min(subtotal, voucher.amount);
+        case 'PERCENT':
+          return Math.floor((subtotal * voucher.amount) / 100);
+        default:
+          return 0;
+      }
+    } else {
+      return 0;
+    }
+  }
+
+  async getServiceFeeAmount(subtotal: number) {
+    const serviceFee = await this.getServiceFee();
+    return Math.round(subtotal * (serviceFee.percent / 100));
+  }
+
+  async getVoucherId(
+    voucherCode: string | undefined,
+  ): Promise<string | undefined> {
+    if (!voucherCode) return undefined;
+
+    const voucher = await this.prisma.voucher.findUnique({
+      where: { code: voucherCode },
+      select: { id: true },
+    });
+
+    return voucher?.id;
   }
 }

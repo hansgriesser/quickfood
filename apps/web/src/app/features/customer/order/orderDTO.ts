@@ -16,6 +16,10 @@ export interface OrderDto {
   createdAt: string;           
   updatedAt: string;          
   items: OrderItemDto[];
+  subtotalAmount?: number;
+  serviceAmount?: number;
+  discountAmount?: number;
+  totalAmount?: number;
 }
 
 export interface OrderItemDto {

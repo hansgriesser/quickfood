@@ -19,6 +19,7 @@ export class Confirmation {
   order$ : Observable<OrderDto | null>;
   restaurant$ : Observable<Restaurant | null>;
   OrderStatusLabel = OrderStatusLabel;
+  hasDiscount;
 
   constructor(private orderService: OrderService, private restaurantService: RestaurantService){
     this.order$ = this.orderService.order$;
@@ -29,7 +30,7 @@ export class Confirmation {
         this.restaurantService.getRestaurantById(id)
       )
     );
-
+    this.hasDiscount = orderService.hasDiscount;
   }
 
   ngOnInit(){

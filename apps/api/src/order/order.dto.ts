@@ -14,9 +14,10 @@ export class OrderDto {
   customerId: number;
   status: OrderStatus;
   subtotalAmount: number;
-  discountAmount: number;
+  discountAmount?: number;
+  serviceAmount: number;
   totalAmount: number;
-  voucherId?: string;
+  voucherCode?: string;
   estimatedArrivalAt?: string;
   createdAt: string;
   updatedAt: string;
@@ -54,8 +55,9 @@ export function mapOrderToDto(
     status: mapOrderStatus(order.status),
     subtotalAmount: Number(order.subtotalAmount), // BigInt → number
     discountAmount: Number(order.discountAmount),
+    serviceAmount: Number(order.serviceAmount),
     totalAmount: Number(order.totalAmount),
-    voucherId: order.voucherId ?? undefined,
+    voucherCode: order.voucherId ?? undefined,
     estimatedArrivalAt: order.estimatedArrivalAt?.toISOString(),
     createdAt: order.createdAt.toISOString(),
     updatedAt: order.updatedAt.toISOString(),

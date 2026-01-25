@@ -41,7 +41,9 @@ export class Review {
     if (!this.voucherCode) return;
     if (!this.voucherCode.trim()) return;
     this.voucherService.checkVoucher(this.voucherCode);
-    console.log('checked voucher:', this.voucherCode, this.appliedVoucher$)
+    if(this.voucherService.appliedVoucher$){
+      this.orderDraftService.setVoucherCode(this.voucherCode);
+    }
   }
 
   goToPayment() {

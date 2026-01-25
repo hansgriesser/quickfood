@@ -73,4 +73,8 @@ export class Voucher {
     }
   }
 
+  getVoucherCode(){
+    return this.appliedVoucherSubject.value?.code;
+  }
+
 }

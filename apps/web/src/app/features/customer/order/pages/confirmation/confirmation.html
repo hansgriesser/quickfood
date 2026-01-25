@@ -50,6 +50,29 @@
         <span id="updatedAt">{{order.updatedAt | date:'HH:mm'}}</span>
     </div>
 
+    <section class="price-summary">
+        <div class="price-row" *ngIf="order.subtotalAmount">
+            <span>Zwischensumme: </span>
+            <span>{{order.subtotalAmount / 100 | currency:'EUR' }}</span>
+        </div>
+
+        <div class="price-row" *ngIf="hasDiscount">
+            <span>Rabatt: </span>
+            <span>-{{ (order.discountAmount ?? 0) / 100 | currency:'EUR' }}</span>
+        </div>
+
+        <div class="price-row">
+            <span>Servicegebühr: </span>
+            <span>{{ (order.serviceAmount ?? 0) / 100 | currency:'EUR' }}</span>
+        </div>
+
+        <div class="price-row total">
+            <strong>Gesamt: </strong>
+            <strong>{{ order.totalAmount != null ? (order.totalAmount / 100 | currency:'EUR') : '-' }}</strong>
+        </div>
+    </section>
+
+
     <div class="hint">
         Diese Seite aktualisiert sich automatisch alle 10 Sekunden
     </div>

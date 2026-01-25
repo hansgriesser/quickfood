@@ -78,10 +78,13 @@ export class OrderDraft {
 
   prepareOrder(cart: CartDto) {
     const items = this.getOrderItems(cart.items);
+    
+    const voucherCode = this.voucherService.getVoucherCode();
 
     const order: OrderDraftDto = {
       restaurantId: cart.restaurantId,
       items: items,
+      voucherCode: voucherCode,
     };
 
     console.log('Preparing order:', order);
@@ -111,5 +114,14 @@ export class OrderDraft {
 
   getDraft(): OrderDraftDto {
     return this.draftSubject.value;
+  }
+
+  setVoucherCode(voucherCode: string) {
+    const currentDraft = this.draftSubject.value;
+
+    this.draftSubject.next({
+      ...currentDraft,
+      voucherCode
+    });
   }
 }

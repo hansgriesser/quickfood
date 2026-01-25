@@ -124,6 +124,7 @@ model Order {
   status             OrderStatus @default(PENDING)
   subtotalAmount     BigInt
   discountAmount     BigInt      @default(0)
+  serviceAmount      BigInt      @default(0)
   totalAmount        BigInt
   voucherId          String?
   voucher            Voucher?    @relation(fields: [voucherId], references: [id])
