@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { OrderDraft } from '../../services/order-draft';
 import { CommonModule } from '@angular/common';
 import { OrderDraftDto } from '../../orderDTO';
-import { Observable, of, switchMap } from 'rxjs';
+import { Observable, of, switchMap, take } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { Voucher } from '../../services/voucher';
 import { Router } from '@angular/router';
@@ -18,11 +18,8 @@ import { Restaurant } from '../../../restaurant/restaurant.model';
 })
 export class Review {
 
-  constructor(private orderDraftService: OrderDraft, private voucherService: Voucher, private router: Router, private restaurantService: RestaurantService) {
+  constructor(public orderDraftService: OrderDraft, private voucherService: Voucher, private router: Router, private restaurantService: RestaurantService) {
     this.draft$ = this.orderDraftService.draft$;
-    this.subtotalAmount$ = this.orderDraftService.subtotalAmount;
-    this.discountAmount$ = this.orderDraftService.discountAmount;
-    this.totalAmount$ = this.orderDraftService.totalAmount;
     this.voucherState$ = this.voucherService.voucherState$;
     this.appliedVoucher$ = this.voucherService.appliedVoucher$;
     
@@ -36,21 +33,23 @@ export class Review {
   voucherCode: string = '';
   voucherState$ : Observable<'idle' | 'checking' | 'valid' | 'invalid'>;
   draft$ : Observable<OrderDraftDto>;
-  subtotalAmount$ = 0;
-  discountAmount$ = 0;
-  totalAmount$ = 0;
   appliedVoucher$;
 
   restaurant$ : Observable<Restaurant | null>;
 
   checkVoucher() {
     if (!this.voucherCode) return;
+    if (!this.voucherCode.trim()) return;
     this.voucherService.checkVoucher(this.voucherCode);
+    console.log('checked voucher:', this.voucherCode, this.appliedVoucher$)
   }
 
   goToPayment() {
-    console.log('Navigating to payment...');
     this.router.navigate(['/order/payment']);
+  }
+
+  onInputChange() {
+    this.voucherService.changeVoucherState();
   }
 
 }

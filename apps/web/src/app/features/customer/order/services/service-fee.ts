@@ -1,15 +1,31 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
-})export class ServiceFee {
-    private baseUrl = 'http://localhost:3000/api/service-fee';
+})export class ServiceFeeService {
+    private baseUrl = 'http://localhost:3000/api/order/service-fee';
+    private serviceFee = 0;
+
+    private serviceFeeSubject = new BehaviorSubject<number>(0);
+    serviceFee$ = this.serviceFeeSubject.asObservable();
 
     constructor(private http: HttpClient) {}
 
-    getServiceFee() {
-        //add call, see sitemanager for reference
-        return 0.1; //placeholder
+    loadServiceFee() {
+        this.http
+        .get<ServiceFeeResponse>(this.baseUrl)
+        .subscribe(res => {
+            this.serviceFeeSubject.next(res.percent);
+        });
     }
+
+    getFeeAmount(subtotal: number) : number {
+        return Math.round(subtotal * (this.serviceFee / 100));
+    }
+}
+
+interface ServiceFeeResponse {
+  percent: number;
 }

@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { mapOrderToDto, OrderDto } from './order.dto';
 
+export const SERVICE_FEE_KEY = 'SERVICE_FEE_PERCENT';
+
 @Injectable()
 export class OrderService {
   constructor(private prisma: PrismaService) {}
@@ -61,10 +63,22 @@ export class OrderService {
     return orderDto;
   }
 
-  listOrders(id: string) {
+  async listOrders(id: string) {
     return this.prisma.order.findMany({
       where: { restaurantId: id },
       include: { items: true },
     });
+  }
+
+  async getServiceFee() {
+    const row = await this.prisma.platformSetting.findUnique({
+      where: { key: SERVICE_FEE_KEY },
+    });
+
+    const percent = typeof row?.value === 'string' ? Number(row.value) : 0;
+
+    return {
+      percent: Number.isFinite(percent) ? percent : 0,
+    };
   }
 }

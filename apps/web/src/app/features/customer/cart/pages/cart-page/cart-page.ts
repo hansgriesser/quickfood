@@ -19,7 +19,6 @@ export class CartPage {
   
   totalPrice$: Observable<number>;
   subtotal$: Observable<number>;
-  serviceFee: number; //in prozent
   cartItems$: Observable<CartItemDto[]>;
   serviceFee$: Observable<number>;
   cartSummary$: Observable<{
@@ -35,11 +34,14 @@ export class CartPage {
     this.subtotal$ = this.cartService.cartItems$.pipe(
       map(items => items.reduce((sum, i) => sum + i.price * i.quantity, 0)), startWith(0)
     );
-    this.serviceFee = this.cartService.serviceFee;
+    this.serviceFee$ = this.cartService.serviceFee$;
     this.cartItems$ = this.cartService.cartItems$;
-    this.serviceFee$ = this.subtotal$.pipe(
-      map(subtotal => subtotal * this.serviceFee)
-    )
+    this.serviceFee$ = combineLatest([
+      this.subtotal$,     
+      this.serviceFee$    
+    ]).pipe(
+      map(([subtotal, serviceFeePercent]) => Math.round(subtotal * (serviceFeePercent / 100)))
+    );
     this.cartSummary$ = combineLatest([this.subtotal$, this.serviceFee$, this.totalPrice$]).pipe(
       map(([subtotal, fee, total]) => ({ subtotal, fee, total }))
     );
@@ -52,9 +54,6 @@ export class CartPage {
     );
 
   }
-  
-  
-
 
   placeOrder(){
     console.log('Preparing order...');

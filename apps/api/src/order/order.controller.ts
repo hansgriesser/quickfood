@@ -26,6 +26,11 @@ export class OrderController {
     return this.service.placeOrder(order, userId);
   }
 
+  @Get('service-fee')
+  getServiceFee() {
+    return this.service.getServiceFee();
+  }
+
   @Get(':id')
   updateOrder(@Param('id') id: string) {
     return this.service.updateOrder(id);
