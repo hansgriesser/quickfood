@@ -5,6 +5,31 @@ export interface OwnerRestaurant {
   category?: string;
   contactEmail?: string;
   contactPhone?: string;
+  openingHours?: OwnerOpeningHour[];
+  deliveryZones?: OwnerRestaurantDeliveryZone[];
+}
+
+export interface OwnerOpeningHour {
+  id?: number;
+  dayOfWeek: number;
+  opensAt: string;
+  closesAt: string;
+  isClosed: boolean;
+}
+
+export interface DeliveryZone {
+  id: string;
+  code: string;
+  name: string;
+  active: boolean;
+  typicalDeliveryMin: number;
+  typicalDeliveryMax: number;
+}
+
+export interface OwnerRestaurantDeliveryZone {
+  restaurantId?: string;
+  zoneId: string;
+  zone: DeliveryZone;
 }
 
 export interface OwnerDish {
@@ -37,6 +62,15 @@ export interface UpdateOwnerRestaurantPayload {
   category?: string;
   contactEmail?: string;
   contactPhone?: string;
+  openingHours?: OwnerOpeningHourInput[];
+  deliveryZoneIds?: string[];
+}
+
+export interface OwnerOpeningHourInput {
+  dayOfWeek: number;
+  opensAt: string;
+  closesAt: string;
+  isClosed?: boolean;
 }
 
 export interface CreateMenuCategoryPayload {

@@ -26,6 +26,11 @@ import { UpdateDishDto } from './dto/update-dish.dto';
 export class OwnerRestaurantsController {
   constructor(private readonly service: OwnerRestaurantsService) {}
 
+  @Get('delivery-zones')
+  listDeliveryZones() {
+    return this.service.listDeliveryZones();
+  }
+
   @Get()
   list(@Req() req: any) {
     return this.service.list(req.user.sub);
