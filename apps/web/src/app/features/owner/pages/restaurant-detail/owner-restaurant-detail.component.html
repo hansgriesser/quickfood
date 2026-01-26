@@ -13,6 +13,80 @@
           submitLabel="Save"
           (submitForm)="saveRestaurant($event)"
         ></app-owner-restaurant-form>
+
+        <div class="profile-section">
+          <h3>Opening Hours</h3>
+          <p class="hint">Set when you accept orders.</p>
+          <div class="status error" *ngIf="hoursError">{{ hoursError }}</div>
+          <form class="hours-form" (ngSubmit)="saveOpeningHours()">
+            <div
+              class="hours-row"
+              *ngFor="let entry of openingHoursForm; trackBy: trackByOpeningDay"
+            >
+              <span class="day-label">{{ entry.label }}</span>
+              <label class="closed-toggle">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="entry.isClosed"
+                  name="closed{{ entry.dayOfWeek }}"
+                />
+                Closed
+              </label>
+              <input
+                type="time"
+                [(ngModel)]="entry.opensAt"
+                name="opens{{ entry.dayOfWeek }}"
+                [disabled]="entry.isClosed"
+              />
+              <span class="hours-divider">to</span>
+              <input
+                type="time"
+                [(ngModel)]="entry.closesAt"
+                name="closes{{ entry.dayOfWeek }}"
+                [disabled]="entry.isClosed"
+              />
+            </div>
+            <button type="submit" [disabled]="isHoursSaving">
+              Save Opening Hours
+            </button>
+          </form>
+        </div>
+
+        <div class="profile-section">
+          <h3>Delivery Zones</h3>
+          <p class="hint">Choose where you deliver. Zones are managed by the site admin.</p>
+          <div class="status" *ngIf="isZonesLoading">Loading delivery zones...</div>
+          <div class="status error" *ngIf="zonesError">{{ zonesError }}</div>
+          <form
+            class="zone-form"
+            *ngIf="!isZonesLoading && deliveryZones.length > 0"
+            (ngSubmit)="saveDeliveryZones()"
+          >
+            <div class="zone-list">
+              <label
+                class="zone-option"
+                *ngFor="let zone of deliveryZones; trackBy: trackByZoneId"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="isZoneSelected(zone.id)"
+                  (change)="toggleZoneSelection(zone.id, $event)"
+                />
+                <div class="zone-meta">
+                  <span class="zone-name">{{ zone.name }}</span>
+                  <span class="muted">
+                    {{ zone.code }} - {{ zone.typicalDeliveryMin }}-{{ zone.typicalDeliveryMax
+                    }} min
+                  </span>
+                </div>
+              </label>
+            </div>
+            <button type="submit" [disabled]="isZonesSaving">Save Delivery Zones</button>
+          </form>
+          <div class="status" *ngIf="!isZonesLoading && deliveryZones.length === 0">
+            No delivery zones configured.
+          </div>
+        </div>
       </div>
 
       <div class="panel">

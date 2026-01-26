@@ -5,6 +5,7 @@ import {
   CreateOwnerRestaurantPayload,
   CreateDishPayload,
   CreateMenuCategoryPayload,
+  DeliveryZone,
   OwnerDish,
   OwnerMenuCategory,
   OwnerRestaurant,
@@ -35,6 +36,10 @@ export class OwnerRestaurantsService {
     payload: UpdateOwnerRestaurantPayload,
   ): Observable<OwnerRestaurant> {
     return this.http.patch<OwnerRestaurant>(`${this.baseUrl}/${id}`, payload);
+  }
+
+  getAvailableDeliveryZones(): Observable<DeliveryZone[]> {
+    return this.http.get<DeliveryZone[]>(`${this.baseUrl}/delivery-zones`);
   }
 
   getMenu(restaurantId: string): Observable<OwnerMenuCategory[]> {

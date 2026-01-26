@@ -20,7 +20,10 @@ export class OwnerRestaurantsService {
     return this.prisma.restaurant.findMany({
       where: { ownerId },
       orderBy: { createdAt: 'desc' },
-      include: { deliveryZones: { include: { zone: true } } },
+      include: {
+        deliveryZones: { include: { zone: true } },
+        openingHours: { orderBy: { dayOfWeek: 'asc' } },
+      },
     });
   }
 
@@ -46,14 +49,100 @@ export class OwnerRestaurantsService {
       throw new NotFoundException('Restaurant not found');
     }
 
-    return this.prisma.restaurant.update({
-      where: { id: restaurantId },
-      data: {
-        name: dto.name,
-        contactEmail: dto.contactEmail,
-        contactPhone: dto.contactPhone,
-        category: dto.category,
-      },
+    const data: {
+      name?: string;
+      contactEmail?: string;
+      contactPhone?: string;
+      category?: string;
+    } = {
+      name: dto.name,
+      contactEmail: dto.contactEmail,
+      contactPhone: dto.contactPhone,
+      category: dto.category,
+    };
+
+    const hasRestaurantUpdates = Object.values(data).some(
+      (value) => value !== undefined,
+    );
+
+    const openingHours =
+      dto.openingHours !== undefined
+        ? this.normalizeOpeningHours(dto.openingHours)
+        : undefined;
+
+    const deliveryZoneIds =
+      dto.deliveryZoneIds !== undefined
+        ? this.normalizeDeliveryZoneIds(dto.deliveryZoneIds)
+        : undefined;
+
+    if (deliveryZoneIds !== undefined && deliveryZoneIds.length > 0) {
+      const zones = await this.prisma.deliveryZone.findMany({
+        where: { id: { in: deliveryZoneIds }, active: true },
+        select: { id: true },
+      });
+
+      if (zones.length !== deliveryZoneIds.length) {
+        throw new BadRequestException(
+          'One or more delivery zones are invalid or inactive.',
+        );
+      }
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      if (hasRestaurantUpdates) {
+        await tx.restaurant.update({
+          where: { id: restaurantId },
+          data,
+        });
+      }
+
+      if (deliveryZoneIds !== undefined) {
+        await tx.restaurantDeliveryZone.deleteMany({
+          where: { restaurantId },
+        });
+
+        if (deliveryZoneIds.length > 0) {
+          await tx.restaurantDeliveryZone.createMany({
+            data: deliveryZoneIds.map((zoneId) => ({
+              restaurantId,
+              zoneId,
+            })),
+          });
+        }
+      }
+
+      if (openingHours !== undefined) {
+        await tx.restaurantOpeningHour.deleteMany({
+          where: { restaurantId },
+        });
+
+        if (openingHours.length > 0) {
+          await tx.restaurantOpeningHour.createMany({
+            data: openingHours.map((hour) => ({
+              restaurantId,
+              dayOfWeek: hour.dayOfWeek,
+              opensAt: hour.opensAt,
+              closesAt: hour.closesAt,
+              isClosed: hour.isClosed,
+            })),
+          });
+        }
+      }
+
+      return tx.restaurant.findUnique({
+        where: { id: restaurantId },
+        include: {
+          deliveryZones: { include: { zone: true } },
+          openingHours: { orderBy: { dayOfWeek: 'asc' } },
+        },
+      });
+    });
+  }
+
+  async listDeliveryZones() {
+    return this.prisma.deliveryZone.findMany({
+      where: { active: true },
+      orderBy: [{ code: 'asc' }],
     });
   }
 
@@ -330,6 +419,103 @@ export class OwnerRestaurantsService {
       throw new BadRequestException('sortOrder must be an integer');
     }
     return parsed;
+  }
+
+  private normalizeDeliveryZoneIds(value: string[]) {
+    if (!Array.isArray(value)) {
+      throw new BadRequestException('deliveryZoneIds must be an array of ids');
+    }
+
+    const normalized = value.map((id) =>
+      typeof id === 'string' ? id.trim() : String(id).trim(),
+    );
+
+    if (normalized.some((id) => !id)) {
+      throw new BadRequestException('deliveryZoneIds cannot contain empty values');
+    }
+
+    const unique = Array.from(new Set(normalized));
+    if (unique.length !== normalized.length) {
+      throw new BadRequestException('deliveryZoneIds cannot contain duplicates');
+    }
+
+    return unique;
+  }
+
+  private normalizeOpeningHours(
+    value: {
+      dayOfWeek: number;
+      opensAt?: string;
+      closesAt?: string;
+      isClosed?: boolean;
+    }[],
+  ) {
+    if (!Array.isArray(value)) {
+      throw new BadRequestException('openingHours must be an array');
+    }
+
+    const seen = new Set<number>();
+    const result: {
+      dayOfWeek: number;
+      opensAt: string;
+      closesAt: string;
+      isClosed: boolean;
+    }[] = [];
+
+    for (const entry of value) {
+      if (!entry || typeof entry !== 'object') {
+        throw new BadRequestException('openingHours entries must be objects');
+      }
+
+      const dayOfWeek = this.toInt(
+        (entry as { dayOfWeek: number }).dayOfWeek,
+        'Day of week',
+      );
+      if (dayOfWeek < 0 || dayOfWeek > 6) {
+        throw new BadRequestException(
+          'dayOfWeek must be between 0 (Monday) and 6 (Sunday)',
+        );
+      }
+      if (seen.has(dayOfWeek)) {
+        throw new BadRequestException('Duplicate dayOfWeek in openingHours');
+      }
+      seen.add(dayOfWeek);
+
+      const isClosed = (entry as { isClosed?: boolean }).isClosed === true;
+      let opensAt = (entry as { opensAt?: string }).opensAt;
+      let closesAt = (entry as { closesAt?: string }).closesAt;
+
+      if (isClosed) {
+        opensAt = '00:00';
+        closesAt = '00:00';
+      } else {
+        if (opensAt === undefined || closesAt === undefined) {
+          throw new BadRequestException(
+            'opensAt and closesAt are required when a day is open',
+          );
+        }
+        opensAt = this.normalizeTime(opensAt, 'opensAt');
+        closesAt = this.normalizeTime(closesAt, 'closesAt');
+      }
+
+      result.push({
+        dayOfWeek,
+        opensAt,
+        closesAt,
+        isClosed,
+      });
+    }
+
+    return result;
+  }
+
+  private normalizeTime(value: string, label: string) {
+    const trimmed = typeof value === 'string' ? value.trim() : String(value).trim();
+    const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(trimmed);
+    if (!match) {
+      throw new BadRequestException(`${label} must be in HH:MM format`);
+    }
+    return trimmed;
   }
 
   private normalizePictureUrl(value?: string | null) {
