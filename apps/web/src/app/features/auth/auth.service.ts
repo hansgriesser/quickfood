@@ -7,7 +7,7 @@ import {
     RegisterRequest,
     RegisterResponse,
 } from "./auth-model";
-import { decodeJWT } from "./jwt.util";
+import { decodeJWT, getUserIdFromPayload } from "./jwt.util";
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -46,4 +46,22 @@ export class AuthService {
         const payload = decodeJWT(token);
         return payload?.role || null;
     }
+
+    getUserId(): number | null {
+        const token = this.getToken();
+        if (!token) return null;
+
+        const payload = decodeJWT(token);
+        return getUserIdFromPayload(payload);
+    }
+
+    getUsername(): string | null {
+        const token = this.getToken();
+        if (!token) return null;
+
+        const payload = decodeJWT(token);
+        return payload?.username || null;
+    }
+    
+
 }

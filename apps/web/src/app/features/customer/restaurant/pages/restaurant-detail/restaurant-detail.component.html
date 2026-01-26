@@ -7,10 +7,14 @@
   <!-- Zurück-Link -->
   <nav class="restaurant-nav">
     <a routerLink="/restaurants">← Zurück zur Liste</a>
-
+    
+    <a *ngIf="restaurantIdFromRoute"
+      [routerLink]="['/forum/restaurant', restaurantIdFromRoute]">
+      Forum
+    </a>
     <button 
-      class="cart-indicator" 
       [disabled]="disableCartActions" 
+      class="cart-indicator" 
       routerLink="/cart">
       🛒 {{ totalItems$ | async }}
     </button>
