@@ -1,4 +1,92 @@
 <section class="owner-orders">
-  <h1>Orders</h1>
-  <p>Incoming orders will appear here. Connect to the orders API next.</p>
+  <header class="header">
+    <div>
+      <h1>Orders</h1>
+      <p>Incoming orders refresh every 5 seconds.</p>
+      <p *ngIf="!isLoading">Showing {{ orders.length }} orders</p>
+    </div>
+  </header>
+
+  <div class="status" *ngIf="isLoading">Loading orders...</div>
+  <div class="status error" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="status" *ngIf="!isLoading && !errorMessage && orders.length === 0">
+    No orders yet.
+  </div>
+
+  <div class="orders-grid">
+    <article class="order-card" *ngFor="let order of orders; trackBy: trackByOrderId">
+      <div class="order-header">
+        <div>
+          <h3>Order #{{ order.id | slice: 0 : 8 }}</h3>
+          <p class="muted">Restaurant: {{ order.restaurant?.name ?? order.restaurantId }}</p>
+          <p class="muted">Placed: {{ order.createdAt | date: 'short' }}</p>
+        </div>
+        <span class="badge" [ngClass]="statusClass(order.status)">
+          {{ statusLabel(order.status) }}
+        </span>
+      </div>
+
+      <div class="order-body">
+        <div class="items">
+          <div class="item" *ngFor="let item of order.items">
+            <div>
+              <strong>{{ item.quantity }} × {{ item.name }}</strong>
+              <div class="muted">{{ item.totalPrice / 100 | currency: 'EUR' }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="totals">
+          <div>Subtotal: {{ order.subtotalAmount / 100 | currency: 'EUR' }}</div>
+          <div *ngIf="order.discountAmount > 0">
+            Discount: -{{ order.discountAmount / 100 | currency: 'EUR' }}
+          </div>
+          <div class="total">Total: {{ order.totalAmount / 100 | currency: 'EUR' }}</div>
+        </div>
+      </div>
+
+      <div class="order-actions">
+        <button
+          *ngIf="order.status === orderStatus.PENDING"
+          type="button"
+          (click)="acceptOrder(order)"
+          [disabled]="isBusy(order.id)"
+        >
+          Accept
+        </button>
+        <button
+          *ngIf="order.status === orderStatus.PENDING"
+          type="button"
+          class="secondary"
+          (click)="rejectOrder(order)"
+          [disabled]="isBusy(order.id)"
+        >
+          Reject
+        </button>
+        <button
+          *ngIf="order.status === orderStatus.ACCEPTED"
+          type="button"
+          (click)="updateStatus(order, orderStatus.PREPARING)"
+          [disabled]="isBusy(order.id)"
+        >
+          Mark preparing
+        </button>
+        <button
+          *ngIf="order.status === orderStatus.PREPARING"
+          type="button"
+          (click)="updateStatus(order, orderStatus.READY)"
+          [disabled]="isBusy(order.id)"
+        >
+          Mark ready
+        </button>
+        <button
+          *ngIf="order.status === orderStatus.READY"
+          type="button"
+          (click)="updateStatus(order, orderStatus.DISPATCHED)"
+          [disabled]="isBusy(order.id)"
+        >
+          Mark dispatched
+        </button>
+      </div>
+    </article>
+  </div>
 </section>
