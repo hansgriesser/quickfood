@@ -62,7 +62,7 @@ export class LoginComponent {
                     await this.router.navigate(['/restaurants']);
                     break;
                 case 'OWNER': 
-                    await this.router.navigate(['/restaurants']);
+                    await this.router.navigate(['/owner']);
                     break;
                 default:
                     await this.router.navigate(['/']);

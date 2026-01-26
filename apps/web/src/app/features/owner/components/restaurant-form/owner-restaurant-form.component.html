@@ -1,0 +1,23 @@
+<form class="restaurant-form" (ngSubmit)="submit()">
+  <label>
+    Name
+    <input type="text" [(ngModel)]="form.name" name="name" required />
+  </label>
+
+  <label>
+    Category
+    <input type="text" [(ngModel)]="form.category" name="category" />
+  </label>
+
+  <label>
+    Contact Email
+    <input type="email" [(ngModel)]="form.contactEmail" name="contactEmail" />
+  </label>
+
+  <label>
+    Contact Phone
+    <input type="tel" [(ngModel)]="form.contactPhone" name="contactPhone" />
+  </label>
+
+  <button type="submit">{{ submitLabel }}</button>
+</form>
