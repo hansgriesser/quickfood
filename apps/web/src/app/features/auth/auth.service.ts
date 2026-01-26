@@ -15,6 +15,10 @@ export class AuthService {
 
     constructor(private http: HttpClient) {}
 
+    get isLoggedIn(){
+        return !!this.getToken();
+    }
+
     async login(req: LoginRequest): Promise<LoginResponse> {
         const url = '/api/auth/login';
         
@@ -37,6 +41,8 @@ export class AuthService {
 
     logout(): void {
         localStorage.removeItem(this.tokenKey);
+        localStorage.removeItem('cart');
+        localStorage.removeItem('orderDraft');
     }
 
     getUserRole(): 'USER' | 'OWNER' | 'ADMIN' | null {

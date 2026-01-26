@@ -1,1 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
+/* 1. Body & html */
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* verhindert horizontalen Scroll */
+  box-sizing: border-box;
+}
+
+/* 2. Alles mit border-box */
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+/* 3. Wrapper um router-outlet + Header/Footer */
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.main-content {
+  padding-top: 70px; /* gleiche Höhe wie Header */
+}
