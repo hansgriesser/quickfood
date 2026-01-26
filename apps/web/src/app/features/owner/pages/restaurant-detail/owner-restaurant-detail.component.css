@@ -157,7 +157,15 @@
 
 .menu-form button {
   justify-self: start;
-  padding: 10px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 16px;
+  width: 150px;
+  box-sizing: border-box;
+  text-align: center;
+  white-space: nowrap;
   border: none;
   border-radius: 6px;
   background: #1f6feb;
