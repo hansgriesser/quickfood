@@ -11,6 +11,7 @@ import { OrderModule } from './order/order.module';
 import { VoucherController } from './voucher/voucher.controller';
 import { VoucherModule } from './voucher/voucher.module';
 import { ActivityModule } from './activity/activity.module';
+import { ForumModule } from './forum/forum.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ActivityModule } from './activity/activity.module';
     RestaurantsModule,
     OrderModule,
     VoucherModule,
+    ForumModule,
   ],
   controllers: [AppController, VoucherController],
   providers: [AppService],

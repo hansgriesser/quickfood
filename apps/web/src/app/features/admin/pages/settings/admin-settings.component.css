@@ -101,22 +101,22 @@ input[type="datetime-local"]::-webkit-inner-spin-button {
 
 
 .admin-page .admin-btn {
-  background: #2563eb !important;
+  background: #000000 !important;
   color: #fff !important;
-  border: 1px solid #2563eb !important;
+  border: 1px solid #000000 !important;
   opacity: 1 !important;
   filter: none !important;
 }
 
 .admin-page .admin-btn:hover {
-  background: #1d4ed8 !important;
-  border-color: #1d4ed8 !important;
+  background: #000000 !important;
+  border-color: #000000 !important;
 }
 
 .admin-page .admin-btn:disabled {
-  background: #93c5fd !important;
-  border-color: #93c5fd !important;
-  color: #fff !important;
+  background: #000000 !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
   cursor: not-allowed !important;
   opacity: 1 !important;
 }
