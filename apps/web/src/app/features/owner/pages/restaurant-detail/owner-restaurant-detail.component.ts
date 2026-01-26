@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -68,6 +68,7 @@ export class OwnerRestaurantDetailComponent {
   constructor(
     private route: ActivatedRoute,
     private ownerRestaurantsService: OwnerRestaurantsService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -112,16 +113,20 @@ export class OwnerRestaurantDetailComponent {
   loadMenu(restaurantId: string): void {
     this.isMenuLoading = true;
     this.menuError = '';
+    this.cdr.detectChanges();
     this.ownerRestaurantsService.getMenu(restaurantId).subscribe({
       next: (categories) => {
         this.menuCategories = categories ?? [];
+        this.cdr.detectChanges();
       },
       error: () => {
         this.menuError = 'Could not load menu.';
         this.isMenuLoading = false;
+        this.cdr.detectChanges();
       },
       complete: () => {
         this.isMenuLoading = false;
+        this.cdr.detectChanges();
       },
     });
   }
