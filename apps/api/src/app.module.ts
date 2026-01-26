@@ -7,17 +7,26 @@ import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { OwnerModule } from './owner/owner.module';
 import { RestaurantsModule } from './restaurants/restaurants.module';
+import { OrderModule } from './order/order.module';
+import { VoucherController } from './voucher/voucher.controller';
+import { VoucherModule } from './voucher/voucher.module';
+import { ActivityModule } from './activity/activity.module';
+import { ForumModule } from './forum/forum.module';
 
 @Module({
   imports: [
     PrismaModule,
+    ActivityModule,
     UserModule,
     AdminModule,
     AuthModule,
     OwnerModule,
     RestaurantsModule,
+    OrderModule,
+    VoucherModule,
+    ForumModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, VoucherController],
   providers: [AppService],
 })
 export class AppModule {}

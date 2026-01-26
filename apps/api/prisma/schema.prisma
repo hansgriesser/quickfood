@@ -38,7 +38,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  orders Order[]
+  orders       Order[]
+  activityLogs ActivityLog[]
+
+  forumThreads ForumThread[]
+
+  forumPosts ForumPost[]
 }
 
 model Restaurant {
@@ -70,6 +75,7 @@ model Restaurant {
 
   @@index([status])
   @@index([ownerId])
+  forumThreads ForumThread[]
 }
 
 model Dish {
@@ -123,6 +129,7 @@ model Order {
   status             OrderStatus @default(PENDING)
   subtotalAmount     BigInt
   discountAmount     BigInt      @default(0)
+  serviceAmount      BigInt      @default(0)
   totalAmount        BigInt
   voucherId          String?
   voucher            Voucher?    @relation(fields: [voucherId], references: [id])
@@ -172,11 +179,32 @@ model UserModerationAction {
   @@index([moderatorId])
 }
 
+model ActivityLog {
+  id   String       @id @default(uuid())
+  type ActivityType
+
+  actorId Int?
+  actor   User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  targetType ActivityTargetType?
+  targetId   String?
+  meta       Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([type, createdAt])
+  @@index([actorId, createdAt])
+  @@index([targetType, createdAt])
+}
+
 model DeliveryZone {
   id     String  @id @default(uuid())
   code   String  @unique
   name   String
   active Boolean @default(true)
+
+  typicalDeliveryMin Int @default(20)
+  typicalDeliveryMax Int @default(40)
 
   restaurantsLinks RestaurantDeliveryZone[]
 }
@@ -212,6 +240,40 @@ model PlatformSetting {
   updatedAt DateTime @updatedAt
 }
 
+model ForumThread {
+  id  Int @id @default(autoincrement())
+  title String
+  content String
+  isClosed Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  restaurantId  String
+  restaurant  Restaurant @relation(fields: [restaurantId], references: [id])
+
+  authorId Int
+  author User @relation(fields: [authorId], references: [id])
+
+  post  ForumPost[]
+
+  @@index([restaurantId, createdAt])
+  @@index([authorId, createdAt])
+}
+
+model ForumPost {
+  id Int  @id @default(autoincrement())
+  content String
+  createdAt DateTime @default(now())
+
+  threadId  Int
+  thread  ForumThread @relation(fields: [threadId], references: [id])
+
+  authorId Int
+  author User @relation(fields: [authorId], references: [id])
+
+  @@index([threadId, createdAt])
+  @@index([authorId, createdAt])
+}
+
 enum Role {
   USER
   OWNER
@@ -244,4 +306,24 @@ enum OrderStatus {
   DISPATCHED
   REJECTED
   CANCELLED
+}
+
+enum ActivityType {
+  AUTH_LOGIN_SUCCESS
+  AUTH_REGISTER
+
+  ADMIN_USER_WARN
+  ADMIN_USER_SUSPEND
+  ADMIN_USER_UNSUSPEND
+
+  ADMIN_RESTAURANT_APPROVE
+  ADMIN_RESTAURANT_REJECT
+}
+
+enum ActivityTargetType {
+  USER
+  RESTAURANT
+  Order
+  VOUCHER
+  ZONE
 }

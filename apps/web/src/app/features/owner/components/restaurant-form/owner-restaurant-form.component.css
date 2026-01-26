@@ -1,0 +1,27 @@
+.restaurant-form {
+  display: grid;
+  gap: 12px;
+  max-width: 360px;
+}
+
+.restaurant-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.restaurant-form input {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #d0d0d0;
+}
+
+.restaurant-form button {
+  justify-self: start;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #1f6feb;
+  color: #fff;
+  cursor: pointer;
+}

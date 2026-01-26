@@ -8,12 +8,12 @@ import {
     FormControl
 } from "@angular/forms";
 import { AuthService } from "../../auth.service";
-import { Router } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [CommonModule, ReactiveFormsModule, RouterModule],
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.css']
 })
@@ -62,7 +62,7 @@ export class LoginComponent {
                     await this.router.navigate(['/restaurants']);
                     break;
                 case 'OWNER': 
-                    await this.router.navigate(['/restaurants']);
+                    await this.router.navigate(['/owner']);
                     break;
                 default:
                     await this.router.navigate(['/']);

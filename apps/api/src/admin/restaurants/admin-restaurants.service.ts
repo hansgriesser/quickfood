@@ -5,12 +5,17 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RestaurantStatus as PrismaRestaurantStatus } from '../../../generated/prisma/client';
+import { ActivityService } from '../../activity/activity.service';
+import { ActivityTargetType, ActivityType } from '@generated/prisma/enums';
 
 type RestaurantStatus = 'PENDING' | 'ACTIVE' | 'REJECTED' | 'SUSPENDED';
 
 @Injectable()
 export class AdminRestaurantsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly activity: ActivityService,
+  ) {}
 
   async list(status?: RestaurantStatus) {
     return this.prisma.restaurant.findMany({
@@ -33,6 +38,26 @@ export class AdminRestaurantsService {
       );
     }
 
+    const updated = await this.prisma.restaurant.update({
+      where: { id: restaurantId },
+      data: {
+        status: PrismaRestaurantStatus.ACTIVE,
+        approvedAt: new Date(),
+        rejectedAt: null,
+        decisionById: adminId,
+      },
+    });
+
+    await this.activity.log({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      type: ActivityType.ADMIN_RESTAURANT_APPROVE,
+      actorId: adminId,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      targetType: ActivityTargetType.RESTAURANT,
+      targetId: restaurantId,
+      meta: { name: updated.name },
+    });
+
     return this.prisma.restaurant.update({
       where: { id: restaurantId },
       data: {
@@ -54,6 +79,26 @@ export class AdminRestaurantsService {
         `Only PENDING restaurants can be rejected (current=${existing.status})`,
       );
     }
+
+    const updated = await this.prisma.restaurant.update({
+      where: { id: restaurantId },
+      data: {
+        status: PrismaRestaurantStatus.REJECTED,
+        rejectedAt: new Date(),
+        approvedAt: null,
+        decisionById: adminId,
+      },
+    });
+
+    await this.activity.log({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      type: ActivityType.ADMIN_RESTAURANT_REJECT,
+      actorId: adminId,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      targetType: ActivityTargetType.RESTAURANT,
+      targetId: restaurantId,
+      meta: { name: updated.name },
+    });
 
     return this.prisma.restaurant.update({
       where: { id: restaurantId },

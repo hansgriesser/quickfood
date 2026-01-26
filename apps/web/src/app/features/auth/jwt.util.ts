@@ -6,6 +6,13 @@ export interface JWTPayload {
     exp?: number;
 }
 
+
+export function getUserIdFromPayload(payload: JWTPayload | null): number | null {
+  if (!payload?.sub) return null;
+  const id = Number(payload.sub);
+  return Number.isFinite(id) ? id : null;
+}
+
 export function decodeJWT(token: string): JWTPayload | null {
     try {
         const payload = token.split('.')[1];

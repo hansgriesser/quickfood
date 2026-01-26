@@ -1,44 +1,121 @@
 @import '../../admin-ui.css';
 
+.admin-page {
+  padding: 24px;
+}
+
+.admin-header {
+  margin-bottom: 24px;
+}
+
+.admin-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.admin-subtitle {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.admin-panel {
+  display: grid;
+  gap: 24px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+}
+
+.stat-value {
+  margin-top: 8px;
+  font-size: 26px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.stat-meta {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #4b5563;
+}
+
 .overview-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  padding: 16px;
+  gap: 16px;
 }
 
 .overview-card {
   display: block;
-  text-decoration: none;
-  color: var(--admin-text);
-  border: 1px solid var(--admin-border);
+  padding: 20px;
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
   background: #ffffff;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: var(--admin-shadow);
-  transition: transform 120ms ease, background 120ms ease;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
 .overview-card:hover {
-  background: var(--admin-surface);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
 }
 
 .overview-title {
-  font-weight: 900;
-  font-size: 16px;
   margin: 0;
+  font-size: 18px;
+  font-weight: 900;
 }
 
 .overview-desc {
   margin-top: 8px;
-  font-size: 13px;
-  color: var(--admin-muted);
-  line-height: 1.4;
+  font-size: 14px;
+  color: #4b5563;
 }
 
 @media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
   .overview-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.loading {
+  padding: 12px 16px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.recent-activity ul {
+  list-style: none;
+  padding: 0;
+}
+.recent-activity li {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
 }
