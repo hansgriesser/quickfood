@@ -30,6 +30,9 @@ export const routes: Routes = [
         path: 'order', loadChildren: () => import('./features/customer/order/order-module').then(m => m.OrderModule )
     },
     {
-        path:'**', redirectTo: 'login'
+        path: 'owner', loadChildren: () => import('./features/owner/owner.module').then(m => m.OwnerModule)
+    },
+    {
+        path:'**', redirectTo: 'restaurants'
     }
 ];
