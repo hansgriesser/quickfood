@@ -18,37 +18,37 @@ export class Voucher {
   constructor(private http: HttpClient) {}
 
   checkVoucher(code: string) {
-  this.voucherStateSubject.next('checking');
+    this.voucherStateSubject.next('checking');
 
-  this.http.get<VoucherDto>(`${this.baseUrl}/${code}`).subscribe({
-    next: (voucher) => {
-      // Kein Voucher zurück → direkt invalid
-      if (!voucher) {
-        this.appliedVoucherSubject.next(null); // Voucher zurücksetzen
+    this.http.get<VoucherDto>(`${this.baseUrl}/${code}`).subscribe({
+      next: (voucher) => {
+        // Kein Voucher zurück → direkt invalid
+        if (!voucher) {
+          this.appliedVoucherSubject.next(null); // Voucher zurücksetzen
+          this.voucherStateSubject.next('invalid');
+          return;
+        }
+
+        const now = new Date();
+        const valid =
+          voucher.active &&
+          (!voucher.validFrom || new Date(voucher.validFrom) <= now) &&
+          (!voucher.validTo || now <= new Date(voucher.validTo));
+
+        if (valid) {
+          this.appliedVoucherSubject.next(voucher); // Voucher speichern
+          this.voucherStateSubject.next('valid');
+        } else {
+          this.appliedVoucherSubject.next(null); // Voucher zurücksetzen
+          this.voucherStateSubject.next('invalid');
+        }
+      },
+      error: () => {
+        this.appliedVoucherSubject.next(null); // Fehler → Voucher löschen
         this.voucherStateSubject.next('invalid');
-        return;
       }
-
-      const now = new Date();
-      const valid =
-        voucher.active &&
-        (!voucher.validFrom || new Date(voucher.validFrom) <= now) &&
-        (!voucher.validTo || now <= new Date(voucher.validTo));
-
-      if (valid) {
-        this.appliedVoucherSubject.next(voucher); // Voucher speichern
-        this.voucherStateSubject.next('valid');
-      } else {
-        this.appliedVoucherSubject.next(null); // Voucher zurücksetzen
-        this.voucherStateSubject.next('invalid');
-      }
-    },
-    error: () => {
-      this.appliedVoucherSubject.next(null); // Fehler → Voucher löschen
-      this.voucherStateSubject.next('invalid');
-    }
-  });
-}
+    });
+  }
 
 
 
