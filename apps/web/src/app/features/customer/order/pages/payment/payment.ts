@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { OrderDraft } from '../../services/order-draft';
 import { Router } from '@angular/router';
+import { CheckoutService } from '../../services/checkout-service';
 
 @Component({
   selector: 'app-payment',
@@ -10,10 +11,10 @@ import { Router } from '@angular/router';
 })
 export class Payment {
 
-  constructor(private orderDraftService: OrderDraft, private router : Router) {}
+  constructor(private checkoutService: CheckoutService, private router : Router) {}
   
   placeOrder() {
-    this.orderDraftService.placeOrder().subscribe({
+    this.checkoutService.placeOrder().subscribe({
       next: (response) => {
         console.log('Order placed successfully:', response);
         this.router.navigate(['/order/confirmation']);

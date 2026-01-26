@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Dish } from '../../restaurant/restaurant.model';
-import { BehaviorSubject, map} from 'rxjs';
+import { BehaviorSubject, map, Observable} from 'rxjs';
 import { CartDto, CartItemDto } from '../cartDTO';
 import { OrderDraft } from '../../order/services/order-draft';
-import { ServiceFee } from '../../order/services/service-fee';
+import { ServiceFeeService } from '../../order/services/service-fee';
+import { combineLatest } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -23,29 +24,41 @@ export class CartService {
   restaurantId$ = this.cart$.pipe(
     map(cart => cart.restaurantId)
   );
-  totalPrice$ = this.cart$.pipe(
-    map(cart => {
-      const subtotal = cart.items.reduce(
-        (acc, i) => acc + i.price * i.quantity,
-        0
-      );
+  serviceFee$!: Observable<number>;
+  totalPrice$!: Observable<number>;
 
-      const fee = Math.round(subtotal * this.serviceFee);
-      return subtotal + fee;
-    })
-  );
-
-  serviceFee = 0.1; 
-
-  constructor(private orderDraftService: OrderDraft, private feeService: ServiceFee) {
+  constructor(
+    private orderDraftService: OrderDraft,
+    private feeService: ServiceFeeService
+  ) {
     const saved = localStorage.getItem('cart');
     if (saved) {
       this.cartSubject.next(JSON.parse(saved) as CartDto);
     }
-    // automatisch speichern bei jeder Änderung
-    this.cart$.subscribe(cart => localStorage.setItem('cart', JSON.stringify(cart)));
-    this.serviceFee = this.feeService.getServiceFee();
+
+    this.cart$.subscribe(cart =>
+      localStorage.setItem('cart', JSON.stringify(cart))
+    );
+
+    this.feeService.loadServiceFee();
+    this.serviceFee$ = this.feeService.serviceFee$;
+
+    this.totalPrice$ = combineLatest([
+      this.cart$,
+      this.serviceFee$
+    ]).pipe(
+      map(([cart, serviceFee]) => {
+        const subtotal = cart.items.reduce(
+          (acc, i) => acc + i.price * i.quantity,
+          0
+        );
+
+        const feeAmount = Math.round(subtotal * (serviceFee / 100));
+        return subtotal + feeAmount;
+      })
+    );
   }
+
 
   //Kommunikation mit Services
   
@@ -56,6 +69,7 @@ export class CartService {
   //Cart Operationen
 
   clearCart() {
+    localStorage.removeItem('cart');
     this.cartSubject.next({
       restaurantId: '',
       items: [],
@@ -74,13 +88,15 @@ export class CartService {
       pictureUrl: dish.pictureUrl
     };
 
-    const updatedCart: CartDto = {
-      ...cart,
-      restaurantId: cart.restaurantId || restaurantId || '',
-      items: this.addOrUpdateItem(cart.items, item),
-    };
+    const existing = cart.items.find(i => i.dishId === item.dishId);
+    if (existing) {
+      existing.quantity++;
+    } else {
+      cart.items.push(item);
+    }
 
-    this.updateCart(updatedCart);
+    cart.restaurantId = cart.restaurantId || restaurantId || '';
+    this.updateCart(cart);
   }
 
   addItem(item: CartItemDto) {
@@ -88,7 +104,7 @@ export class CartService {
     const existing = cart.items.find(i => i.dishId === item.dishId);
 
     if (existing) {
-      existing.quantity++;
+      existing.quantity++; // Mutieren ist okay, updateCart macht neues Array
     } else {
       cart.items.push(item);
     }
@@ -125,36 +141,16 @@ export class CartService {
   //Hiilfsfunktionen
 
   private updateCart(cart: CartDto) {
-    const subtotal = cart.items.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
-
-    const totalPrice = subtotal + Math.round(subtotal * this.serviceFee);
+    if (!cart.items || cart.items.length === 0) {
+      this.clearCart();
+      return;
+    }
 
     this.cartSubject.next({
       ...cart,
-      totalPrice
+      items: [...cart.items]
     });
+
+    localStorage.setItem('cart', JSON.stringify(this.cartSubject.value));
   }
-
-
-  private addOrUpdateItem(
-    items: CartItemDto[],
-    item: CartItemDto
-  ): CartItemDto[] {
-    const safeItems = items || [];
-    const existing = safeItems.find(i => i.dishId === item.dishId);
-
-    if (!existing) {
-      return [... safeItems, item];
-    }
-
-    return safeItems.map(i =>
-      i.dishId === item.dishId
-        ? { ...i, quantity: i.quantity + 1 }
-        : i
-    );
-  }
-
 }

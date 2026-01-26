@@ -31,6 +31,8 @@
         type="text"
         [(ngModel)]="voucherCode"
         placeholder="z.B. FOOD10"
+        (input)="onInputChange()"
+        (keyup.enter)="checkVoucher()"
       />
 
       <button
@@ -39,6 +41,7 @@
           success: voucherState === 'valid',
           error: voucherState === 'invalid'
         }"
+        [disabled]="voucherState === 'valid'"
       >
         Prüfen
       </button>
@@ -52,17 +55,25 @@
     </p>
   </div>
 
-  <div class="cart-summary" *ngIf="appliedVoucher$ | async">
-    <p>Subtotal: {{ subtotalAmount$ / 100 | currency:'EUR' }}</p>
+  <div class="cart-summary" *ngIf="orderDraftService.subtotalAmount$ | async as subtotal">
+    <p>Subtotal: {{ subtotal / 100 | currency:'EUR' }}</p>
 
-    <p *ngIf="discountAmount$ > 0">
-      Rabatt: − {{ discountAmount$ / 100 | currency:'EUR' }}
+    <p *ngIf="orderDraftService.discountAmount$ | async as discount">
+      <span *ngIf="discount > 0">
+        Rabatt: − {{ discount / 100 | currency:'EUR' }}
+      </span>
     </p>
 
-    <p><strong>
-      Gesamt: {{ totalAmount$ / 100 | currency:'EUR' }}
+    <p *ngIf="orderDraftService.feeAmount$ | async as fee">
+      Service Fees: {{ fee / 100 | currency:'EUR' }}
+    </p>
+
+    <p *ngIf="orderDraftService.totalAmount$ | async as total"><strong>
+      Gesamt: {{ total / 100 | currency:'EUR' }}
     </strong></p>
   </div>
+
+
 </section>
 
 <button

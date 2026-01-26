@@ -17,6 +17,8 @@ export class OrderService {
 
   private destroy$ = new Subject<void>();
 
+  hasDiscount = this.orderSubject.value?.discountAmount !== 0;
+
   placeOrder(orderDraft: OrderDraftDto) {
     console.log('Preparing to place order with draft:', orderDraft);
     const order : Partial<OrderDto> = this.mapToOrderDto(orderDraft);
@@ -45,7 +47,7 @@ export class OrderService {
   private mapToOrderDto(draft: OrderDraftDto): Partial<OrderDto> {
     return {
       restaurantId: draft.restaurantId,
-      customerId: 0,//draft.customerId, // muss gültig sein
+      customerId: 0,//wird im backend aus dem token geparst
       status: OrderStatus.PENDING,
       voucherCode: draft.voucherCode ?? null,
       items: draft.items.map(item => ({
