@@ -20,6 +20,8 @@ export class ForumThreadDetailComponent implements OnInit, OnDestroy {
 
   threadId!: number;
 
+  canModerate = false;
+
   loading = true;
   error: string | null = null;
 
@@ -38,6 +40,14 @@ export class ForumThreadDetailComponent implements OnInit, OnDestroy {
     return !!this.auth.getToken();
   }
 
+  private recomputeModerationRights(thread: ForumThreadDetail | null) {
+    const role = this.auth.getUserRole();
+    const userId = this.auth.getUserId();
+    const ownerId = thread?.restaurant?.ownerId;
+
+    this.canModerate = role === 'OWNER' && !!userId && !!ownerId && userId === ownerId;
+  }
+
   get isOwner(): boolean {
     return this.auth.getUserRole() === 'OWNER';
   }
@@ -52,6 +62,7 @@ export class ForumThreadDetailComponent implements OnInit, OnDestroy {
           if (!id || Number.isNaN(num) || num <= 0) {
             this.threadId = NaN as any;
             this.thread = null;
+            this.canModerate = false;
             this.error = 'Ungültige Thread-ID in der URL.';
             this.loading = false;
             this.cdr.detectChanges();
@@ -80,6 +91,7 @@ export class ForumThreadDetailComponent implements OnInit, OnDestroy {
       )
       .subscribe((thread) => {
         this.thread = thread;
+        this.recomputeModerationRights(thread);
         this.cdr.detectChanges();
       });
   }
@@ -90,6 +102,8 @@ export class ForumThreadDetailComponent implements OnInit, OnDestroy {
   }
 
   async sendReply() {
+    this.thread = await this.forum.getThread(this.threadId);
+    this.recomputeModerationRights(this.thread);
     if (!this.reply.trim() || !this.threadId || Number.isNaN(this.threadId)) return;
 
     try {
@@ -109,6 +123,8 @@ export class ForumThreadDetailComponent implements OnInit, OnDestroy {
   }
 
   async closeThread() {
+    this.thread = await this.forum.getThread(this.threadId);
+    this.recomputeModerationRights(this.thread);
     try {
       this.error = null;
       await this.forum.closeThread(this.threadId);
@@ -124,6 +140,8 @@ export class ForumThreadDetailComponent implements OnInit, OnDestroy {
   }
 
   async deleteThread() {
+    this.thread = await this.forum.getThread(this.threadId);
+    this.recomputeModerationRights(this.thread);
     try {
       this.error = null;
       await this.forum.deleteThread(this.threadId);
@@ -141,6 +159,8 @@ export class ForumThreadDetailComponent implements OnInit, OnDestroy {
   }
 
   async deletePost(postId: number) {
+    this.thread = await this.forum.getThread(this.threadId);
+    this.recomputeModerationRights(this.thread);
     try {
       this.error = null;
       await this.forum.deletePost(postId);

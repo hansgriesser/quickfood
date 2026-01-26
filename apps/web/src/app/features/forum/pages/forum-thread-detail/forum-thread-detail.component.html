@@ -40,7 +40,7 @@
 
       <p class="body">{{ thread.content }}</p>
 
-      <div class="row-actions" *ngIf="isOwner">
+      <div class="row-actions" *ngIf="canModerate">
         <button class="btn btn--ghost" type="button" (click)="closeThread()" [disabled]="thread.isClosed">
           Frage schließen
         </button>
@@ -70,7 +70,7 @@
             </div>
 
             <button
-              *ngIf="isOwner"
+              *ngIf="canModerate"
               class="btn btn--danger btn--small"
               type="button"
               (click)="deletePost(p.id)"
