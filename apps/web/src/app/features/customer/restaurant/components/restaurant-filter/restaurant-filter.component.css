@@ -1,37 +1,67 @@
 .filter-container {
-  background-color: #f5f5f5;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 24px;
-}
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  max-width: 100%;
+  width: 100%;
+  margin-bottom: 2rem;
 
-.filter-container h2 {
-  margin: 0 0 16px 0;
-  font-size: 18px;
-  font-weight: 500;
+  h2 {
+    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f97316;
+  }
 }
 
 .filters {
   display: flex;
-  gap: 16px;
-  margin-bottom: 16px;
   flex-wrap: wrap;
+  gap: 1rem;
+
+  .filter-field {
+    flex: 1 1 180px; /* flexible Breite, min 180px */
+    min-width: 140px;
+  }
+
+  .sort-order {
+    flex: 1 1 120px; /* kleiner für Reihenfolge */
+  }
 }
 
-.filter-field {
-  flex: 1;
-  min-width: 180px;
-}
-
-.filter-field.sort-order {
-  min-width: 140px;
-}
-
+/* Filter-Buttons */
 .filter-actions {
+  margin-top: 1rem;
   display: flex;
-  gap: 12px;
-  margin-top: 16px;
+  justify-content: flex-end;
+
+  button {
+    border-color: #f76707; /* orange Rahmen */
+    color: #f76707;
+    font-weight: 600;
+    transition: background-color 0.2s, color 0.2s;
+
+    &:hover {
+      background-color: #f76707;
+      color: #fff;
+    }
+  }
 }
+
+/* Optional: kleine Anpassungen für MatInput und MatSelect */
+.mat-form-field {
+  width: 100%;
+}
+
+.mat-select-trigger {
+  color: #111827;
+}
+
+.mat-label {
+  color: #6b7280; /* leicht grauer Label-Ton */
+}
+
 
 @media (max-width: 768px) {
   .filters {

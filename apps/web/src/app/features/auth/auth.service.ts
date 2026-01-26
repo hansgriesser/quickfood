@@ -15,6 +15,10 @@ export class AuthService {
 
     constructor(private http: HttpClient) {}
 
+    get isLoggedIn(){
+        return !!this.getToken();
+    }
+
     async login(req: LoginRequest): Promise<LoginResponse> {
         const url = '/api/auth/login';
         

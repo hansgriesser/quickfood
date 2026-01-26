@@ -1,2 +1,9 @@
+<div class="app-wrapper">
+  <app-header></app-header>
 
-<router-outlet />
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <app-footer *ngIf="showFooter"></app-footer>
+</div>
