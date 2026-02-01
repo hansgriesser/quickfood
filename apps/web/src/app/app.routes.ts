@@ -30,7 +30,10 @@ export const routes: Routes = [
         path: 'order', loadChildren: () => import('./features/customer/order/order-module').then(m => m.OrderModule )
     },
     {
-        path: 'owner', loadChildren: () => import('./features/owner/owner.module').then(m => m.OwnerModule)
+        path: 'owner', loadChildren: () => import('./features/owner/owner.module').then(m => m.OwnerModule), data: { footer: true }
+    },
+    {
+        path: 'chat', loadChildren: () => import('./features/chat/chat-module').then(m => m.ChatModule)
     },
     {
         path:'**', redirectTo: 'restaurants'

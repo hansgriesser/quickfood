@@ -11,6 +11,7 @@ import { Role } from '@generated/prisma/enums';
 
 import { ActivityService } from '../activity/activity.service';
 import { ActivityType } from '@generated/prisma/enums';
+import { JwtPayload } from './jwt-payload.type';
 @Injectable()
 export class AuthService {
   constructor(
@@ -31,7 +32,6 @@ export class AuthService {
     if (!ok) throw new UnauthorizedException('Invalid credentials');
 
     await this.activity.log({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       type: ActivityType.AUTH_LOGIN_SUCCESS,
       actorId: user.id,
       targetType: null,
@@ -65,7 +65,6 @@ export class AuthService {
       });
 
       await this.activity.log({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         type: ActivityType.AUTH_REGISTER,
         actorId: user.id,
         meta: { username: user.username, role: user.role },
@@ -89,6 +88,10 @@ export class AuthService {
       }
       throw e;
     }
+  }
+
+  verifyToken(token: string): JwtPayload {
+    return this.jwt.verify(token);
   }
 
   private normalizeRole(roleRaw: string): Role {
