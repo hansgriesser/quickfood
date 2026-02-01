@@ -33,6 +33,11 @@ export interface OrderItemDto {
   createdAt?: string;   
 }
 
+export interface ActiveOrder {
+  id: string;
+  status: OrderStatus;
+}
+
 export enum OrderStatus {
   PENDING = 'PENDING',
   ACCEPTED = 'ACCEPTED',
@@ -41,6 +46,7 @@ export enum OrderStatus {
   DISPATCHED = 'DISPATCHED',
   REJECTED = 'REJECTED',
   CANCELLED = 'CANCELLED',
+  DELIVERED = 'DELIVERED'
 }
 
 export const OrderStatusLabel: Record<OrderStatus, string> = {
@@ -51,6 +57,7 @@ export const OrderStatusLabel: Record<OrderStatus, string> = {
   [OrderStatus.DISPATCHED]: 'Unterwegs',
   [OrderStatus.REJECTED]: 'Abgelehnt',
   [OrderStatus.CANCELLED]: 'Storniert',
+  [OrderStatus.DELIVERED]: 'Bestellung geliefert und abgeschlossen'
 };
 
 export enum PaymentMethod {

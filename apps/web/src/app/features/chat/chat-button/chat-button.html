@@ -1,0 +1,4 @@
+<button class="chat-button" (click)="toggleChat()">
+  <span class="chat-icon">💬</span>
+  <span *ngIf="unreadCount > 0" class="badge">{{ unreadCount }}</span>
+</button>

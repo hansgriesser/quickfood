@@ -76,6 +76,9 @@
     <div class="hint">
         Diese Seite aktualisiert sich automatisch alle 10 Sekunden
     </div>
-    </div>
-
 </div>
+
+<app-chat-button
+  [unreadCount]="chatUnreadCount"
+  (openChat)="onOpenChat()">
+</app-chat-button>
