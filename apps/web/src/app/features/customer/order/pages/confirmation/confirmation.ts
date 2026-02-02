@@ -1,16 +1,18 @@
 import { Component } from '@angular/core';
 import { filter, map, Observable, switchMap } from 'rxjs';
-import { OrderDto } from '../../orderDTO';
+import { OrderDto } from '../../dto/orderDTO';
 import { CommonModule } from '@angular/common';
 import { Restaurant } from '../../../restaurant/restaurant.model';
 import { RestaurantService } from '../../../restaurant/restaurant.service';
-import { OrderStatusLabel } from '../../orderDTO';
+import { OrderStatusLabel } from '../../dto/orderStatus';
 import { RestaurantHeader } from '../../../restaurant/components/restaurant-header/restaurant-header';
 import { ActiveOrderService } from '../../services/order-session';
+import { ChatButton } from '../../../../chat/chat-button/chat-button';
+import { ChatService } from '../../../../chat/services/chat-service';
 
 @Component({
   selector: 'app-confirmation',
-  imports: [CommonModule, RestaurantHeader],
+  imports: [CommonModule, RestaurantHeader, ChatButton],
   templateUrl: './confirmation.html',
   styleUrl: './confirmation.css',
 })
@@ -22,7 +24,7 @@ export class Confirmation {
   hasDiscount;
   unreadCount = 0;
 
-  constructor(private activeOrderService: ActiveOrderService , private restaurantService: RestaurantService){
+  constructor(private activeOrderService: ActiveOrderService , private restaurantService: RestaurantService, private chatService: ChatService) {
     this.order$ = this.activeOrderService.order$;
     this.restaurant$ = this.order$.pipe(
       map(order => order?.restaurantId),
@@ -35,6 +37,6 @@ export class Confirmation {
   }
 
   onOpenChat(){
-    //TODO
+    this.chatService.toggleChat();
   }
 }

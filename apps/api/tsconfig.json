@@ -17,7 +17,6 @@
       "@generated/prisma/*": ["generated/prisma/*"]
     },
     "incremental": true,
-    "skipLibCheck": true,
-    "ignoreDeprecations": "6.0"
+    "skipLibCheck": true
   }
 }

@@ -1,7 +1,11 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Subject, interval, startWith, switchMap, EMPTY, takeUntil, tap } from "rxjs";
-import { OrderDraftDto, OrderDto, OrderStatus } from "../orderDTO";
 import { OrderService } from "./order";
+import { OrderDraftDto } from "../dto/orderDraftDTO";
+import { ActiveOrder, OrderDto } from "../dto/orderDTO";
+import { OrderStatus } from "../dto/orderStatus";
+
+const ACTIVE_ORDER_KEY = 'active_order';
 
 @Injectable({ providedIn: 'root' })
 export class ActiveOrderService {
@@ -12,7 +16,9 @@ export class ActiveOrderService {
 
   hasDiscount = this.orderSubject.value?.discountAmount !== 0;
 
-  constructor(private orderService: OrderService) {}
+  constructor(private orderService: OrderService) {
+    this.restoreActiveOrder();
+  }
 
   createOrder(draft: OrderDraftDto) {
     return this.orderService.placeOrder(draft).pipe(
@@ -35,6 +41,7 @@ export class ActiveOrderService {
         ),
         tap(order => {
           if(order.status === OrderStatus.DELIVERED){
+            this.clearCachedOrder();
             this.stopPolling();
           }
         }
@@ -48,6 +55,8 @@ export class ActiveOrderService {
     this.destroy$.next();
     this.destroy$.complete();
     this.orderSubject.next(null);
+    this.stopPolling();
+    this.clearCachedOrder();
   }  
   
   private setActiveOrder(order: OrderDto) {
@@ -58,5 +67,18 @@ export class ActiveOrderService {
   private stopPolling() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private restoreActiveOrder() {
+    const raw = localStorage.getItem(ACTIVE_ORDER_KEY);
+    if(!raw) return;
+
+    const activeOrer: ActiveOrder = JSON.parse(raw);
+    this.orderSubject.next({ id: activeOrer.id, status: activeOrer.status } as OrderDto);
+    this.startPolling();
+  }
+
+  private clearCachedOrder() {
+    localStorage.removeItem(ACTIVE_ORDER_KEY);
   }
 }

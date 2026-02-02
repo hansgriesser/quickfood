@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { OrderDraft } from '../../services/order-draft';
 import { CommonModule } from '@angular/common';
-import { OrderDraftDto } from '../../orderDTO';
 import { Observable, of, switchMap, take } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { Voucher } from '../../services/voucher';
@@ -9,6 +8,7 @@ import { Router } from '@angular/router';
 import  { RestaurantHeader } from '../../../restaurant/components/restaurant-header/restaurant-header';
 import { RestaurantService } from '../../../restaurant/restaurant.service';
 import { Restaurant } from '../../../restaurant/restaurant.model';
+import { OrderDraftDto } from '../../dto/orderDraftDTO';
 
 @Component({
   selector: 'app-review',

@@ -1,17 +1,16 @@
 import { Component } from '@angular/core';
-
-interface ChatMessage {
-  message: string;
-  fromUser: boolean;
-  timestamp: string;
-}
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ChatMessage } from '../chat-message.dto';
 
 @Component({
-  selector: 'app-chat-button',
-  templateUrl: './chat-button.component.html',
-  styleUrls: ['./chat-button.component.scss']
+  selector: 'app-chat-drawer',
+  templateUrl: './chat.html',
+  styleUrls: ['./chat.css'],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
 })
-export class ChatButtonComponent {
+export class ChatDrawerComponent {
   isOpen = false;
   unreadCount = 0;
   newMessage = '';

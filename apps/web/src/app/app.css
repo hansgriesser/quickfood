@@ -20,3 +20,12 @@ html, body {
 *, *::before, *::after {
   box-sizing: border-box;
 }
+
+app-chat-drawer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 400px;
+  height: 100%;
+  z-index: 1000; /* über alles andere */
+}

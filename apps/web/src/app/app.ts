@@ -4,10 +4,11 @@ import { Header } from './layout/header/header';
 import { Footer } from './layout/footer/footer';
 import { filter, map } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { ChatDrawerComponent } from './features/chat/chat/chat';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Footer, CommonModule],
+  imports: [RouterOutlet, Header, Footer, CommonModule, ChatDrawerComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
   standalone: true

@@ -15,6 +15,7 @@ const STATUS_FLOW: Record<PrismaOrderStatus, PrismaOrderStatus | null> = {
   DISPATCHED: null,
   REJECTED: null,
   CANCELLED: null,
+  COMPLETED: PrismaOrderStatus.COMPLETED,
 };
 
 @Injectable()
