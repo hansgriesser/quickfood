@@ -14,7 +14,7 @@ import { AuthService } from 'src/auth/auth.service';
 
 @WebSocketGateway({
   cors: { origin: '*' },
-  namespace: '/order/chat',
+  namespace: '/api/order/chat',
 })
 export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
@@ -25,7 +25,7 @@ export class ChatGateway implements OnGatewayConnection {
     private readonly authService: AuthService,
   ) {}
 
-  handleConnection(client: AuthenticatedSocket): Promise<void> {
+  handleConnection(client: AuthenticatedSocket) {
     try {
       const token = client.handshake.auth?.token;
       if (!token) throw new Error('No token!');
@@ -35,7 +35,11 @@ export class ChatGateway implements OnGatewayConnection {
         client.disconnect();
         return;
       }
-      client.data.userId = user.sub;
+      const userId = parseInt(user.sub, 10);
+      client.data.userId = userId;
+      if (isNaN(userId)) {
+        throw new Error('Invalid userId in token');
+      }
     } catch (err) {
       if (err instanceof Error) {
         console.log('Socket connection rejected:', err.message);
@@ -49,11 +53,15 @@ export class ChatGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage('chat:join')
-  handleJoinOrder(
+  async handleJoinOrder(
     @MessageBody() orderId: string,
     @ConnectedSocket() client: AuthenticatedSocket,
-  ): void {
-    void client.join(`order-${orderId}`);
+  ): Promise<void> {
+    const userId = client.data.userId;
+    const allowed = await this.chatService.isAllowedToJoin(userId, orderId);
+    if (allowed) {
+      void client.join(`order-${orderId}`);
+    }
   }
 
   @SubscribeMessage('chat:send')

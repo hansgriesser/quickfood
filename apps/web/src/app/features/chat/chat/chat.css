@@ -43,13 +43,16 @@
   box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
   transform: translateY(100%);
   transition: transform 0.3s ease-in-out;
-  display: flex;
+  display: none;
   flex-direction: column;
   overflow: hidden;
   z-index: 999;
+  pointer-events: none;
 
   &.open {
     transform: translateY(0);
+    pointer-events: auto;
+    display: flex;
   }
 
   .chat-header {
@@ -82,7 +85,7 @@
       border-radius: 8px;
       max-width: 80%;
       &.own {
-        background-color: #e0e7ff;
+        background-color: #eeab74;
         align-self: flex-end;
       }
       .timestamp {
@@ -111,7 +114,7 @@
 
     button {
       margin-left: 0.5rem;
-      background-color: #4f46e5;
+      background-color: #f76707;
       color: white;
       border: none;
       border-radius: 8px;

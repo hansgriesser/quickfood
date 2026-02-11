@@ -75,6 +75,21 @@
   font-size: 16px;
 }
 
+.active-order-banner {
+  background-color: #fffae6;
+  border: 1px solid #ffc107;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.active-order-banner:hover {
+  background-color: #fff3cd;
+}
+
 @media (max-width: 768px) {
   .restaurant-list-container {
     padding: 16px;

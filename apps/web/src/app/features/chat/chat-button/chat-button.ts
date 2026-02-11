@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChatService } from '../services/chat-service';
 
 @Component({
   selector: 'app-chat-button',
@@ -10,9 +11,10 @@ import { Component, Input } from '@angular/core';
 export class ChatButton {
   isOpen = false;
   @Input() unreadCount = 0;
+  @Output() openChat  = new EventEmitter<string>();
+  @Input() orderId!: string;
 
-  toggleChat() {
-    this.isOpen = !this.isOpen;
+  openChatButton(){
+    this.openChat.emit(this.orderId);
   }
-
 }

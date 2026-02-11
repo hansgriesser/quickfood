@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { filter, map, Observable, switchMap } from 'rxjs';
+import { filter, map, Observable, switchMap, take, tap } from 'rxjs';
 import { OrderDto } from '../../dto/orderDTO';
 import { CommonModule } from '@angular/common';
 import { Restaurant } from '../../../restaurant/restaurant.model';
@@ -9,6 +9,7 @@ import { RestaurantHeader } from '../../../restaurant/components/restaurant-head
 import { ActiveOrderService } from '../../services/order-session';
 import { ChatButton } from '../../../../chat/chat-button/chat-button';
 import { ChatService } from '../../../../chat/services/chat-service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-confirmation',
@@ -24,7 +25,11 @@ export class Confirmation {
   hasDiscount;
   unreadCount = 0;
 
-  constructor(private activeOrderService: ActiveOrderService , private restaurantService: RestaurantService, private chatService: ChatService) {
+  constructor(private activeOrderService: ActiveOrderService,
+    private restaurantService: RestaurantService,
+    private chatService: ChatService,
+    private router: Router)
+  {
     this.order$ = this.activeOrderService.order$;
     this.restaurant$ = this.order$.pipe(
       map(order => order?.restaurantId),
@@ -36,7 +41,12 @@ export class Confirmation {
     this.hasDiscount = activeOrderService.hasDiscount;
   }
 
-  onOpenChat(){
-    this.chatService.toggleChat();
+  onOpenChat(orderId: string) {
+    this.chatService.openChatForOrder(orderId);
+  }
+
+  goToHome(){
+    this.router.navigate(['/restaurants']);
   }
 }
+

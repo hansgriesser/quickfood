@@ -1,25 +1,23 @@
-<!-- Floating Chat Button -->
-<button class="chat-fab" (click)="toggleChat()">
-  💬
-  <span *ngIf="unreadCount > 0" class="badge">{{ unreadCount }}</span>
-</button>
-
-<!-- Chat Drawer -->
 <div class="chat-drawer" [class.open]="isOpen">
   <div class="chat-header">
-    <h3>Chat mit Support</h3>
+    <h3>
+      {{ context?.role === 'OWNER' 
+          ? 'Chat mit Kunde #' + (context?.orderId | slice: 0 : 8)
+          : 'Chat mit Restaurant #' + (context?.orderId | slice: 0 : 8)
+      }}
+    </h3>
     <button class="close-btn" (click)="toggleChat()">✕</button>
   </div>
 
   <div class="chat-messages">
-    <div *ngFor="let msg of messages" class="chat-message" [class.own]="msg.fromUser">
+    <div *ngFor="let msg of messages" class="chat-message" [class.own]="isOwnMessage(msg)">
       <p>{{ msg.message }}</p>
       <span class="timestamp">{{ msg.timestamp | date:'HH:mm' }}</span>
     </div>
   </div>
 
   <div class="chat-input">
-    <input type="text" [(ngModel)]="newMessage" placeholder="Nachricht schreiben..." (keyup.enter)="sendMessage()">
-    <button (click)="sendMessage()">Senden</button>
+    <input type="text" [(ngModel)]="newMessage" placeholder="Nachricht schreiben..." (keyup.enter)="sendMessage()" [disabled]="!isOpen">
+    <button (click)="sendMessage()" [disabled]="!isOpen || !newMessage.trim()">Senden</button>
   </div>
 </div>

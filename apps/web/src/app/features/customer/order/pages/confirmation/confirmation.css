@@ -1,4 +1,4 @@
- body {
+    body {
       font-family: Arial, sans-serif;
       background: #f6f6f6;
       margin: 0;
@@ -61,4 +61,24 @@
       font-size: 0.8rem;
       color: #888;
       margin-top: 20px;
+    }
+
+    .back-button {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: center;
+      padding: 0.5rem 1.5rem;
+
+      button {
+        border-color: #f76707; /* orange Rahmen */
+        color: #f76707;
+        background-color: transparent;
+        font-size: 1rem;
+        border-radius: 20px;
+        border-width: 1.5px;
+        padding: 0.5rem 1rem;
+        &:hover {
+          background-color: #eecfc0;
+        }
+      }
     }

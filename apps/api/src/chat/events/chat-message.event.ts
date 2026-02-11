@@ -1,6 +1,6 @@
 export interface ChatMessageEvent {
   orderId: string;
-  fromUserId: string;
+  fromUserId: number;
   message: string;
   timestamp: string;
 }

@@ -6,6 +6,8 @@ import { ActiveOrder, OrderDto } from "../dto/orderDTO";
 import { OrderStatus } from "../dto/orderStatus";
 
 const ACTIVE_ORDER_KEY = 'active_order';
+const CART_KEY = 'cart';
+const ORDER_DRAFT_KEY = 'orderDraft';
 
 @Injectable({ providedIn: 'root' })
 export class ActiveOrderService {
@@ -22,7 +24,10 @@ export class ActiveOrderService {
 
   createOrder(draft: OrderDraftDto) {
     return this.orderService.placeOrder(draft).pipe(
-      tap(order => this.setActiveOrder(order))
+      tap(order => {
+        this.setActiveOrder(order);
+        this.clearCartData();
+      })
     );
   }
 
@@ -61,6 +66,7 @@ export class ActiveOrderService {
   
   private setActiveOrder(order: OrderDto) {
     this.orderSubject.next(order);
+    localStorage.setItem(ACTIVE_ORDER_KEY, JSON.stringify({ id: order.id, status: order.status }));
     this.startPolling();
   }
 
@@ -80,5 +86,11 @@ export class ActiveOrderService {
 
   private clearCachedOrder() {
     localStorage.removeItem(ACTIVE_ORDER_KEY);
+  }
+
+  private clearCartData() {
+    console.log('Clearing cart data from localStorage');
+    localStorage.removeItem(CART_KEY);
+    localStorage.removeItem(ORDER_DRAFT_KEY);
   }
 }

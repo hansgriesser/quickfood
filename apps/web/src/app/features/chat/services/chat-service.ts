@@ -1,8 +1,12 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs/internal/BehaviorSubject";
 import { ChatMessage } from "../chat-message.dto";
+import { io, Socket } from "socket.io-client";
+import { AuthService } from "../../auth/auth.service";
+import { NgZone } from "@angular/core";
 
-const CHAT_WS_URL = 'ws://localhost:3000/api/order/chat';
+const CHAT_WS_URL = 'http://localhost:3000/api/order/chat'; //dafür angular unbedingt über proxy.conf.json konfigurieren
+//ng serve --proxy-config src/proxy.conf.json
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
@@ -13,60 +17,121 @@ export class ChatService {
   private messagesSubject = new BehaviorSubject<ChatMessage[]>([]);
   readonly messages$ = this.messagesSubject.asObservable();
 
-  private socket?: WebSocket;
+  private contextSubject = new BehaviorSubject<{ orderId: string; userId: number, role: 'USER' | 'OWNER' } | null>(null);
+  readonly context$ = this.contextSubject.asObservable();
 
-  toggleChat() {
-    this.isOpenSubject.value
-      ? this.closeChat()
-      : this.openChat();
-  }
+  private socket!: Socket;
 
-  openChat() {
-    if (this.isOpenSubject.value) return;
+  private unreadCountSubject = new BehaviorSubject<number>(0);
+  readonly unreadCount$ = this.unreadCountSubject.asObservable();
+
+  private pendingJoinOrderId?: string;
+
+  constructor(private authService: AuthService, private ngZone: NgZone) {}
+
+  
+  openChatForOrder(orderId: string) {
+    const current = this.contextSubject.value;
+    const token = this.authService.getToken();
+    const role = this.authService.getUserRole();
+
+    const userId = this.authService.getUserId();
+    if (!token || !userId || !role || role === 'ADMIN') return;
+
+    if (current?.orderId !== orderId) {
+      this.disconnect();
+      this.contextSubject.next({ orderId, userId, role });
+      console.log('Opening chat for order', orderId, 'as', userId);
+    }
 
     this.isOpenSubject.next(true);
-    this.connect();
+    this.connect(token);
+    this.joinOrderChat(orderId);
   }
 
   closeChat() {
     if (!this.isOpenSubject.value) return;
 
     this.isOpenSubject.next(false);
+    this.contextSubject.next(null);
     this.disconnect();
   }
 
-  private connect() {
-    if (this.socket) return;
+  private connect(token: string) {
+    if (!this.socket) {
+      this.socket = io(CHAT_WS_URL, {
+        auth: { token },
+        transports: ['websocket'],
+        timeout: 5000
+      });
 
-    this.socket = new WebSocket(CHAT_WS_URL);
+      this.socket.on('connect', () => {
+        console.log('Connected to chat');
 
-    this.socket.onopen = () => {
-      console.log('Chat connected');
-    };
+        if (this.pendingJoinOrderId) {
+          this.socket!.emit('chat:join', this.pendingJoinOrderId);
+          this.pendingJoinOrderId = undefined;
+        }
+      });
 
-    this.socket.onmessage = (event) => {
-      const msg: ChatMessage = JSON.parse(event.data);
-      this.messagesSubject.next([...this.messagesSubject.value, msg]);
-    };
+      this.socket.on('connect_error', (err) => {
+        console.error('Chat connection error', err);
+      });
 
-    this.socket.onclose = () => {
-      console.log('Chat disconnected');
-      this.socket = undefined;
-    };
+      this.socket.on('chat:receive', (msg) => {
+        this.receiveMessage(msg);
+      });
+
+    } else {
+      if (this.socket.connected) return;
+      this.socket.connect();
+    }
   }
 
+
+  private joinOrderChat(orderId: string) {
+    if (!this.socket){
+      this.pendingJoinOrderId = orderId;
+      return;      
+    } 
+    if (this.socket.connected) {
+      this.socket.emit('chat:join', orderId);
+    } else {
+       this.pendingJoinOrderId = orderId;
+    }
+  }
+
+  private receiveMessage(msg: ChatMessage) {
+    this.ngZone.run(() => {
+      const updated = [...this.messagesSubject.value, msg];
+      this.messagesSubject.next(updated);
+      if (!this.isOpenSubject.value) {
+        this.incrementUnread();
+      }
+    });
+  }
+
+  
   private disconnect() {
-    this.socket?.close();
-    this.socket = undefined;
+    this.socket?.disconnect();
+    this.socket = undefined!;
+    this.messagesSubject.next([]);
   }
 
-  sendMessage(text: string) {
-    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
+  
+  sendMessage(message: string) {
+    const orderId = this.contextSubject.value?.orderId;
+    if (!orderId) return;
+    if (!this.socket || !this.socket.connected) return;
 
-    const msg: ChatMessage = { message: text, fromUser: true, timestamp: new Date().toISOString() };
-    this.socket.send(JSON.stringify(msg));
+    this.socket.emit('chat:send', { orderId, message });
+  }
 
-    // Direkt auch lokal hinzufügen
-    this.messagesSubject.next([...this.messagesSubject.value, msg]);
+  resetUnreadCount() {
+    this.unreadCountSubject.next(0);
+  }
+
+  incrementUnread() {
+    this.unreadCountSubject.next(this.unreadCountSubject.value + 1);
   }
 }

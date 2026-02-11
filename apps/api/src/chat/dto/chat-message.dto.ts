@@ -1,4 +1,4 @@
-export class SendChatMessageDto {
+export interface SendChatMessageDto {
   orderId: string;
   message: string;
 }

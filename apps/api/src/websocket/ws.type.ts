@@ -2,7 +2,7 @@ import { Socket } from 'socket.io';
 
 export interface AuthenticatedSocket extends Socket {
   data: {
-    userId: string;
+    userId: number;
   };
   handshake: Socket['handshake'] & {
     auth?: {

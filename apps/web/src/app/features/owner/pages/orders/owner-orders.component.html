@@ -14,7 +14,7 @@
   </div>
 
   <div class="orders-grid">
-    <article class="order-card" *ngFor="let order of orders; trackBy: trackByOrderId">
+    <article class="order-card" *ngFor="let order of orders$ | async; trackBy: trackByOrderId">
       <div class="order-header">
         <div>
           <h3>Order #{{ order.id | slice: 0 : 8 }}</h3>
@@ -85,6 +85,13 @@
           [disabled]="isBusy(order.id)"
         >
           Mark dispatched
+        </button>
+        <button
+          type="button"
+          class="secondary chat-btn"
+          (click)="openChat(order.id)"
+        >
+          💬
         </button>
       </div>
     </article>

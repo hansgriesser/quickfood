@@ -1,5 +1,7 @@
+import { from } from "rxjs";
+
 export interface ChatMessage {
     message: string;
-    fromUser: boolean;
+    fromUserId: number;
     timestamp: string;
 }
