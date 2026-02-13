@@ -1,5 +1,9 @@
 export interface AuthenticatedRequest extends Request {
-  user: {
-    sub: number;
-  };
+  user: JwtPayload;
+}
+
+export interface JwtPayload {
+  sub: number;
+  username: string;
+  role: string;
 }

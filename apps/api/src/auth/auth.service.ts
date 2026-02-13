@@ -11,6 +11,9 @@ import { Role } from '@generated/prisma/enums';
 
 import { ActivityService } from '../activity/activity.service';
 import { ActivityType } from '@generated/prisma/enums';
+import { Prisma } from '@generated/prisma/client';
+
+const PRISMA_ERROR_UNIQUE_CONSTRAINT = 'P2002';
 @Injectable()
 export class AuthService {
   constructor(
@@ -31,7 +34,6 @@ export class AuthService {
     if (!ok) throw new UnauthorizedException('Invalid credentials');
 
     await this.activity.log({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       type: ActivityType.AUTH_LOGIN_SUCCESS,
       actorId: user.id,
       targetType: null,
@@ -65,7 +67,6 @@ export class AuthService {
       });
 
       await this.activity.log({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         type: ActivityType.AUTH_REGISTER,
         actorId: user.id,
         meta: { username: user.username, role: user.role },
@@ -83,9 +84,10 @@ export class AuthService {
         user,
       };
     } catch (e: any) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (e.code === 'P2002') {
-        throw new ConflictException('Username already taken');
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === PRISMA_ERROR_UNIQUE_CONSTRAINT) {
+          throw new ConflictException('Username already taken');
+        }
       }
       throw e;
     }
