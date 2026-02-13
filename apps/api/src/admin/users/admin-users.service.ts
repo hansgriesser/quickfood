@@ -5,9 +5,8 @@ import {
   ActivityTargetType,
   ActivityType,
   ModerationActionType,
+  Role,
 } from '@generated/prisma/enums';
-
-type Role = 'USER' | 'OWNER' | 'ADMIN';
 
 @Injectable()
 export class AdminUsersService {
@@ -36,38 +35,12 @@ export class AdminUsersService {
   }
 
   async warn(userId: number, moderatorId: number, reason?: string) {
-    await this.ensureUserExists(userId);
-
-    const action = await this.prisma.userModerationAction.create({
-      data: { targetUserId: userId, moderatorId, type: 'WARN', reason },
-    });
-
-    const targetUser = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { username: true },
-    });
-
-    await this.activity.log({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      type: ActivityType.ADMIN_USER_WARN,
-      actorId: moderatorId,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      targetType: ActivityTargetType.USER,
-      targetId: String(userId),
-      meta: {
-        reason,
-        moderationActionId: action.id,
-        targetUsername: targetUser?.username,
-      },
-    });
-
-    return this.prisma.userModerationAction.create({
-      data: {
-        targetUserId: userId,
-        moderatorId,
-        type: 'WARN',
-        reason,
-      },
+    return this.processModerationAction({
+      userId,
+      moderatorId,
+      reason,
+      actionType: ModerationActionType.WARN,
+      activityType: ActivityType.ADMIN_USER_WARN,
     });
   }
 
@@ -77,105 +50,87 @@ export class AdminUsersService {
     until?: string,
     reason?: string,
   ) {
-    await this.ensureUserExists(userId);
-    const untilDate = until ? new Date(until) : null;
-
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        isSuspended: true,
-        suspendedUntil: untilDate,
-      },
-    });
-
-    const action = await this.prisma.userModerationAction.create({
-      data: {
-        targetUserId: userId,
-        moderatorId,
-        type: 'SUSPEND',
-        reason,
-        until: untilDate,
-      },
-    });
-
-    const targetUser = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { username: true },
-    });
-
-    await this.activity.log({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      type: ActivityType.ADMIN_USER_SUSPEND,
-      actorId: moderatorId,
-      targetType: ActivityTargetType.USER,
-      targetId: String(userId),
-      meta: {
-        reason,
-        until: untilDate,
-        ModerationActionId: action.id,
-        targetUsername: targetUser?.username,
-      },
-    });
-
-    return this.prisma.userModerationAction.create({
-      data: {
-        targetUserId: userId,
-        moderatorId,
-        type: 'SUSPEND',
-        reason,
-        until: untilDate,
-      },
+    return this.processModerationAction({
+      userId,
+      moderatorId,
+      reason,
+      until,
+      actionType: ModerationActionType.SUSPEND,
+      activityType: ActivityType.ADMIN_USER_SUSPEND,
     });
   }
 
   async unsuspend(userId: number, moderatorId: number) {
-    await this.ensureUserExists(userId);
+    return this.processModerationAction({
+      userId,
+      moderatorId,
+      actionType: ModerationActionType.UNSUSPEND,
+      activityType: ActivityType.ADMIN_USER_UNSUSPEND,
+    });
+  }
 
-    await this.prisma.user.update({
-      where: { id: userId },
+  private async processModerationAction(params: {
+    userId: number;
+    moderatorId: number;
+    actionType: ModerationActionType;
+    activityType: ActivityType;
+    reason?: string;
+    until?: string;
+  }) {
+    const { userId, moderatorId, actionType, activityType, reason, until } =
+      params;
+
+    const targetUser = await this.getUserOrThrow(userId);
+    const untilDate = until ? new Date(until) : null;
+
+    if (actionType === ModerationActionType.SUSPEND) {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { isSuspended: true, suspendedUntil: untilDate },
+      });
+    } else if (actionType === ModerationActionType.UNSUSPEND) {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { isSuspended: false, suspendedUntil: null },
+      });
+    }
+
+    const action = await this.prisma.userModerationAction.create({
       data: {
-        isSuspended: false,
-        suspendedUntil: null,
+        targetUserId: userId,
+        moderatorId,
+        type: actionType,
+        reason,
+        until: actionType === ModerationActionType.SUSPEND ? untilDate : null,
       },
     });
 
-    const action = await this.prisma.userModerationAction.create({
-      data: { targetUserId: userId, moderatorId, type: 'UNSUSPEND' },
-    });
-
-    const targetUser = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { username: true },
-    });
-
     await this.activity.log({
-      type: ActivityType.ADMIN_USER_UNSUSPEND,
+      type: activityType,
       actorId: moderatorId,
       targetType: ActivityTargetType.USER,
       targetId: String(userId),
       meta: {
+        reason,
+        until:
+          actionType === ModerationActionType.SUSPEND ? untilDate : undefined,
         moderationActionId: action.id,
-        targetUsername: targetUser?.username,
+        targetUsername: targetUser.username,
       },
     });
 
-    return this.prisma.userModerationAction.create({
-      data: {
-        targetUserId: userId,
-        moderatorId,
-        type: 'UNSUSPEND',
-      },
-    });
+    return action;
   }
 
-  private async ensureUserExists(userId: number) {
-    const exists = await this.prisma.user.findUnique({
+  private async getUserOrThrow(userId: number) {
+    const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true },
+      select: { id: true, username: true },
     });
 
-    if (!exists) {
+    if (!user) {
       throw new NotFoundException('User not found');
     }
+    return user;
   }
 }

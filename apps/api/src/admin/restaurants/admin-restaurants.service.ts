@@ -28,86 +28,65 @@ export class AdminRestaurantsService {
   }
 
   async approve(restaurantId: string, adminId: number) {
-    const existing = await this.prisma.restaurant.findUnique({
-      where: { id: restaurantId },
-    });
-    if (!existing) throw new NotFoundException('Restaurant not found');
-    if (existing.status !== PrismaRestaurantStatus.PENDING) {
-      throw new BadRequestException(
-        `Only PENDING restaurants can be approved (current=${existing.status})`,
-      );
-    }
-
-    const updated = await this.prisma.restaurant.update({
-      where: { id: restaurantId },
-      data: {
-        status: PrismaRestaurantStatus.ACTIVE,
-        approvedAt: new Date(),
-        rejectedAt: null,
-        decisionById: adminId,
-      },
-    });
-
-    await this.activity.log({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      type: ActivityType.ADMIN_RESTAURANT_APPROVE,
-      actorId: adminId,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      targetType: ActivityTargetType.RESTAURANT,
-      targetId: restaurantId,
-      meta: { name: updated.name },
-    });
-
-    return this.prisma.restaurant.update({
-      where: { id: restaurantId },
-      data: {
-        status: PrismaRestaurantStatus.ACTIVE,
-        approvedAt: new Date(),
-        rejectedAt: null,
-        decisionById: adminId,
-      },
-    });
+    return this.processRestaurantDecision(
+      restaurantId,
+      adminId,
+      PrismaRestaurantStatus.ACTIVE,
+    );
   }
 
   async reject(restaurantId: string, adminId: number) {
+    return this.processRestaurantDecision(
+      restaurantId,
+      adminId,
+      PrismaRestaurantStatus.REJECTED,
+    );
+  }
+
+  private async processRestaurantDecision(
+    restaurantId: string,
+    adminId: number,
+    newStatus:
+      | typeof PrismaRestaurantStatus.ACTIVE
+      | typeof PrismaRestaurantStatus.REJECTED,
+  ) {
+    const isApprove = newStatus === PrismaRestaurantStatus.ACTIVE;
+
     const existing = await this.prisma.restaurant.findUnique({
       where: { id: restaurantId },
     });
-    if (!existing) throw new NotFoundException('Restaurant not found');
+
+    if (!existing) {
+      throw new NotFoundException('Restaurant not found');
+    }
+
     if (existing.status !== PrismaRestaurantStatus.PENDING) {
+      const actionText = isApprove ? 'approved' : 'rejected';
       throw new BadRequestException(
-        `Only PENDING restaurants can be rejected (current=${existing.status})`,
+        `Only PENDING restaurants can be ${actionText} (current=${existing.status})`,
       );
     }
 
     const updated = await this.prisma.restaurant.update({
       where: { id: restaurantId },
       data: {
-        status: PrismaRestaurantStatus.REJECTED,
-        rejectedAt: new Date(),
-        approvedAt: null,
+        status: newStatus,
+        approvedAt: isApprove ? new Date() : null,
+        rejectedAt: isApprove ? null : new Date(),
         decisionById: adminId,
       },
     });
 
     await this.activity.log({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      type: ActivityType.ADMIN_RESTAURANT_REJECT,
+      type: isApprove
+        ? ActivityType.ADMIN_RESTAURANT_APPROVE
+        : ActivityType.ADMIN_RESTAURANT_REJECT,
       actorId: adminId,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       targetType: ActivityTargetType.RESTAURANT,
       targetId: restaurantId,
       meta: { name: updated.name },
     });
 
-    return this.prisma.restaurant.update({
-      where: { id: restaurantId },
-      data: {
-        status: PrismaRestaurantStatus.REJECTED,
-        rejectedAt: new Date(),
-        approvedAt: null,
-        decisionById: adminId,
-      },
-    });
+    return updated;
   }
 }

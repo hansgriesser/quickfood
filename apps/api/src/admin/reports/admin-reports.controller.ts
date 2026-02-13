@@ -2,7 +2,8 @@ import { Controller, Get, Header, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
-import { AdminReportsService, ReportGroupBy } from './admin-reports.service';
+import { AdminReportsService } from './admin-reports.service';
+import { ReportGroupBy } from './dto/admin-reports.dto';
 
 @Controller('admin/reports')
 @UseGuards(JwtAuthGuard, RolesGuard)

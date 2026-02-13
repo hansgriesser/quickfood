@@ -7,8 +7,11 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateServiceFeeDto } from './dto/update-service-fee.dto';
 import { CreateVoucherDto } from './dto/create-voucher.dto';
 import { UpdateVoucherDto } from './dto/update-voucher.dto';
+import { Prisma } from '@generated/prisma/client';
+import { VoucherUpdateInput } from '@generated/prisma/models';
 
 const SERVICE_FEE_KEY = 'SERVICE_FEE_PERCENT';
+const PRISMA_ERROR_UNIQUE_CONSTRAINT = 'P2002';
 
 @Injectable()
 export class AdminSettingService {
@@ -79,14 +82,15 @@ export class AdminSettingService {
     const validFrom = dto.validFrom ? new Date(dto.validFrom) : undefined;
     const validTo = dto.validTo ? new Date(dto.validTo) : undefined;
 
-    if (validFrom && Number.isNaN(validFrom.getTime())) {
+    if (
+      (validFrom && Number.isNaN(validFrom.getTime())) ||
+      (validTo && Number.isNaN(validTo.getTime()))
+    ) {
       throw new BadRequestException(
-        'validFrom must be a valid ISO date string',
+        'validFrom and validTo must be a valid ISO date string',
       );
     }
-    if (validTo && Number.isNaN(validTo.getTime())) {
-      throw new BadRequestException('validTo must be a valid ISO date string');
-    }
+
     if (validFrom && validTo && validFrom > validTo) {
       throw new BadRequestException('validFrom must be <= validTo');
     }
@@ -103,9 +107,13 @@ export class AdminSettingService {
           usageLimit,
         },
       });
-    } catch (e: any) {
-      if (e?.code === 'P2002') {
-        throw new BadRequestException(`Voucher code '${code}' already exists`);
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e?.code === PRISMA_ERROR_UNIQUE_CONSTRAINT) {
+          throw new BadRequestException(
+            `Voucher code '${code}' already exists`,
+          );
+        }
       }
       throw e;
     }
@@ -115,7 +123,7 @@ export class AdminSettingService {
     const existing = await this.prisma.voucher.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException('voucher not found');
 
-    const data: any = {};
+    const data: VoucherUpdateInput = {};
 
     if (dto.code !== undefined) {
       const code = dto.code.trim().toUpperCase();
@@ -135,12 +143,10 @@ export class AdminSettingService {
           'PERCENT voucher value cannot exceed 100',
         );
       }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       data.value = Math.trunc(value);
     }
 
     // set active only when provided in DTO
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (dto.active !== undefined) data.active = dto.active;
 
     if (dto.usageLimit !== undefined) {
@@ -148,7 +154,7 @@ export class AdminSettingService {
       if (!Number.isFinite(usageLimit) || usageLimit <= 0) {
         throw new BadRequestException('usageLimit must be a positive number');
       }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       data.usageLimit = Math.trunc(usageLimit);
     }
 
@@ -159,20 +165,17 @@ export class AdminSettingService {
           'validFrom must be a valid ISO date string',
         );
       }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       data.validFrom = d;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const nextValidForm =
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const nextValidFrom =
       data.validFrom === undefined ? existing.validFrom : data.validFrom;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
     const nextValidTo =
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       data.validTo === undefined ? existing.validTo : data.validTo;
 
-    if (nextValidForm && nextValidTo && nextValidForm > nextValidTo) {
+    if (nextValidFrom && nextValidTo && nextValidFrom > nextValidTo) {
       throw new BadRequestException('validFrom must be <= validTo');
     }
 
@@ -182,10 +185,12 @@ export class AdminSettingService {
         data,
       });
     } catch (e: any) {
-      if (e?.code === 'P2002') {
-        throw new BadRequestException(
-          `Voucher code '${dto.code}' already exists`,
-        );
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e?.code === PRISMA_ERROR_UNIQUE_CONSTRAINT) {
+          throw new BadRequestException(
+            `Voucher code '${dto.code}' already exists`,
+          );
+        }
       }
       throw e;
     }

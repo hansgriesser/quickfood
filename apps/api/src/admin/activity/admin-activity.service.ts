@@ -12,12 +12,9 @@ export class AdminActivityService {
     const actorId = q.actorId ? Number(q.actorId) : undefined;
     const limit = q.limit ? Math.min(Number(q.limit), 200) : 50;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     return this.prisma.activityLog.findMany({
       where: {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         ...(q.type ? { type: q.type } : {}),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         ...(q.targetType ? { targetType: q.targetType } : {}),
         ...(actorId !== undefined ? { actorId } : {}),
         ...(from || to

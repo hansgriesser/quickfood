@@ -24,7 +24,6 @@ export class AdminZonesController {
   @Get()
   list(@Query('active') active?: 'true' | 'false') {
     const activeBool = active === undefined ? undefined : active === 'true';
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
     return this.adminZonesService.list(activeBool);
   }
 
