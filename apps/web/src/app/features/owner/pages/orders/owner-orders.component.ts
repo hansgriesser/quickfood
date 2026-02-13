@@ -4,6 +4,7 @@ import { Observable, Subscription, timer, exhaustMap, catchError, finalize, of }
 import { OwnerOrdersService } from '../../services/owner-orders.service';
 import { OwnerOrder, OrderStatus, OrderStatusLabel } from '../../services/owner-order.model';
 import { ChatService } from '../../../chat/services/chat-service';
+import { AuthService } from '../../../auth/auth.service';
 
 @Component({
   selector: 'app-owner-orders',
@@ -20,6 +21,7 @@ export class OwnerOrdersComponent implements OnInit, OnDestroy {
 
   readonly orderStatus = OrderStatus;
   readonly statusLabels = OrderStatusLabel;
+  totalUnreadMessages$: Observable<number>; 
 
   private readonly sub = new Subscription();
   private readonly busyOrders = new Set<string>();
@@ -28,10 +30,13 @@ export class OwnerOrdersComponent implements OnInit, OnDestroy {
     private ownerOrdersService: OwnerOrdersService,
     private cdr: ChangeDetectorRef,
     private chatService: ChatService
-  ) {}
+  ) {
+    this.totalUnreadMessages$ = this.chatService.totalUnreadMessages$;
+  }
 
   ngOnInit(): void {
     this.startPolling();
+    this.chatService.openChatForOwner();
   }
 
   ngOnDestroy(): void {
@@ -147,7 +152,12 @@ export class OwnerOrdersComponent implements OnInit, OnDestroy {
 
   //für Extra Task User: Chat
   
+  
   openChat(orderId: string) {
-    this.chatService.openChatForOrder(orderId);
+    this.chatService.openChat(orderId);
+  }
+
+  unreadCountForOrder(orderId: string){
+    return this.chatService.getUnreadCountForOrder(orderId) ?? 0;
   }
 }

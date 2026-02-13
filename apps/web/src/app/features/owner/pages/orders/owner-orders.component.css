@@ -144,6 +144,16 @@
   cursor: not-allowed;
 }
 
+.chat-actions {
+  display: flex;
+
+  p {
+    padding-left: 1em;
+    color: #f76707;
+    font-weight: bold;
+  }
+}
+
 @media (max-width: 900px) {
   .order-body {
     grid-template-columns: 1fr;

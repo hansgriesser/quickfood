@@ -82,7 +82,7 @@
     </div>
 
     <app-chat-button
-        [unreadCount]="unreadCount"
+        [unreadCount]="unreadCount$ | async"
         (openChat)="onOpenChat($event)"
         [orderId]="order.id">
     </app-chat-button>

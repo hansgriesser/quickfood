@@ -23,7 +23,7 @@ export class Confirmation {
   restaurant$ : Observable<Restaurant | null>;
   OrderStatusLabel = OrderStatusLabel;
   hasDiscount;
-  unreadCount = 0;
+  unreadCount$: Observable<number>;
 
   constructor(private activeOrderService: ActiveOrderService,
     private restaurantService: RestaurantService,
@@ -39,6 +39,7 @@ export class Confirmation {
       )
     );
     this.hasDiscount = activeOrderService.hasDiscount;
+    this.unreadCount$ = this.chatService.totalUnreadMessages$;
   }
 
   onOpenChat(orderId: string) {

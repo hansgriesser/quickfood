@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ChatService } from '../services/chat-service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-chat-button',
@@ -10,7 +10,7 @@ import { ChatService } from '../services/chat-service';
 })
 export class ChatButton {
   isOpen = false;
-  @Input() unreadCount = 0;
+  @Input() unreadCount: number | null = 0;
   @Output() openChat  = new EventEmitter<string>();
   @Input() orderId!: string;
 

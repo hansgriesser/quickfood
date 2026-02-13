@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ChatMessage } from '../chat-message.dto';
 import { ChatService } from '../services/chat-service';
 import { Observable, Subscription } from 'rxjs';
+import { UserRole } from '../../admin/services/admin-users.service';
 
 @Component({
   selector: 'app-chat-drawer',
@@ -17,22 +18,24 @@ export class ChatDrawerComponent {
   newMessage = '';
   messages: ChatMessage[]= [];
   isOpen: boolean = false;
-  context: { orderId: string; userId: number, role: 'USER' | 'OWNER' } | null = null;
-  isOwnMessage = (msg: ChatMessage) => msg.fromUserId === this.context?.userId;
+  role: UserRole | null;
+  userId: number | null;
+  orderId: string | null = null;
+
+  isOwnMessage = (msg: ChatMessage) => msg.fromUserId === this.userId;
 
   private subscription = new Subscription();
 
-  constructor(private chatService: ChatService) {}
-
+  constructor(private chatService: ChatService) {
+    this.role = this.chatService.contextRole;
+    this.userId = this.chatService.contextId;
+  }
 
   ngOnInit() {
     // Drawer öffnen / schließen beobachten
     this.subscription.add(
       this.chatService.isOpen$.subscribe(open => {
         this.isOpen = open;
-        if (open) {
-          this.chatService.resetUnreadCount();
-        }
       })
     );
 
@@ -44,26 +47,18 @@ export class ChatDrawerComponent {
         // Scroll automatisch zum Ende, falls Drawer offen
         if (this.isOpen) {
           setTimeout(() => this.scrollToBottom(), 50);
-        } else {
-          this.unreadCount += 1; // Neue Nachricht ungelesen
         }
       })
     );
 
     this.subscription.add(
-      this.chatService.unreadCount$.subscribe(count => {
-        this.unreadCount = count;
-      })
-    );
-
-    this.subscription.add(
-      this.chatService.context$.subscribe(ctx => {
-        this.context = ctx;
-      })
-    );
+    this.chatService.activeOrderId$.subscribe(id => {
+      this.orderId = id;
+    })
+  );
   }
 
-   ngOnDestroy() {
+  ngOnDestroy() {
     this.subscription.unsubscribe();
   }
 

@@ -73,4 +73,17 @@ export class ChatGateway implements OnGatewayConnection {
 
     this.server.to(`order-${dto.orderId}`).emit('chat:receive', event);
   }
+
+  @SubscribeMessage('chat:join-owner-orders')
+  async handleJoinOwnerOrders(@ConnectedSocket() client: AuthenticatedSocket) {
+    const userId = client.data.userId;
+
+    const orderIds = await this.chatService.getActiveOrderIdsForOwner(userId);
+
+    for (const orderId of orderIds) {
+      await client.join(`order-${orderId}`);
+    }
+    console.log(orderIds);
+    return orderIds;
+  }
 }

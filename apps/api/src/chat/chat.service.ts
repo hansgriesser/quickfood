@@ -85,4 +85,22 @@ export class ChatService {
 
     return !!order;
   }
+
+  async getActiveOrderIdsForOwner(userId: number): Promise<string[]> {
+    const orders = await this.prisma.order.findMany({
+      where: {
+        restaurant: {
+          ownerId: userId,
+        },
+        status: {
+          in: ['PENDING', 'ACCEPTED', 'PREPARING', 'DISPATCHED', 'READY'],
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return orders.map((o) => o.id);
+  }
 }
