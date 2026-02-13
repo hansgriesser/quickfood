@@ -1,4 +1,9 @@
 <div class="restaurant-list-container">
+
+  <div *ngIf="hasActiveOrder" class="active-order-banner" (click)="goToActiveOrder()">
+    <p>Du hast eine aktive Bestellung – klicke hier, um sie zu sehen!</p>
+  </div>
+
   <h1>Restaurantübersicht</h1>
 
   <app-restaurant-filter (filterChanged)="onFilterChange($event)"></app-restaurant-filter>

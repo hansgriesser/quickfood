@@ -18,7 +18,7 @@ export const routes: Routes = [
         path: 'restaurants', loadChildren: () => import('./features/customer/restaurant/restaurant-module').then(m => m.RestaurantModule)
     },
     {
-         path: 'admin',canActivate:[adminGuard], loadChildren: () => import('./features/admin/admin-module').then(m => m.AdminModule), data: { footer: true }
+        path: 'admin',canActivate:[adminGuard], loadChildren: () => import('./features/admin/admin-module').then(m => m.AdminModule), data: { footer: true }
     },
     {
         path: 'cart', loadChildren: () => import('./features/customer/cart/cart-module').then(m => m.CartModule)
@@ -30,7 +30,7 @@ export const routes: Routes = [
         path: 'order', loadChildren: () => import('./features/customer/order/order-module').then(m => m.OrderModule )
     },
     {
-        path: 'owner', loadChildren: () => import('./features/owner/owner.module').then(m => m.OwnerModule)
+        path: 'owner', loadChildren: () => import('./features/owner/owner.module').then(m => m.OwnerModule), data: { footer: true }
     },
     {
         path:'**', redirectTo: 'restaurants'

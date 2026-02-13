@@ -43,6 +43,7 @@ export class AuthService {
         localStorage.removeItem(this.tokenKey);
         localStorage.removeItem('cart');
         localStorage.removeItem('orderDraft');
+        localStorage.removeItem('activeOrder');
     }
 
     getUserRole(): 'USER' | 'OWNER' | 'ADMIN' | null {

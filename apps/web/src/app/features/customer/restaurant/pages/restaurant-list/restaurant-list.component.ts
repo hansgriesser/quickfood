@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RestaurantFilterComponent, RestaurantFilter } from '../../components/restaurant-filter/restaurant-filter.component';
 import { RestaurantService } from '../../restaurant.service';
@@ -18,11 +18,14 @@ export class RestaurantListComponent {
   allRestaurants: Restaurant[] = [];
   filteredRestaurants: Restaurant[] = [];
 
+  hasActiveOrder = false;
+
   private sub = new Subscription();
 
   constructor(
     private restaurantService: RestaurantService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void{
@@ -32,6 +35,7 @@ export class RestaurantListComponent {
       this.cdr.detectChanges();
     });
     this.sub.add(s);
+    this.checkActiveOrder();
   }
 
 
@@ -63,5 +67,16 @@ export class RestaurantListComponent {
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
+  }
+
+  private checkActiveOrder() {
+    const activeOrderData = localStorage.getItem('active_order');
+    if (activeOrderData) {
+      this.hasActiveOrder = true;
+    }
+  }
+
+  goToActiveOrder() {
+    this.router.navigate(['/order/confirmation']);
   }
 }

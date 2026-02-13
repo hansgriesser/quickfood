@@ -8,6 +8,47 @@ import {
   OrderStatus as PrismaOrderStatus,
 } from '@generated/prisma/client';
 
+import {
+  IsArray,
+  IsInt,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+
+import { Type } from 'class-transformer';
+
+export class CreateOrderItemDto {
+  @IsInt()
+  dishId: number;
+
+  @IsString()
+  name: string;
+
+  @IsInt()
+  quantity: number;
+
+  @IsInt()
+  unitPrice: number;
+
+  @IsInt()
+  totalPrice: number;
+}
+
+export class CreateOrderDto {
+  @IsString()
+  restaurantId: string;
+
+  @IsOptional()
+  @IsString()
+  voucherCode?: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderItemDto)
+  items: CreateOrderItemDto[];
+}
+
 export class OrderDto {
   id: string;
   restaurantId: string;

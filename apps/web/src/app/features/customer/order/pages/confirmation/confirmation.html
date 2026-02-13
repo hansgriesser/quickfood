@@ -9,7 +9,7 @@
     </div>
 
     <div class="container">
-    <h1>Deine Bestellung 🍔</h1>
+    <h1>Deine Bestellung</h1>
 
     <div class="order-id">
         Bestellnummer: <span id="orderId">{{order.id}}</span>
@@ -76,6 +76,15 @@
     <div class="hint">
         Diese Seite aktualisiert sich automatisch alle 10 Sekunden
     </div>
+
+    <div class="back-button">
+        <button type="button" (click)="goToHome()">Zur Startseite</button>
     </div>
 
+    <app-chat-button
+        [unreadCount]="unreadCount$ | async"
+        (openChat)="onOpenChat($event)"
+        [orderId]="order.id">
+    </app-chat-button>
 </div>
+
