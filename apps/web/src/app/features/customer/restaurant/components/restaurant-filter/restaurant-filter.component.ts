@@ -17,13 +17,7 @@ export interface RestaurantFilter {
 @Component({
   selector: 'app-restaurant-filter',
   standalone: true,
-  imports: [
-    FormsModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatFormFieldModule
-],
+  imports: [FormsModule, MatInputModule, MatSelectModule, MatButtonModule, MatFormFieldModule],
   templateUrl: './restaurant-filter.component.html',
   styleUrls: ['./restaurant-filter.component.css'],
 })

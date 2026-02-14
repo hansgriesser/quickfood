@@ -3,10 +3,7 @@
   <div class="order-confirmation">
     <div class="header">
       @if (restaurant$ | async; as restaurant) {
-        <app-restaurant-header
-          class="restaurant-header"
-          [restaurant]="restaurant"
-          >
+        <app-restaurant-header class="restaurant-header" [restaurant]="restaurant">
         </app-restaurant-header>
       }
     </div>
@@ -76,7 +73,7 @@
         [unreadCount]="unreadCount$ | async"
         (openChat)="onOpenChat($event)"
         [orderId]="order.id"
-        >
+      >
       </app-chat-button>
     </div>
   </div>

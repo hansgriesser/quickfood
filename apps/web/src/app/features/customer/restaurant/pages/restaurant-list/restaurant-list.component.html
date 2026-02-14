@@ -12,10 +12,9 @@
   @if (filteredRestaurants.length > 0) {
     <div class="results-info">
       <p>
-        {{ filteredRestaurants.length }} Restaurant@if (filteredRestaurants.length !== 1) {
-        <span
-          >s</span
-          >
+        {{ filteredRestaurants.length }} Restaurant
+        @if (filteredRestaurants.length !== 1) {
+          <span>s</span>
         }
         gefunden
       </p>
@@ -39,5 +38,4 @@
       <p>Keine Restaurants gefunden. Versuche deine Filter anzupassen.</p>
     </div>
   }
-
 </div>

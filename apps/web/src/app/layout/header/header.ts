@@ -2,7 +2,6 @@ import { Component, inject } from '@angular/core';
 import { AuthService } from '../../features/auth/auth.service';
 import { Router } from '@angular/router';
 
-
 @Component({
   selector: 'app-header',
   imports: [],

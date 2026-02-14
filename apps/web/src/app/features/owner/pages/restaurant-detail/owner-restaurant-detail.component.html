@@ -31,7 +31,7 @@
                     type="checkbox"
                     [(ngModel)]="entry.isClosed"
                     name="closed{{ entry.dayOfWeek }}"
-                    />
+                  />
                   Closed
                 </label>
                 <input
@@ -39,14 +39,14 @@
                   [(ngModel)]="entry.opensAt"
                   name="opens{{ entry.dayOfWeek }}"
                   [disabled]="entry.isClosed"
-                  />
+                />
                 <span class="hours-divider">to</span>
                 <input
                   type="time"
                   [(ngModel)]="entry.closesAt"
                   name="closes{{ entry.dayOfWeek }}"
                   [disabled]="entry.isClosed"
-                  />
+                />
               </div>
             }
             <button type="submit" [disabled]="isHoursSaving">Save Opening Hours</button>
@@ -62,10 +62,7 @@
             <div class="status error">{{ zonesError }}</div>
           }
           @if (!isZonesLoading && deliveryZones.length > 0) {
-            <form
-              class="zone-form"
-              (ngSubmit)="saveDeliveryZones()"
-              >
+            <form class="zone-form" (ngSubmit)="saveDeliveryZones()">
               <div class="zone-list">
                 @for (zone of deliveryZones; track trackByZoneId($index, zone)) {
                   <label class="zone-option">
@@ -73,11 +70,14 @@
                       type="checkbox"
                       [checked]="isZoneSelected(zone.id)"
                       (change)="toggleZoneSelection(zone.id, $event)"
-                      />
+                    />
                     <div class="zone-meta">
                       <span class="zone-name">{{ zone.name }}</span>
                       <span class="muted">
-                        {{ zone.code }} - {{ zone.typicalDeliveryMin }}-{{ zone.typicalDeliveryMax }} min
+                        {{ zone.code }} - {{ zone.typicalDeliveryMin }}-{{
+                          zone.typicalDeliveryMax
+                        }}
+                        min
                       </span>
                     </div>
                   </label>
@@ -87,9 +87,7 @@
             </form>
           }
           @if (!isZonesLoading && deliveryZones.length === 0) {
-            <div class="status">
-              No delivery zones configured.
-            </div>
+            <div class="status">No delivery zones configured.</div>
           }
         </div>
       </div>
@@ -122,7 +120,7 @@
               [(ngModel)]="categoryForm.sortOrder"
               name="newCategorySort"
               min="0"
-              />
+            />
           </label>
           <button type="submit">Add Category</button>
         </form>
@@ -150,7 +148,7 @@
               name="newDishPrice"
               min="1"
               required
-              />
+            />
           </label>
           <label>
             Category
@@ -170,23 +168,19 @@
               [(ngModel)]="dishForm.pictureUrl"
               name="newDishPhoto"
               placeholder="https://example.com/photo.jpg"
-              />
+            />
           </label>
           <button type="submit">Add Dish</button>
         </form>
       </div>
 
       @if (!isMenuLoading && !menuError && menuCategories.length === 0) {
-        <div class="menu-empty">
-          No menu items yet.
-        </div>
+        <div class="menu-empty">No menu items yet.</div>
       }
 
       <div class="menu-list">
         @for (category of menuCategories; track trackByCategoryId($index, category)) {
-          <div
-            class="category-card"
-            >
+          <div class="category-card">
             <div class="category-header">
               @if (editingCategoryId !== category.id) {
                 <div class="category-meta">
@@ -195,32 +189,29 @@
                 </div>
               }
               @if (editingCategoryId === category.id) {
-                <form
-                  class="category-edit"
-                  (ngSubmit)="saveCategoryEdit(category)"
-                  >
+                <form class="category-edit" (ngSubmit)="saveCategoryEdit(category)">
                   <input
                     type="text"
                     [(ngModel)]="categoryEditForm.name"
                     name="categoryEditName{{ category.id }}"
                     required
-                    />
+                  />
                   <input
                     type="number"
                     [(ngModel)]="categoryEditForm.sortOrder"
                     name="categoryEditSort{{ category.id }}"
                     min="0"
-                    />
+                  />
                   <div class="actions">
                     <button type="submit">Save</button>
-                    <button type="button" class="ghost" (click)="cancelCategoryEdit()">Cancel</button>
+                    <button type="button" class="ghost" (click)="cancelCategoryEdit()">
+                      Cancel
+                    </button>
                   </div>
                 </form>
               }
               @if (category.id !== 0 && editingCategoryId !== category.id) {
-                <div
-                  class="category-actions"
-                  >
+                <div class="category-actions">
                   <button type="button" (click)="startCategoryEdit(category)">Edit</button>
                   <button type="button" class="danger" (click)="deleteCategory(category)">
                     Delete
@@ -252,23 +243,18 @@
                           }
                         </div>
                         @if (dish.pictureUrl) {
-                          <img
-                            [src]="dish.pictureUrl"
-                            [alt]="dish.name"
-                            class="dish-photo"
-                            />
+                          <img [src]="dish.pictureUrl" [alt]="dish.name" class="dish-photo" />
                         }
                         <div class="dish-actions">
                           <button type="button" (click)="startDishEdit(dish)">Edit</button>
-                          <button type="button" class="danger" (click)="deleteDish(dish)">Delete</button>
+                          <button type="button" class="danger" (click)="deleteDish(dish)">
+                            Delete
+                          </button>
                         </div>
                       </div>
                     }
                     @if (editingDishId === dish.id) {
-                      <form
-                        class="dish-edit"
-                        (ngSubmit)="saveDishEdit(dish)"
-                        >
+                      <form class="dish-edit" (ngSubmit)="saveDishEdit(dish)">
                         <label>
                           Name
                           <input
@@ -276,7 +262,7 @@
                             [(ngModel)]="dishEditForm.name"
                             name="dishEditName{{ dish.id }}"
                             required
-                            />
+                          />
                         </label>
                         <label>
                           Description
@@ -295,14 +281,14 @@
                             name="dishEditPrice{{ dish.id }}"
                             min="1"
                             required
-                            />
+                          />
                         </label>
                         <label>
                           Category
                           <select
                             [(ngModel)]="dishEditForm.categoryId"
                             name="dishEditCategory{{ dish.id }}"
-                            >
+                          >
                             <option [ngValue]="null">Uncategorized</option>
                             @for (option of categoryOptions; track option) {
                               <option [ngValue]="option.id">
@@ -318,11 +304,13 @@
                             [(ngModel)]="dishEditForm.pictureUrl"
                             name="dishEditPhoto{{ dish.id }}"
                             placeholder="https://example.com/photo.jpg"
-                            />
+                          />
                         </label>
                         <div class="actions">
                           <button type="submit">Save</button>
-                          <button type="button" class="ghost" (click)="cancelDishEdit()">Cancel</button>
+                          <button type="button" class="ghost" (click)="cancelDishEdit()">
+                            Cancel
+                          </button>
                         </div>
                       </form>
                     }

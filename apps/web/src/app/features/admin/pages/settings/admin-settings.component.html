@@ -28,14 +28,14 @@
               min="0"
               max="100"
               [(ngModel)]="serviceFeePercent"
-              />
+            />
           </label>
 
           <button
             class="admin-btn admin-btn-primary"
             (click)="saveServiceFee()"
             [disabled]="savingFee"
-            >
+          >
             {{ savingFee ? 'Saving…' : 'Save' }}
           </button>
         </div>
@@ -53,7 +53,7 @@
               class="admin-input w-full"
               [(ngModel)]="newVoucher.code"
               placeholder="FOOD2026"
-              />
+            />
           </label>
 
           <label class="admin-filter">
@@ -92,7 +92,7 @@
             class="admin-btn admin-btn-primary"
             (click)="createVoucher()"
             [disabled]="creatingVoucher"
-            >
+          >
             {{ creatingVoucher ? 'Creating…' : 'Add Voucher' }}
           </button>
         </div>
@@ -127,15 +127,15 @@
                         [class.admin-btn-danger]="v.active"
                         (click)="toggleVoucher(v)"
                         [disabled]="updatingVoucherIds.has(v.id)"
-                        >
+                      >
                         {{
-                        updatingVoucherIds.has(v.id)
-                        ? v.active
-                        ? 'Deactivating…'
-                        : 'Activating…'
-                        : v.active
-                        ? 'Deactivate'
-                        : 'Activate'
+                          updatingVoucherIds.has(v.id)
+                            ? v.active
+                              ? 'Deactivating…'
+                              : 'Activating…'
+                            : v.active
+                              ? 'Deactivate'
+                              : 'Activate'
                         }}
                       </button>
                     </td>
@@ -147,9 +147,7 @@
         }
 
         @if (!vouchers.length) {
-          <div class="admin-muted" style="margin-top: 12px">
-            Keine Vouchers vorhanden.
-          </div>
+          <div class="admin-muted" style="margin-top: 12px">Keine Vouchers vorhanden.</div>
         }
       </div>
     </div>
