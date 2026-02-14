@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { OrderDto } from './order.dto';
+import { CreateOrderDto } from './order.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('order')
@@ -20,10 +20,10 @@ export class OrderController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  placeOrder(@Body() order: OrderDto, @Req() req) {
-    console.log('Received order:', order);
+  placeOrder(@Body() dto: CreateOrderDto, @Req() req) {
+    console.log('Received order:', dto);
     const userId = req.user.sub;
-    return this.service.placeOrder(order, userId);
+    return this.service.placeOrder(dto, userId);
   }
 
   @Get('service-fee')

@@ -12,6 +12,7 @@ import { VoucherController } from './voucher/voucher.controller';
 import { VoucherModule } from './voucher/voucher.module';
 import { ActivityModule } from './activity/activity.module';
 import { ForumModule } from './forum/forum.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ForumModule } from './forum/forum.module';
     OrderModule,
     VoucherModule,
     ForumModule,
+    ChatModule,
   ],
   controllers: [AppController, VoucherController],
   providers: [AppService],

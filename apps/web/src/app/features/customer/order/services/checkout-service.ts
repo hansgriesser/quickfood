@@ -1,16 +1,15 @@
 import { Injectable } from '@angular/core';
-import { OrderService } from './order';
 import { CartService } from '../../cart/services/cart';
 import { OrderDraft } from './order-draft';
-import { OrderDraftDto } from '../orderDTO';
 import { tap } from 'rxjs';
+import { ActiveOrderService } from './order-session';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CheckoutService {
   constructor(
-    private orderService: OrderService,
+    private activeOrderService: ActiveOrderService,
     private cartService: CartService,
     private draftService: OrderDraft
   ) {}
@@ -19,7 +18,7 @@ export class CheckoutService {
 
     const draft = this.draftService.getDraft();
 
-    return this.orderService.placeOrder(draft).pipe(
+    return this.activeOrderService.createOrder(draft).pipe(
       tap(() => {
         this.cartService.clearCart();
         this.draftService.clearDraft();

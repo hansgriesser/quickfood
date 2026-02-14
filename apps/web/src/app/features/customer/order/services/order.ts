@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
-import { OrderDraftDto, OrderDto, OrderStatus } from '../orderDTO';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, EMPTY, interval, startWith, Subject, switchMap, takeUntil, tap } from 'rxjs';
+import { OrderDraftDto } from '../dto/orderDraftDTO';
+import { OrderDto } from '../dto/orderDTO';
+import { OrderStatus } from '../dto/orderStatus';
+import { CreateOrderDto } from '../dto/sendOrderDTO';
 
 @Injectable({
   providedIn: 'root',
@@ -12,68 +14,26 @@ export class OrderService {
   
   constructor(private http: HttpClient) {}
 
-  private orderSubject = new BehaviorSubject<OrderDto | null>(null);
-  readonly order$ = this.orderSubject.asObservable();
-
-  private destroy$ = new Subject<void>();
-
-  hasDiscount = this.orderSubject.value?.discountAmount !== 0;
-
   placeOrder(orderDraft: OrderDraftDto) {
-    console.log('Preparing to place order with draft:', orderDraft);
-    const order : Partial<OrderDto> = this.mapToOrderDto(orderDraft);
-    console.log('Placing order:', order);
-    return this.http.post<OrderDto>(`${this.baseUrl}`, order).pipe(
-      tap(createdOrder => {
-        this.orderSubject.next(createdOrder);
-      })
-    );
+    const order = this.mapToCreateOrderDto(orderDraft);
+    return this.http.post<OrderDto>(`${this.baseUrl}`, order);
   }
 
-  updateOrder(){
-    const orderId = this.orderSubject.value?.id;
-
-    if (!orderId) {
-      return EMPTY;
-    }
-    return this.http.get<OrderDto>(`${this.baseUrl}/${orderId}`).pipe(
-      tap(updatedOrder => {
-        this.orderSubject.next(updatedOrder);
-      })
-    );
+  getOrder(orderId: string){
+    return this.http.get<OrderDto>(`${this.baseUrl}/${orderId}`);
   }
-
   
-  private mapToOrderDto(draft: OrderDraftDto): Partial<OrderDto> {
+  private mapToCreateOrderDto(draft: OrderDraftDto): CreateOrderDto {
     return {
       restaurantId: draft.restaurantId,
-      customerId: 0,//wird im backend aus dem token geparst
-      status: OrderStatus.PENDING,
-      voucherCode: draft.voucherCode ?? null,
+      voucherCode: draft.voucherCode,
       items: draft.items.map(item => ({
-        dishId: item.dishId,
+        dishId: item.dishId!,
         name: item.name,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         totalPrice: item.totalPrice
-        // id, orderId, createdAt weglassen → Backend setzt
       }))
     };
   }
-
-  startPolling() {
-    interval(10000)
-      .pipe(
-        startWith(0),
-        switchMap(() => this.updateOrder()),
-        takeUntil(this.destroy$)
-      )
-      .subscribe();
-  }
-
-  stopPolling() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
 }

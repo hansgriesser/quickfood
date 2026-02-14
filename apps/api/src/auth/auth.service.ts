@@ -12,8 +12,8 @@ import { Role } from '@generated/prisma/enums';
 import { ActivityService } from '../activity/activity.service';
 import { ActivityType } from '@generated/prisma/enums';
 import { Prisma } from '@generated/prisma/client';
-
 const PRISMA_ERROR_UNIQUE_CONSTRAINT = 'P2002';
+import { JwtPayload } from './jwt-payload.type';
 @Injectable()
 export class AuthService {
   constructor(
@@ -91,6 +91,10 @@ export class AuthService {
       }
       throw e;
     }
+  }
+
+  verifyToken(token: string): JwtPayload {
+    return this.jwt.verify(token);
   }
 
   private normalizeRole(roleRaw: string): Role {
