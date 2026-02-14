@@ -11,7 +11,10 @@ import { ChatService } from './chat.service';
 import { SendChatMessageDto } from './dto/chat-message.dto';
 import { AuthenticatedSocket } from '../websocket/ws.type';
 import { AuthService } from 'src/auth/auth.service';
+import { UseGuards } from '@nestjs/common';
+import { WsAuthGuard } from 'src/websocket/ws-auth/ws-auth.guard';
 
+@UseGuards(WsAuthGuard)
 @WebSocketGateway({
   cors: { origin: '*' },
   namespace: '/api/order/chat',
@@ -46,10 +49,6 @@ export class ChatGateway implements OnGatewayConnection {
       }
       client.disconnect();
     }
-  }
-
-  handleDisconnect() {
-    //cleanup, optional
   }
 
   @SubscribeMessage('chat:join')
