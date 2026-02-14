@@ -1,8 +1,11 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { RestaurantFilterComponent, RestaurantFilter } from '../../components/restaurant-filter/restaurant-filter.component';
+import {
+  RestaurantFilterComponent,
+  RestaurantFilter,
+} from '../../components/restaurant-filter/restaurant-filter.component';
 import { RestaurantService } from '../../restaurant.service';
 import { Restaurant } from '../../restaurant.model';
 
@@ -11,10 +14,9 @@ import { Restaurant } from '../../restaurant.model';
   standalone: true,
   imports: [CommonModule, RouterModule, RestaurantFilterComponent],
   templateUrl: './restaurant-list.component.html',
-  styleUrls: ['./restaurant-list.component.css']
+  styleUrls: ['./restaurant-list.component.css'],
 })
-export class RestaurantListComponent {
-  
+export class RestaurantListComponent implements OnInit, OnDestroy {
   allRestaurants: Restaurant[] = [];
   filteredRestaurants: Restaurant[] = [];
 
@@ -25,11 +27,11 @@ export class RestaurantListComponent {
   constructor(
     private restaurantService: RestaurantService,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
   ) {}
 
-  ngOnInit(): void{
-    const s = this.restaurantService.getRestaurants().subscribe(restaurants => {
+  ngOnInit(): void {
+    const s = this.restaurantService.getRestaurants().subscribe((restaurants) => {
       this.allRestaurants = restaurants || [];
       this.filteredRestaurants = [...this.allRestaurants];
       this.cdr.detectChanges();
@@ -38,14 +40,12 @@ export class RestaurantListComponent {
     this.checkActiveOrder();
   }
 
-
   onFilterChange(filter: RestaurantFilter): void {
-    this.filteredRestaurants = this.allRestaurants.filter(restaurant => {
-      const matchesSearch = restaurant.name
-        .toLowerCase()
-        .includes(filter.searchTerm.toLowerCase());
-      
-      const matchesCategory = !filter.category || restaurant.category?.toLowerCase() === filter.category.toLowerCase();
+    this.filteredRestaurants = this.allRestaurants.filter((restaurant) => {
+      const matchesSearch = restaurant.name.toLowerCase().includes(filter.searchTerm.toLowerCase());
+
+      const matchesCategory =
+        !filter.category || restaurant.category?.toLowerCase() === filter.category.toLowerCase();
       const matchesRating = restaurant.rating >= filter.minRating;
 
       return matchesSearch && matchesCategory && matchesRating;

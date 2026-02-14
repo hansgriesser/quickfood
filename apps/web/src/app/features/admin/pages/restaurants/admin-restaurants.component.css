@@ -6,7 +6,7 @@
   border: 1px solid #e5e7eb !important;
   color: #111827 !important;
   font-weight: 700 !important;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.04) !important;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04) !important;
 }
 
 :host .admin-btn-primary,
@@ -28,9 +28,8 @@
 }
 
 :host .admin-btn:disabled {
-  opacity: 0.75 !important; 
+  opacity: 0.75 !important;
 }
-
 
 .action-row {
   display: flex;

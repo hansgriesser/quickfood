@@ -11,10 +11,10 @@ import { Observable } from 'rxjs';
 export class ChatButton {
   isOpen = false;
   @Input() unreadCount: number | null = 0;
-  @Output() openChat  = new EventEmitter<string>();
+  @Output() openChat = new EventEmitter<string>();
   @Input() orderId!: string;
 
-  openChatButton(){
+  openChatButton() {
     this.openChat.emit(this.orderId);
   }
 }

@@ -11,21 +11,21 @@ import { ChatDrawerComponent } from './features/chat/chat/chat';
   imports: [RouterOutlet, Header, Footer, CommonModule, ChatDrawerComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
-  standalone: true
+  standalone: true,
 })
 export class App {
   protected readonly title = signal('web');
 
   showFooter = false;
 
-
-  constructor(private router: Router, private activatedRoute: ActivatedRoute) {
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe(() => {
-        const route = this.getChild(this.activatedRoute);
-        this.showFooter = route?.snapshot.data['footer'] ?? false;
-      });
+  constructor(
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+  ) {
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+      const route = this.getChild(this.activatedRoute);
+      this.showFooter = route?.snapshot.data['footer'] ?? false;
+    });
   }
 
   // Rekursiver Zugriff auf das tiefste firstChild

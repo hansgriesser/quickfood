@@ -1,7 +1,14 @@
 @import '../../admin-ui.css';
 
-.actions-col { width: 560px; }
-.action-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.actions-col {
+  width: 560px;
+}
+.action-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
 
 :host .admin-btn,
 :host button.admin-btn {
@@ -30,4 +37,3 @@
   opacity: 0.75 !important;
   filter: grayscale(0.1);
 }
-

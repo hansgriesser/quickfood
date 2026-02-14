@@ -2,9 +2,7 @@
   <div class="admin-header">
     <div>
       <h1 class="admin-title">Global Settings</h1>
-      <p class="admin-subtitle">
-        Plattformweite Einstellungen: Service Fee und Voucher Codes.
-      </p>
+      <p class="admin-subtitle">Plattformweite Einstellungen: Service Fee und Voucher Codes.</p>
     </div>
   </div>
 
@@ -22,10 +20,20 @@
         <div class="form-row">
           <label class="admin-filter">
             Percent:
-            <input class="admin-input w-200" type="number" min="0" max="100" [(ngModel)]="serviceFeePercent" />
+            <input
+              class="admin-input w-200"
+              type="number"
+              min="0"
+              max="100"
+              [(ngModel)]="serviceFeePercent"
+            />
           </label>
 
-          <button class="admin-btn admin-btn-primary" (click)="saveServiceFee()" [disabled]="savingFee">
+          <button
+            class="admin-btn admin-btn-primary"
+            (click)="saveServiceFee()"
+            [disabled]="savingFee"
+          >
             {{ savingFee ? 'Saving…' : 'Save' }}
           </button>
         </div>
@@ -39,7 +47,11 @@
         <div class="grid-3">
           <label class="admin-filter">
             Code:
-            <input class="admin-input w-full" [(ngModel)]="newVoucher.code" placeholder="FOOD2026" />
+            <input
+              class="admin-input w-full"
+              [(ngModel)]="newVoucher.code"
+              placeholder="FOOD2026"
+            />
           </label>
 
           <label class="admin-filter">
@@ -56,17 +68,16 @@
           </label>
         </div>
 
-        <div class="grid-3" style="margin-top: 12px;">
-            <label class="admin-filter">
-                Valid From (optional):
-                <input class="admin-input w-full" type="date" [(ngModel)]="validFromDate" />
-            </label>
+        <div class="grid-3" style="margin-top: 12px">
+          <label class="admin-filter">
+            Valid From (optional):
+            <input class="admin-input w-full" type="date" [(ngModel)]="validFromDate" />
+          </label>
 
-            <label class="admin-filter">
-                Valid To (optional):
-                <input class="admin-input w-full" type="date" [(ngModel)]="validToDate" />
-            </label>
-
+          <label class="admin-filter">
+            Valid To (optional):
+            <input class="admin-input w-full" type="date" [(ngModel)]="validToDate" />
+          </label>
 
           <label class="admin-filter">
             Usage Limit (optional):
@@ -75,13 +86,17 @@
         </div>
 
         <div class="actions-right">
-          <button class="admin-btn admin-btn-primary" (click)="createVoucher()" [disabled]="creatingVoucher">
+          <button
+            class="admin-btn admin-btn-primary"
+            (click)="createVoucher()"
+            [disabled]="creatingVoucher"
+          >
             {{ creatingVoucher ? 'Creating…' : 'Add Voucher' }}
           </button>
         </div>
 
         <!-- Table -->
-        <div class="admin-table-wrap" style="margin-top: 14px;" *ngIf="vouchers.length">
+        <div class="admin-table-wrap" style="margin-top: 14px" *ngIf="vouchers.length">
           <table class="admin-table">
             <thead>
               <tr>
@@ -89,7 +104,7 @@
                 <th>Type</th>
                 <th>Value</th>
                 <th>Status</th>
-                <th style="width: 180px;">Actions</th>
+                <th style="width: 180px">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -109,7 +124,15 @@
                     (click)="toggleVoucher(v)"
                     [disabled]="updatingVoucherIds.has(v.id)"
                   >
-                    {{ updatingVoucherIds.has(v.id) ? (v.active ? 'Deactivating…' : 'Activating…') : (v.active ? 'Deactivate' : 'Activate') }}
+                    {{
+                      updatingVoucherIds.has(v.id)
+                        ? v.active
+                          ? 'Deactivating…'
+                          : 'Activating…'
+                        : v.active
+                          ? 'Deactivate'
+                          : 'Activate'
+                    }}
                   </button>
                 </td>
               </tr>
@@ -117,7 +140,7 @@
           </table>
         </div>
 
-        <div class="admin-muted" *ngIf="!vouchers.length" style="margin-top: 12px;">
+        <div class="admin-muted" *ngIf="!vouchers.length" style="margin-top: 12px">
           Keine Vouchers vorhanden.
         </div>
       </div>

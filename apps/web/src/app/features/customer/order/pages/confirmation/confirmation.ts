@@ -18,25 +18,23 @@ import { Router } from '@angular/router';
   styleUrl: './confirmation.css',
 })
 export class Confirmation {
-  
-  order$ : Observable<OrderDto | null>;
-  restaurant$ : Observable<Restaurant | null>;
+  order$: Observable<OrderDto | null>;
+  restaurant$: Observable<Restaurant | null>;
   OrderStatusLabel = OrderStatusLabel;
   hasDiscount;
   unreadCount$: Observable<number>;
 
-  constructor(private activeOrderService: ActiveOrderService,
+  constructor(
+    private activeOrderService: ActiveOrderService,
     private restaurantService: RestaurantService,
     private chatService: ChatService,
-    private router: Router)
-  {
+    private router: Router,
+  ) {
     this.order$ = this.activeOrderService.order$;
     this.restaurant$ = this.order$.pipe(
-      map(order => order?.restaurantId),
-      filter((id): id is string => !!id),   // null rauswerfen
-      switchMap(id =>
-        this.restaurantService.getRestaurantById(id)
-      )
+      map((order) => order?.restaurantId),
+      filter((id): id is string => !!id), // null rauswerfen
+      switchMap((id) => this.restaurantService.getRestaurantById(id)),
     );
     this.hasDiscount = activeOrderService.hasDiscount;
     this.unreadCount$ = this.chatService.totalUnreadMessages$;
@@ -46,8 +44,7 @@ export class Confirmation {
     this.chatService.openChatForOrder(orderId);
   }
 
-  goToHome(){
+  goToHome() {
     this.router.navigate(['/restaurants']);
   }
 }
-

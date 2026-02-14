@@ -23,10 +23,10 @@ export interface RestaurantFilter {
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatFormFieldModule
+    MatFormFieldModule,
   ],
   templateUrl: './restaurant-filter.component.html',
-  styleUrls: ['./restaurant-filter.component.css']
+  styleUrls: ['./restaurant-filter.component.css'],
 })
 export class RestaurantFilterComponent {
   @Output() filterChanged = new EventEmitter<RestaurantFilter>();
@@ -52,19 +52,19 @@ export class RestaurantFilterComponent {
     { value: 'asian', label: 'Asiatisch' },
     { value: 'mexican', label: 'Mexikanisch' },
     { value: 'fast-food', label: 'Fast Food' },
-    { value: 'vegetarian', label: 'Vegetarisch' }
+    { value: 'vegetarian', label: 'Vegetarisch' },
   ];
 
   ratings = [
     { value: 0, label: 'Alle Bewertungen' },
     { value: 3, label: '⭐ 3 und höher' },
     { value: 4, label: '⭐ 4 und höher' },
-    { value: 4.5, label: '⭐ 4.5 und höher' }
+    { value: 4.5, label: '⭐ 4.5 und höher' },
   ];
 
   sortOptions = [
     { value: 'name', label: 'Nach Name' },
-    { value: 'rating', label: 'Nach Bewertung' }
+    { value: 'rating', label: 'Nach Bewertung' },
   ];
 
   onFilterChange(): void {
@@ -73,7 +73,7 @@ export class RestaurantFilterComponent {
       category: this.category,
       minRating: this.minRating,
       sortBy: this.sortBy,
-      sortOrder: this.sortOrder
+      sortOrder: this.sortOrder,
     });
   }
 

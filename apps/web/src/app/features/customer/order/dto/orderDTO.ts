@@ -1,4 +1,4 @@
-import { OrderStatus } from "./orderStatus";
+import { OrderStatus } from './orderStatus';
 
 //alle Preise in Cent
 export interface OrderDto {
@@ -7,9 +7,9 @@ export interface OrderDto {
   customerId: number;
   status: OrderStatus;
   voucherCode: string | null;
-  estimatedArrivalAt?: string; 
-  createdAt: string;           
-  updatedAt: string;          
+  estimatedArrivalAt?: string;
+  createdAt: string;
+  updatedAt: string;
   items: OrderItemDto[];
   subtotalAmount?: number;
   serviceAmount?: number;
@@ -20,12 +20,12 @@ export interface OrderDto {
 export interface OrderItemDto {
   id?: number;
   orderId?: string;
-  dishId?: number;      
+  dishId?: number;
   name: string;
-  unitPrice: number;    
+  unitPrice: number;
   quantity: number;
-  totalPrice: number;  
-  createdAt?: string;   
+  totalPrice: number;
+  createdAt?: string;
 }
 
 export interface ActiveOrder {

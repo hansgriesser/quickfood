@@ -4,12 +4,12 @@ import { RestaurantListComponent } from './pages/restaurant-list/restaurant-list
 import { RestaurantDetailComponent } from './pages/restaurant-detail/restaurant-detail.component';
 
 const routes: Routes = [
-  { path: '', component: RestaurantListComponent, data: { footer: true }},
-  { path: ':id', component: RestaurantDetailComponent}
+  { path: '', component: RestaurantListComponent, data: { footer: true } },
+  { path: ':id', component: RestaurantDetailComponent },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class RestaurantRoutingModule { }
+export class RestaurantRoutingModule {}

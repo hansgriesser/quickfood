@@ -9,9 +9,8 @@ import { CreateOrderDto } from '../dto/sendOrderDTO';
   providedIn: 'root',
 })
 export class OrderService {
+  private baseUrl = 'http://localhost:3000/api/order';
 
-  private baseUrl = 'http://localhost:3000/api/order'
-  
   constructor(private http: HttpClient) {}
 
   placeOrder(orderDraft: OrderDraftDto) {
@@ -19,21 +18,21 @@ export class OrderService {
     return this.http.post<OrderDto>(`${this.baseUrl}`, order);
   }
 
-  getOrder(orderId: string){
+  getOrder(orderId: string) {
     return this.http.get<OrderDto>(`${this.baseUrl}/${orderId}`);
   }
-  
+
   private mapToCreateOrderDto(draft: OrderDraftDto): CreateOrderDto {
     return {
       restaurantId: draft.restaurantId,
       voucherCode: draft.voucherCode,
-      items: draft.items.map(item => ({
+      items: draft.items.map((item) => ({
         dishId: item.dishId!,
         name: item.name,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
-        totalPrice: item.totalPrice
-      }))
+        totalPrice: item.totalPrice,
+      })),
     };
   }
 }

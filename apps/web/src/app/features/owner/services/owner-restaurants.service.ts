@@ -31,10 +31,7 @@ export class OwnerRestaurantsService {
     return this.http.post<OwnerRestaurant>(this.baseUrl, payload);
   }
 
-  updateRestaurant(
-    id: string,
-    payload: UpdateOwnerRestaurantPayload,
-  ): Observable<OwnerRestaurant> {
+  updateRestaurant(id: string, payload: UpdateOwnerRestaurantPayload): Observable<OwnerRestaurant> {
     return this.http.patch<OwnerRestaurant>(`${this.baseUrl}/${id}`, payload);
   }
 
@@ -52,10 +49,7 @@ export class OwnerRestaurantsService {
     restaurantId: string,
     payload: CreateMenuCategoryPayload,
   ): Observable<OwnerMenuCategory> {
-    return this.http.post<OwnerMenuCategory>(
-      `${this.baseUrl}/${restaurantId}/categories`,
-      payload,
-    );
+    return this.http.post<OwnerMenuCategory>(`${this.baseUrl}/${restaurantId}/categories`, payload);
   }
 
   updateCategory(
@@ -75,14 +69,8 @@ export class OwnerRestaurantsService {
     );
   }
 
-  createDish(
-    restaurantId: string,
-    payload: CreateDishPayload,
-  ): Observable<OwnerDish> {
-    return this.http.post<OwnerDish>(
-      `${this.baseUrl}/${restaurantId}/dishes`,
-      payload,
-    );
+  createDish(restaurantId: string, payload: CreateDishPayload): Observable<OwnerDish> {
+    return this.http.post<OwnerDish>(`${this.baseUrl}/${restaurantId}/dishes`, payload);
   }
 
   updateDish(
@@ -90,15 +78,10 @@ export class OwnerRestaurantsService {
     dishId: number,
     payload: UpdateDishPayload,
   ): Observable<OwnerDish> {
-    return this.http.patch<OwnerDish>(
-      `${this.baseUrl}/${restaurantId}/dishes/${dishId}`,
-      payload,
-    );
+    return this.http.patch<OwnerDish>(`${this.baseUrl}/${restaurantId}/dishes/${dishId}`, payload);
   }
 
   deleteDish(restaurantId: string, dishId: number): Observable<OwnerDish> {
-    return this.http.delete<OwnerDish>(
-      `${this.baseUrl}/${restaurantId}/dishes/${dishId}`,
-    );
+    return this.http.delete<OwnerDish>(`${this.baseUrl}/${restaurantId}/dishes/${dishId}`);
   }
 }

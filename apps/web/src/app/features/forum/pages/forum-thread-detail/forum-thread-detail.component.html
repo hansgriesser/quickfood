@@ -7,9 +7,9 @@
       </ng-template>
 
       <p *ngIf="thread" class="muted">
-        Restaurant: <strong>{{ thread.restaurant.name }}</strong>
-        · von <strong>{{ thread.author.username }}</strong>
-        · {{ thread.createdAt | date:'dd.MM.yyyy, HH:mm' }}
+        Restaurant: <strong>{{ thread.restaurant.name }}</strong> · von
+        <strong>{{ thread.author.username }}</strong> ·
+        {{ thread.createdAt | date: 'dd.MM.yyyy, HH:mm' }}
       </p>
     </div>
 
@@ -41,7 +41,12 @@
       <p class="body">{{ thread.content }}</p>
 
       <div class="row-actions" *ngIf="canModerate">
-        <button class="btn btn--ghost" type="button" (click)="closeThread()" [disabled]="thread.isClosed">
+        <button
+          class="btn btn--ghost"
+          type="button"
+          (click)="closeThread()"
+          [disabled]="thread.isClosed"
+        >
           Frage schließen
         </button>
         <button class="btn btn--danger" type="button" (click)="deleteThread()">
@@ -66,7 +71,7 @@
           <div class="answer__head">
             <div class="answer__who">
               <strong>{{ p.author.username }}</strong>
-              <span class="muted">· {{ p.createdAt | date:'dd.MM.yyyy, HH:mm' }}</span>
+              <span class="muted">· {{ p.createdAt | date: 'dd.MM.yyyy, HH:mm' }}</span>
             </div>
 
             <button
@@ -106,7 +111,11 @@
         <div class="hint muted">{{ reply.length }}/1500</div>
 
         <div class="form__actions">
-          <button class="btn btn--primary" type="submit" [disabled]="thread.isClosed || !isLoggedIn || !reply.trim()">
+          <button
+            class="btn btn--primary"
+            type="submit"
+            [disabled]="thread.isClosed || !isLoggedIn || !reply.trim()"
+          >
             Antworten
           </button>
 

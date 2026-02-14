@@ -1,15 +1,14 @@
-import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs/internal/BehaviorSubject";
-import { ChatContext, ChatMessage } from "../chat-message.dto";
-import { io, Socket } from "socket.io-client";
-import { AuthService } from "../../auth/auth.service";
-import { NgZone } from "@angular/core";
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
+import { ChatContext, ChatMessage } from '../chat-message.dto';
+import { io, Socket } from 'socket.io-client';
+import { AuthService } from '../../auth/auth.service';
+import { NgZone } from '@angular/core';
 
 const CHAT_WS_URL = 'http://localhost:3000/api/order/chat';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
-
   private isOpenSubject = new BehaviorSubject<boolean>(false);
   readonly isOpen$ = this.isOpenSubject.asObservable();
 
@@ -29,14 +28,17 @@ export class ChatService {
   private messagesSubject = new BehaviorSubject<ChatMessage[]>([]);
   readonly messages$ = this.messagesSubject.asObservable();
 
-  get contextRole(){
+  get contextRole() {
     return this.authService.getUserRole();
   }
-  get contextId(){
+  get contextId() {
     return this.authService.getUserId();
   }
 
-  constructor(private authService: AuthService, private ngZone: NgZone) {}
+  constructor(
+    private authService: AuthService,
+    private ngZone: NgZone,
+  ) {}
 
   openChatForOwner() {
     const token = this.authService.getToken();
@@ -45,15 +47,15 @@ export class ChatService {
     this.connect(token);
 
     this.socket.emit('chat:join-owner-orders', (activeOrderIds: string[]) => {
-      this.ngZone.run( () => {
-        activeOrderIds.forEach(id => {
+      this.ngZone.run(() => {
+        activeOrderIds.forEach((id) => {
           this.getOrCreateChat(id);
           console.log('Owner chat initialized for order:', id);
         });
-      })
+      });
     });
   }
-  
+
   openChatForOrder(orderId: string) {
     const token = this.authService.getToken();
     const role = this.authService.getUserRole();
@@ -89,8 +91,8 @@ export class ChatService {
     this.totalUnreadCountSubject.next(this.calculateTotalUnread());
   }
 
-  getUnreadCountForOrder(orderId: string){
-    console.log('unread count:', this.chats.get(orderId)?.unreadCount)
+  getUnreadCountForOrder(orderId: string) {
+    console.log('unread count:', this.chats.get(orderId)?.unreadCount);
     return this.chats.get(orderId)?.unreadCount;
   }
 
@@ -99,7 +101,7 @@ export class ChatService {
       this.socket = io(CHAT_WS_URL, {
         auth: { token },
         transports: ['websocket'],
-        timeout: 5000
+        timeout: 5000,
       });
 
       this.socket.on('connect', () => {
@@ -117,19 +119,18 @@ export class ChatService {
 
       this.socket.on('chat:receive', (msg) => {
         const chat = this.getOrCreateChat(msg.orderId);
-        if(!chat) return;
+        if (!chat) return;
         chat.messages.push(msg);
 
-        if(this.activeOrderId !== msg.orderId){
+        if (this.activeOrderId !== msg.orderId) {
           chat.unreadCount++;
           this.totalUnreadCountSubject.next(this.calculateTotalUnread());
-        }else{
+        } else {
           this.ngZone.run(() => {
             this.messagesSubject.next([...chat.messages]);
-          })
+          });
         }
       });
-
     } else {
       if (this.socket.connected) return;
       this.socket.connect();
@@ -139,7 +140,7 @@ export class ChatService {
   private getOrCreateChat(orderId: string) {
     const existing = this.chats.get(orderId);
 
-    if(!existing){
+    if (!existing) {
       const messages = [] as ChatMessage[];
       const context = {
         orderId: orderId,
@@ -148,37 +149,37 @@ export class ChatService {
       } as ChatContext;
       this.chats.set(orderId, context);
       return context;
-    }else{
+    } else {
       return existing;
     }
   }
 
   private initializeOwnerChats(orderIds: string[]) {
-    orderIds.forEach(id => {
+    orderIds.forEach((id) => {
       this.getOrCreateChat(id);
     });
   }
 
   private joinOrderChat(orderId: string) {
-    if (!this.socket){
+    if (!this.socket) {
       this.pendingJoinOrderId = orderId;
-      return;      
-    } 
+      return;
+    }
     if (this.socket.connected) {
       this.socket.emit('chat:join', orderId);
     } else {
-       this.pendingJoinOrderId = orderId;
+      this.pendingJoinOrderId = orderId;
     }
   }
 
-  private calculateTotalUnread(): number{
+  private calculateTotalUnread(): number {
     let total = 0;
-    for(let chat of this.chats.values()){
+    for (const chat of this.chats.values()) {
       total += chat.unreadCount;
     }
     return total;
   }
-  
+
   //später noch callen, wenn order fertig
   private disconnect() {
     this.socket?.disconnect();

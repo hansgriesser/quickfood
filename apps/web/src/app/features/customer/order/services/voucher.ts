@@ -7,12 +7,13 @@ import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
   providedIn: 'root',
 })
 export class Voucher {
-
-  private baseUrl = 'http://localhost:3000/api/voucher'
+  private baseUrl = 'http://localhost:3000/api/voucher';
   private appliedVoucherSubject = new BehaviorSubject<VoucherDto | null>(null);
   appliedVoucher$ = this.appliedVoucherSubject.asObservable();
 
-  private voucherStateSubject = new BehaviorSubject<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
+  private voucherStateSubject = new BehaviorSubject<'idle' | 'checking' | 'valid' | 'invalid'>(
+    'idle',
+  );
   voucherState$ = this.voucherStateSubject.asObservable();
 
   constructor(private http: HttpClient) {}
@@ -46,18 +47,16 @@ export class Voucher {
       error: () => {
         this.appliedVoucherSubject.next(null); // Fehler → Voucher löschen
         this.voucherStateSubject.next('invalid');
-      }
+      },
     });
   }
-
-
 
   getDiscountAmount(subtotal: number): number {
     const voucher = this.appliedVoucherSubject.value;
     if (!voucher) return 0;
     console.log('discount amount calculated for voucher:', voucher);
 
-    switch(voucher.type) {
+    switch (voucher.type) {
       case 'FIXED':
         return Math.min(subtotal, voucher.amount);
       case 'PERCENT':
@@ -67,14 +66,13 @@ export class Voucher {
     }
   }
 
-  changeVoucherState(){
-    if(this.voucherStateSubject.value === 'invalid'){
+  changeVoucherState() {
+    if (this.voucherStateSubject.value === 'invalid') {
       this.voucherStateSubject.next('idle');
     }
   }
 
-  getVoucherCode(){
+  getVoucherCode() {
     return this.appliedVoucherSubject.value?.code;
   }
-
 }

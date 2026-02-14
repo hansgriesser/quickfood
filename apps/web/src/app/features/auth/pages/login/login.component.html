@@ -64,11 +64,7 @@
 
       <!-- Actions -->
       <div class="actions">
-        <button
-          class="btn primary"
-          type="submit"
-          [disabled]="isSubmitting || form.invalid"
-        >
+        <button class="btn primary" type="submit" [disabled]="isSubmitting || form.invalid">
           <span *ngIf="!isSubmitting">Anmelden</span>
           <span *ngIf="isSubmitting">Anmelden…</span>
         </button>
@@ -76,8 +72,6 @@
           Noch keinen Account?
           <a routerLink="/register">Registrieren</a>
         </p>
-
-
       </div>
     </form>
   </main>

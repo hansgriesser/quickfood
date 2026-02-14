@@ -10,5 +10,5 @@ import { CommonModule } from '@angular/common';
   standalone: true,
 })
 export class RestaurantHeader {
-   @Input() restaurant!: Restaurant;
+  @Input() restaurant!: Restaurant;
 }

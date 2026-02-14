@@ -39,9 +39,7 @@
       <div class="row" *ngFor="let z of zones">
         <div class="cell code">{{ z.code }}</div>
         <div class="cell name">{{ z.name }}</div>
-        <div class="cell time">
-          {{ z.typicalDeliveryMin }}–{{ z.typicalDeliveryMax }} min
-        </div>
+        <div class="cell time">{{ z.typicalDeliveryMin }}–{{ z.typicalDeliveryMax }} min</div>
         <div class="cell status">
           <span class="badge" [class.inactive]="!z.active">
             {{ z.active ? 'ACTIVE' : 'INACTIVE' }}
@@ -57,9 +55,7 @@
       </div>
     </div>
 
-    <div class="empty" *ngIf="!loading && !zones.length">
-      Keine Delivery Zones gefunden.
-    </div>
+    <div class="empty" *ngIf="!loading && !zones.length">Keine Delivery Zones gefunden.</div>
   </section>
 
   <!-- Modal -->
@@ -86,20 +82,12 @@
 
         <label class="field">
           Typical Delivery Time Min (minutes):
-          <input
-            type="number"
-            [(ngModel)]="formTypicalMin"
-            placeholder="20"
-          />
+          <input type="number" [(ngModel)]="formTypicalMin" placeholder="20" />
         </label>
 
         <label class="field">
           Typical Delivery Time Max (minutes):
-          <input
-            type="number"
-            [(ngModel)]="formTypicalMax"
-            placeholder="40"
-          />
+          <input type="number" [(ngModel)]="formTypicalMax" placeholder="40" />
         </label>
 
         <label class="field checkbox">
@@ -109,9 +97,7 @@
       </div>
 
       <div class="modal-footer">
-        <button class="btn" (click)="closeModal()" [disabled]="modalSubmitting">
-          Cancel
-        </button>
+        <button class="btn" (click)="closeModal()" [disabled]="modalSubmitting">Cancel</button>
         <button class="btn primary" (click)="submitModal()" [disabled]="modalSubmitting">
           {{ modalSubmitting ? 'Saving…' : 'Save' }}
         </button>

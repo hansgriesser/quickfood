@@ -10,7 +10,7 @@ import { RestaurantListComponent } from './pages/restaurant-list/restaurant-list
     CommonModule,
     RestaurantRoutingModule,
     RestaurantDetailComponent,
-    RestaurantListComponent
-  ]
+    RestaurantListComponent,
+  ],
 })
-export class RestaurantModule { }
+export class RestaurantModule {}

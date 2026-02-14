@@ -1,9 +1,18 @@
-import { Injectable } from "@angular/core";
-import { BehaviorSubject, Subject, interval, startWith, switchMap, EMPTY, takeUntil, tap } from "rxjs";
-import { OrderService } from "./order";
-import { OrderDraftDto } from "../dto/orderDraftDTO";
-import { ActiveOrder, OrderDto } from "../dto/orderDTO";
-import { OrderStatus } from "../dto/orderStatus";
+import { Injectable } from '@angular/core';
+import {
+  BehaviorSubject,
+  Subject,
+  interval,
+  startWith,
+  switchMap,
+  EMPTY,
+  takeUntil,
+  tap,
+} from 'rxjs';
+import { OrderService } from './order';
+import { OrderDraftDto } from '../dto/orderDraftDTO';
+import { ActiveOrder, OrderDto } from '../dto/orderDTO';
+import { OrderStatus } from '../dto/orderStatus';
 
 const ACTIVE_ORDER_KEY = 'active_order';
 const CART_KEY = 'cart';
@@ -24,10 +33,10 @@ export class ActiveOrderService {
 
   createOrder(draft: OrderDraftDto) {
     return this.orderService.placeOrder(draft).pipe(
-      tap(order => {
+      tap((order) => {
         this.setActiveOrder(order);
         this.clearCartData();
-      })
+      }),
     );
   }
 
@@ -39,21 +48,16 @@ export class ActiveOrderService {
     interval(10_000)
       .pipe(
         startWith(0),
-        switchMap(() =>
-          this.orderId
-            ? this.orderService.getOrder(this.orderId)
-            : EMPTY
-        ),
-        tap(order => {
-          if(order.status === OrderStatus.DELIVERED){
+        switchMap(() => (this.orderId ? this.orderService.getOrder(this.orderId) : EMPTY)),
+        tap((order) => {
+          if (order.status === OrderStatus.DELIVERED) {
             this.clearCachedOrder();
             this.stopPolling();
           }
-        }
-        ),
-        takeUntil(this.destroy$)
+        }),
+        takeUntil(this.destroy$),
       )
-      .subscribe(order => this.orderSubject.next(order));
+      .subscribe((order) => this.orderSubject.next(order));
   }
 
   clear() {
@@ -62,8 +66,8 @@ export class ActiveOrderService {
     this.orderSubject.next(null);
     this.stopPolling();
     this.clearCachedOrder();
-  }  
-  
+  }
+
   private setActiveOrder(order: OrderDto) {
     this.orderSubject.next(order);
     localStorage.setItem(ACTIVE_ORDER_KEY, JSON.stringify({ id: order.id, status: order.status }));
@@ -77,7 +81,7 @@ export class ActiveOrderService {
 
   private restoreActiveOrder() {
     const raw = localStorage.getItem(ACTIVE_ORDER_KEY);
-    if(!raw) return;
+    if (!raw) return;
 
     const activeOrer: ActiveOrder = JSON.parse(raw);
     this.orderSubject.next({ id: activeOrer.id, status: activeOrer.status } as OrderDto);
