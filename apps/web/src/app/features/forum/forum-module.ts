@@ -7,12 +7,12 @@ import { ForumThreadListComponent } from './pages/forum-thread-list/forum-thread
 import { ForumThreadDetailComponent } from './pages/forum-thread-detail/forum-thread-detail.component';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        ForumRoutingModule,
-        ForumThreadListComponent,
-        ForumThreadDetailComponent
-    ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ForumRoutingModule,
+    ForumThreadListComponent,
+    ForumThreadDetailComponent,
+  ],
 })
 export class ForumModule {}

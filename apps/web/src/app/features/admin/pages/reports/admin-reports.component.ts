@@ -57,9 +57,10 @@ export class AdminReportsComponent implements OnInit {
         groupBy: this.groupBy,
       };
 
-      this.report = this.kind === 'orders'
-        ? await this.reports.getOrdersReport(params)
-        : await this.reports.getRevenueReport(params);
+      this.report =
+        this.kind === 'orders'
+          ? await this.reports.getOrdersReport(params)
+          : await this.reports.getRevenueReport(params);
     } catch (e: any) {
       this.error = e?.error?.message ?? 'Failed to load report';
     } finally {
@@ -78,6 +79,4 @@ export class AdminReportsComponent implements OnInit {
   euro(cents: number): string {
     return (cents / 100).toFixed(2);
   }
-
-
 }

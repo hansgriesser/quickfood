@@ -30,7 +30,9 @@
 
       <div *ngIf="threads.length === 0" class="empty">
         <div class="empty__title">Noch keine Fragen vorhanden</div>
-        <div class="empty__text">Stelle die erste Frage – das hilft anderen Nutzerinnen und Nutzern.</div>
+        <div class="empty__text">
+          Stelle die erste Frage – das hilft anderen Nutzerinnen und Nutzern.
+        </div>
       </div>
 
       <ul *ngIf="threads.length > 0" class="list">
@@ -39,9 +41,8 @@
             <div class="q__title">{{ t.title }}</div>
 
             <div class="q__meta muted">
-              von <strong>{{ t.author.username }}</strong>
-              · {{ t.createdAt | date:'dd.MM.yyyy, HH:mm' }}
-              · Antworten: {{ t._count.post }}
+              von <strong>{{ t.author.username }}</strong> ·
+              {{ t.createdAt | date: 'dd.MM.yyyy, HH:mm' }} · Antworten: {{ t._count.post }}
               <span *ngIf="t.isClosed">· <strong>geschlossen</strong></span>
             </div>
 
@@ -87,11 +88,15 @@
         </div>
 
         <div class="form__actions">
-          <button class="btn btn--primary" type="submit" [disabled]="!title.trim() || !content.trim() || loading">
+          <button
+            class="btn btn--primary"
+            type="submit"
+            [disabled]="!title.trim() || !content.trim() || loading"
+          >
             Frage veröffentlichen
           </button>
 
-          <button class="btn btn--ghost" type="button" (click)="title=''; content='';">
+          <button class="btn btn--ghost" type="button" (click)="title = ''; content = ''">
             Zurücksetzen
           </button>
 

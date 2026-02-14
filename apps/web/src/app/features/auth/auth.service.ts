@@ -1,74 +1,67 @@
-import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { firstValueFrom } from "rxjs";
-import {
-    LoginRequest,
-    LoginResponse,
-    RegisterRequest,
-    RegisterResponse,
-} from "./auth-model";
-import { decodeJWT, getUserIdFromPayload } from "./jwt.util";
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from './auth-model';
+import { decodeJWT, getUserIdFromPayload } from './jwt.util';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-    private readonly tokenKey = 'qf_access_token';
+  private readonly tokenKey = 'qf_access_token';
 
-    constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {}
 
-    get isLoggedIn(){
-        return !!this.getToken();
-    }
+  get isLoggedIn() {
+    return !!this.getToken();
+  }
 
-    async login(req: LoginRequest): Promise<LoginResponse> {
-        const url = '/api/auth/login';
-        
-        const res = await firstValueFrom(this.http.post<LoginResponse>(url, req));
-        localStorage.setItem(this.tokenKey, res.access_token);
-        return res;
-    }
+  async login(req: LoginRequest): Promise<LoginResponse> {
+    const url = '/api/auth/login';
 
-    async register(req: RegisterRequest): Promise<RegisterResponse> {
-        const url = '/api/auth/register';
+    const res = await firstValueFrom(this.http.post<LoginResponse>(url, req));
+    localStorage.setItem(this.tokenKey, res.access_token);
+    return res;
+  }
 
-        const res = await firstValueFrom(this.http.post<RegisterResponse>(url, req));
-        localStorage.setItem(this.tokenKey, res.access_token);
-        return res;
-    }
+  async register(req: RegisterRequest): Promise<RegisterResponse> {
+    const url = '/api/auth/register';
 
-    getToken(): string | null {
-        return localStorage.getItem(this.tokenKey);
-    }
+    const res = await firstValueFrom(this.http.post<RegisterResponse>(url, req));
+    localStorage.setItem(this.tokenKey, res.access_token);
+    return res;
+  }
 
-    logout(): void {
-        localStorage.removeItem(this.tokenKey);
-        localStorage.removeItem('cart');
-        localStorage.removeItem('orderDraft');
-        localStorage.removeItem('activeOrder');
-    }
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenKey);
+  }
 
-    getUserRole(): 'USER' | 'OWNER' | 'ADMIN' | null {
-        const token = this.getToken();
-        if (!token) return null;
+  logout(): void {
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem('cart');
+    localStorage.removeItem('orderDraft');
+    localStorage.removeItem('activeOrder');
+  }
 
-        const payload = decodeJWT(token);
-        return payload?.role || null;
-    }
+  getUserRole(): 'USER' | 'OWNER' | 'ADMIN' | null {
+    const token = this.getToken();
+    if (!token) return null;
 
-    getUserId(): number | null {
-        const token = this.getToken();
-        if (!token) return null;
+    const payload = decodeJWT(token);
+    return payload?.role || null;
+  }
 
-        const payload = decodeJWT(token);
-        return getUserIdFromPayload(payload);
-    }
+  getUserId(): number | null {
+    const token = this.getToken();
+    if (!token) return null;
 
-    getUsername(): string | null {
-        const token = this.getToken();
-        if (!token) return null;
+    const payload = decodeJWT(token);
+    return getUserIdFromPayload(payload);
+  }
 
-        const payload = decodeJWT(token);
-        return payload?.username || null;
-    }
-    
+  getUsername(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
 
+    const payload = decodeJWT(token);
+    return payload?.username || null;
+  }
 }

@@ -1,8 +1,12 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { AdminRestaurantsService, AdminRestaurant, RestaurantStatus } from '../../services/admin-restaurants.service';
+import {
+  AdminRestaurantsService,
+  AdminRestaurant,
+  RestaurantStatus,
+} from '../../services/admin-restaurants.service';
 
 @Component({
   selector: 'app-admin-restaurants',
@@ -11,7 +15,7 @@ import { AdminRestaurantsService, AdminRestaurant, RestaurantStatus } from '../.
   templateUrl: './admin-restaurants.component.html',
   styleUrls: ['./admin-restaurants.component.css'],
 })
-export class AdminRestaurantsComponent {
+export class AdminRestaurantsComponent implements OnInit {
   statuses: (RestaurantStatus | 'ALL')[] = ['ALL', 'PENDING', 'ACTIVE', 'REJECTED'];
   selected: RestaurantStatus | 'ALL' = 'PENDING';
 
@@ -25,8 +29,9 @@ export class AdminRestaurantsComponent {
   restaurantModalSubmitting = false;
   restaurantModalError: string | null = null;
 
-  constructor(private readonly adminRestaurants: AdminRestaurantsService,
-              private readonly cdr: ChangeDetectorRef
+  constructor(
+    private readonly adminRestaurants: AdminRestaurantsService,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -34,8 +39,8 @@ export class AdminRestaurantsComponent {
   }
 
   async onStatusChange(value: RestaurantStatus | 'ALL'): Promise<void> {
-  this.selected = value;
-  await this.load();
+    this.selected = value;
+    await this.load();
   }
 
   async load(): Promise<void> {
@@ -71,10 +76,7 @@ export class AdminRestaurantsComponent {
     }
   }
 
-  openRestaurantDecisionModal(
-    r: AdminRestaurant,
-    decision: 'APPROVE' | 'REJECT'
-  ): void {
+  openRestaurantDecisionModal(r: AdminRestaurant, decision: 'APPROVE' | 'REJECT'): void {
     this.modalRestaurant = r;
     this.restaurantDecision = decision;
     this.restaurantModalError = null;
@@ -104,8 +106,7 @@ export class AdminRestaurantsComponent {
       }
       this.closeRestaurantDecisionModal();
     } catch (e: any) {
-      this.restaurantModalError =
-        e?.error?.message || e?.message || 'Action failed';
+      this.restaurantModalError = e?.error?.message || e?.message || 'Action failed';
     } finally {
       this.restaurantModalSubmitting = false;
       this.cdr.detectChanges();

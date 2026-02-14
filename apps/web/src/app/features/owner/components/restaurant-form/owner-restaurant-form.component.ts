@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -13,7 +13,7 @@ import {
   templateUrl: './owner-restaurant-form.component.html',
   styleUrls: ['./owner-restaurant-form.component.css'],
 })
-export class OwnerRestaurantFormComponent {
+export class OwnerRestaurantFormComponent implements OnInit {
   @Input() restaurant?: OwnerRestaurant;
   @Input() submitLabel = 'Save';
   @Output() submitForm = new EventEmitter<CreateOwnerRestaurantPayload>();

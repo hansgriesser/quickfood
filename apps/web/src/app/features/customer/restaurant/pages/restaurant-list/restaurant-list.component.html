@@ -1,5 +1,4 @@
 <div class="restaurant-list-container">
-
   <div *ngIf="hasActiveOrder" class="active-order-banner" (click)="goToActiveOrder()">
     <p>Du hast eine aktive Bestellung – klicke hier, um sie zu sehen!</p>
   </div>
@@ -9,7 +8,12 @@
   <app-restaurant-filter (filterChanged)="onFilterChange($event)"></app-restaurant-filter>
 
   <div class="results-info" *ngIf="filteredRestaurants.length > 0">
-    <p>{{ filteredRestaurants.length }} Restaurant<span *ngIf="filteredRestaurants.length !== 1">s</span> gefunden</p>
+    <p>
+      {{ filteredRestaurants.length }} Restaurant<span *ngIf="filteredRestaurants.length !== 1"
+        >s</span
+      >
+      gefunden
+    </p>
   </div>
 
   <div *ngIf="filteredRestaurants.length > 0; else noResults" class="restaurants-grid">

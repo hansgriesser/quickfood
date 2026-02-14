@@ -10,9 +10,11 @@ import { CheckoutService } from '../../services/checkout-service';
   styleUrl: './payment.css',
 })
 export class Payment {
+  constructor(
+    private checkoutService: CheckoutService,
+    private router: Router,
+  ) {}
 
-  constructor(private checkoutService: CheckoutService, private router : Router) {}
-  
   placeOrder() {
     this.checkoutService.placeOrder().subscribe({
       next: (response) => {
@@ -22,7 +24,7 @@ export class Payment {
       error: (error) => {
         console.error('Error placing order:', error);
         // Handle error
-      }
+      },
     });
   }
 }

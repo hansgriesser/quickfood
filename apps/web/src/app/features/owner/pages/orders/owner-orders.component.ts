@@ -15,13 +15,13 @@ import { AuthService } from '../../../auth/auth.service';
 })
 export class OwnerOrdersComponent implements OnInit, OnDestroy {
   orders: OwnerOrder[] = [];
-  orders$!: Observable<OwnerOrder[]> ;
+  orders$!: Observable<OwnerOrder[]>;
   isLoading = false;
   errorMessage = '';
 
   readonly orderStatus = OrderStatus;
   readonly statusLabels = OrderStatusLabel;
-  totalUnreadMessages$: Observable<number>; 
+  totalUnreadMessages$: Observable<number>;
 
   private readonly sub = new Subscription();
   private readonly busyOrders = new Set<string>();
@@ -29,7 +29,7 @@ export class OwnerOrdersComponent implements OnInit, OnDestroy {
   constructor(
     private ownerOrdersService: OwnerOrdersService,
     private cdr: ChangeDetectorRef,
-    private chatService: ChatService
+    private chatService: ChatService,
   ) {
     this.totalUnreadMessages$ = this.chatService.totalUnreadMessages$;
   }
@@ -90,25 +90,25 @@ export class OwnerOrdersComponent implements OnInit, OnDestroy {
     this.runOrderAction(order.id, this.ownerOrdersService.updateStatus(order.id, status));
   }
 
-    private startPolling(): void {
-      this.orders$ = timer(0, 5000).pipe(
-        exhaustMap(() => {
-          if (!this.isLoading) {
-            this.isLoading = true;
-          }
+  private startPolling(): void {
+    this.orders$ = timer(0, 5000).pipe(
+      exhaustMap(() => {
+        if (!this.isLoading) {
+          this.isLoading = true;
+        }
 
-          return this.ownerOrdersService.listOrders().pipe(
-            catchError(() => {
-              this.errorMessage = 'Could not load orders.';
-              return of([] as OwnerOrder[]);
-            }),
-            finalize(() => {
-              this.isLoading = false;
-            }),
-          );
-        }),
-      );
-    }
+        return this.ownerOrdersService.listOrders().pipe(
+          catchError(() => {
+            this.errorMessage = 'Could not load orders.';
+            return of([] as OwnerOrder[]);
+          }),
+          finalize(() => {
+            this.isLoading = false;
+          }),
+        );
+      }),
+    );
+  }
 
   private runOrderAction(actionOrderId: string, request$: Observable<OwnerOrder>) {
     if (this.busyOrders.has(actionOrderId)) return;
@@ -143,21 +143,16 @@ export class OwnerOrdersComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.orders = [
-      ...this.orders.slice(0, index),
-      updated,
-      ...this.orders.slice(index + 1),
-    ];
+    this.orders = [...this.orders.slice(0, index), updated, ...this.orders.slice(index + 1)];
   }
 
   //für Extra Task User: Chat
-  
-  
+
   openChat(orderId: string) {
     this.chatService.openChat(orderId);
   }
 
-  unreadCountForOrder(orderId: string){
+  unreadCountForOrder(orderId: string) {
     return this.chatService.getUnreadCountForOrder(orderId) ?? 0;
   }
 }

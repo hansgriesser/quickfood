@@ -1,25 +1,25 @@
 <section class="cart-page" *ngIf="cartItems$ | async as items; else emptyCart">
-
-  <app-restaurant-header class="restaurant-header"
+  <app-restaurant-header
+    class="restaurant-header"
     *ngIf="restaurant$ | async as restaurant"
-    [restaurant]="restaurant">
+    [restaurant]="restaurant"
+  >
   </app-restaurant-header>
 
   <h2>Dein Warenkorb</h2>
 
   <div class="cart-item-card" *ngFor="let item of items">
-  
-    <img *ngIf="item.pictureUrl" [src]="item.pictureUrl" class="dish-image">
+    <img *ngIf="item.pictureUrl" [src]="item.pictureUrl" class="dish-image" />
 
     <div class="item-info">
-        <h3>{{ item.name }}</h3>
-        <p>Preis: {{ item.price / 100 | currency:'EUR' }}</p>
+      <h3>{{ item.name }}</h3>
+      <p>Preis: {{ item.price / 100 | currency: 'EUR' }}</p>
 
-        <div class="quantity-control">
+      <div class="quantity-control">
         <button (click)="decreaseQuantity(item.dishId)">-</button>
         <span>{{ item.quantity }}</span>
         <button (click)="increaseQuantityInCart(item)">+</button>
-        </div>
+      </div>
     </div>
 
     <button class="remove-button" (click)="removeItem(item.dishId)">×</button>
@@ -27,13 +27,13 @@
 
   <ng-container *ngIf="cartSummary$ | async as summary">
     <div class="cart-summary">
-        <p>Subtotal: {{ summary.subtotal / 100 | currency:'EUR' }}</p>
-        <p>Service Fee: {{ summary.fee / 100 | currency:'EUR' }}</p>
-        <p><strong>Gesamt: {{ summary.total / 100 | currency:'EUR' }}</strong></p>
+      <p>Subtotal: {{ summary.subtotal / 100 | currency: 'EUR' }}</p>
+      <p>Service Fee: {{ summary.fee / 100 | currency: 'EUR' }}</p>
+      <p>
+        <strong>Gesamt: {{ summary.total / 100 | currency: 'EUR' }}</strong>
+      </p>
     </div>
   </ng-container>
-
-
 </section>
 
 <ng-template #emptyCart>

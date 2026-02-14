@@ -11,10 +11,7 @@ export class OwnerOrdersService {
 
   constructor(private http: HttpClient) {}
 
-  listOrders(options?: {
-    status?: OrderStatus;
-    restaurantId?: string;
-  }): Observable<OwnerOrder[]> {
+  listOrders(options?: { status?: OrderStatus; restaurantId?: string }): Observable<OwnerOrder[]> {
     let params = new HttpParams();
 
     if (options?.status) {

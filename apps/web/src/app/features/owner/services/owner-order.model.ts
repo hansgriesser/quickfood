@@ -38,7 +38,7 @@ export enum OrderStatus {
   DISPATCHED = 'DISPATCHED',
   REJECTED = 'REJECTED',
   CANCELLED = 'CANCELLED',
-  COMPLETED = "COMPLETED",
+  COMPLETED = 'COMPLETED',
 }
 
 export const OrderStatusLabel: Record<OrderStatus, string> = {

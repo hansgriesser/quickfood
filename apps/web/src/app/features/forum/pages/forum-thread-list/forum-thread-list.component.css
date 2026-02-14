@@ -52,7 +52,7 @@
   border-radius: 12px;
   padding: 14px;
   margin: 14px 0;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
 .card--form {
@@ -120,7 +120,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Empty */
@@ -229,7 +231,7 @@
 .input:focus,
 .textarea:focus {
   border-color: #000000;
-  box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
 }
 
 .hint {
@@ -280,8 +282,16 @@
 
 /* Responsive */
 @media (max-width: 720px) {
-  .forum-page { padding: 16px 14px 36px; }
-  .forum-header { flex-direction: column; }
-  .link-back { margin-top: 0; }
-  .form__row { max-width: 100%; }
+  .forum-page {
+    padding: 16px 14px 36px;
+  }
+  .forum-header {
+    flex-direction: column;
+  }
+  .link-back {
+    margin-top: 0;
+  }
+  .form__row {
+    max-width: 100%;
+  }
 }

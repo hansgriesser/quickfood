@@ -16,7 +16,10 @@
           autocomplete="username"
           placeholder="z. B. max"
         />
-        <p class="hint error" *ngIf="form.controls.username.touched && form.controls.username.invalid">
+        <p
+          class="hint error"
+          *ngIf="form.controls.username.touched && form.controls.username.invalid"
+        >
           Username ist erforderlich.
         </p>
       </div>
@@ -31,7 +34,10 @@
           autocomplete="new-password"
           placeholder="mind. 6 Zeichen"
         />
-        <p class="hint error" *ngIf="form.controls.password.touched && form.controls.password.invalid">
+        <p
+          class="hint error"
+          *ngIf="form.controls.password.touched && form.controls.password.invalid"
+        >
           Passwort ist erforderlich (min. 6 Zeichen).
         </p>
       </div>

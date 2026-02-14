@@ -27,7 +27,7 @@ export class AdminOverviewComponent implements OnInit {
   constructor(
     private readonly activityService: AdminActivityService,
     private readonly stats: AdminStatsService,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -38,10 +38,7 @@ export class AdminOverviewComponent implements OnInit {
 
     try {
       // parallel starten
-      const [summary] = await Promise.all([
-        this.loadSummary(),
-        this.loadRecentActivity(),
-      ]);
+      const [summary] = await Promise.all([this.loadSummary(), this.loadRecentActivity()]);
 
       this.summary = summary;
       // console.log('SUMMARY', this.summary);

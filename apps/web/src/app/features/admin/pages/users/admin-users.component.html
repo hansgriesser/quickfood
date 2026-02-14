@@ -18,18 +18,22 @@
     <div class="admin-filters">
       <label class="admin-filter">
         Role:
-        <select class="admin-select"
-                [ngModel]="selectedRole"
-                (ngModelChange)="selectedRole = $event; onFilterChange()">
+        <select
+          class="admin-select"
+          [ngModel]="selectedRole"
+          (ngModelChange)="selectedRole = $event; onFilterChange()"
+        >
           <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
         </select>
       </label>
 
       <label class="admin-filter">
         Suspended:
-        <select class="admin-select"
-                [ngModel]="selectedSuspended"
-                (ngModelChange)="selectedSuspended = $event; onFilterChange()">
+        <select
+          class="admin-select"
+          [ngModel]="selectedSuspended"
+          (ngModelChange)="selectedSuspended = $event; onFilterChange()"
+        >
           <option *ngFor="let f of suspendedFilters" [value]="f">{{ f }}</option>
         </select>
       </label>
@@ -72,7 +76,7 @@
             </td>
 
             <td class="admin-muted">
-              {{ u.suspendedUntil ? (u.suspendedUntil | date:'short') : '—' }}
+              {{ u.suspendedUntil ? (u.suspendedUntil | date: 'short') : '—' }}
             </td>
 
             <td>
@@ -82,7 +86,11 @@
                   type="button"
                   (click)="openUserActionModal(u)"
                   [disabled]="u.role === 'ADMIN'"
-                  [title]="u.role === 'ADMIN' ? 'Admins können nicht moderiert werden.' : 'Moderationsaktion (Warn/Suspend)'"
+                  [title]="
+                    u.role === 'ADMIN'
+                      ? 'Admins können nicht moderiert werden.'
+                      : 'Moderationsaktion (Warn/Suspend)'
+                  "
                 >
                   Moderate
                 </button>
@@ -92,7 +100,13 @@
                   type="button"
                   (click)="unsuspend(u)"
                   [disabled]="u.role === 'ADMIN' || !u.isSuspended"
-                  [title]="u.role === 'ADMIN' ? 'Admins können nicht entsperrt/gesperrt werden.' : (!u.isSuspended ? 'User ist nicht gesperrt.' : 'User entsperren')"
+                  [title]="
+                    u.role === 'ADMIN'
+                      ? 'Admins können nicht entsperrt/gesperrt werden.'
+                      : !u.isSuspended
+                        ? 'User ist nicht gesperrt.'
+                        : 'User entsperren'
+                  "
                 >
                   Unsuspend
                 </button>
@@ -130,14 +144,18 @@
         <label class="admin-field">
           <div class="admin-field-label">Action</div>
           <div class="admin-segment">
-            <button class="admin-seg-btn"
-                    [class.active]="modalAction === 'WARN'"
-                    (click)="modalAction = 'WARN'">
+            <button
+              class="admin-seg-btn"
+              [class.active]="modalAction === 'WARN'"
+              (click)="modalAction = 'WARN'"
+            >
               Warn
             </button>
-            <button class="admin-seg-btn"
-                    [class.active]="modalAction === 'SUSPEND'"
-                    (click)="modalAction = 'SUSPEND'">
+            <button
+              class="admin-seg-btn"
+              [class.active]="modalAction === 'SUSPEND'"
+              (click)="modalAction = 'SUSPEND'"
+            >
               Suspend
             </button>
           </div>
@@ -145,10 +163,12 @@
 
         <label class="admin-field">
           <div class="admin-field-label">Reason (optional)</div>
-          <textarea class="admin-textarea"
-                    [(ngModel)]="modalReason"
-                    placeholder="Kurze Begründung…"
-                    rows="3"></textarea>
+          <textarea
+            class="admin-textarea"
+            [(ngModel)]="modalReason"
+            placeholder="Kurze Begründung…"
+            rows="3"
+          ></textarea>
         </label>
 
         <label class="admin-field" *ngIf="modalAction === 'SUSPEND'">
@@ -164,9 +184,11 @@
       <div class="admin-modal-footer">
         <button class="admin-btn admin-btn-ghost" (click)="closeUserActionModal()">Cancel</button>
 
-        <button class="admin-btn admin-btn-primary"
-                [disabled]="modalSubmitting"
-                (click)="confirmUserAction()">
+        <button
+          class="admin-btn admin-btn-primary"
+          [disabled]="modalSubmitting"
+          (click)="confirmUserAction()"
+        >
           Confirm
         </button>
       </div>

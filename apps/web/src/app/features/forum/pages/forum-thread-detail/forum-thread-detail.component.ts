@@ -3,7 +3,15 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, from, of } from 'rxjs';
-import { catchError, distinctUntilChanged, finalize, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import {
+  catchError,
+  distinctUntilChanged,
+  finalize,
+  map,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 
 import { ForumService } from '../../forum.service';
 import { ForumThreadDetail } from '../../forum.model';
@@ -55,7 +63,7 @@ export class ForumThreadDetailComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.route.paramMap
       .pipe(
-        map(pm => pm.get('id')),
+        map((pm) => pm.get('id')),
         distinctUntilChanged(),
         switchMap((id) => {
           const num = Number(id);

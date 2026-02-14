@@ -7,7 +7,6 @@ import { AdminZonesComponent } from './pages/zones/admin-zones.component';
 import { AdminReportsComponent } from './pages/reports/admin-reports.component';
 import { AdminSettingsComponent } from './pages/settings/admin-settings.component';
 
-
 const routes: Routes = [
   { path: '', component: AdminOverviewComponent },
   { path: 'restaurants', component: AdminRestaurantsComponent },
@@ -15,8 +14,6 @@ const routes: Routes = [
   { path: 'zones', component: AdminZonesComponent },
   { path: 'reports', component: AdminReportsComponent },
   { path: 'settings', component: AdminSettingsComponent },
-
-
 ];
 
 @NgModule({
