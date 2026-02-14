@@ -9,6 +9,8 @@ export interface LoginResponse {
 
 export type RegisterRole = 'USER' | 'OWNER';
 
+export type Role = 'USER' | 'OWNER' | 'ADMIN';
+
 export interface RegisterRequest {
   username: string;
   password: string;

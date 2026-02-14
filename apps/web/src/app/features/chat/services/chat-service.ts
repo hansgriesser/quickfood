@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { ChatContext, ChatMessage } from '../chat-message.dto';
 import { io, Socket } from 'socket.io-client';
@@ -9,6 +9,9 @@ const CHAT_WS_URL = 'http://localhost:3000/api/order/chat';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
+  private authService = inject(AuthService);
+  private ngZone = inject(NgZone);
+
   private isOpenSubject = new BehaviorSubject<boolean>(false);
   readonly isOpen$ = this.isOpenSubject.asObservable();
 
@@ -35,11 +38,6 @@ export class ChatService {
     return this.authService.getUserId();
   }
 
-  constructor(
-    private authService: AuthService,
-    private ngZone: NgZone,
-  ) {}
-
   openChatForOwner() {
     const token = this.authService.getToken();
     if (!token) return;
@@ -50,7 +48,6 @@ export class ChatService {
       this.ngZone.run(() => {
         activeOrderIds.forEach((id) => {
           this.getOrCreateChat(id);
-          console.log('Owner chat initialized for order:', id);
         });
       });
     });

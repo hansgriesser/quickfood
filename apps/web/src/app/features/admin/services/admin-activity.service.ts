@@ -1,13 +1,13 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ActivityLog } from '../model/activity-log.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdminActivityService {
-  private readonly baseUrl = '/api/admin/activity';
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private readonly baseUrl = '/api/admin/activity';
 
   getRecent(limit = 10): Observable<ActivityLog[]> {
     return this.http.get<ActivityLog[]>(`${this.baseUrl}?limit=${limit}`);

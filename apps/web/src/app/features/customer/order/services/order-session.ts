@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   BehaviorSubject,
   Subject,
@@ -20,6 +20,8 @@ const ORDER_DRAFT_KEY = 'orderDraft';
 
 @Injectable({ providedIn: 'root' })
 export class ActiveOrderService {
+  private orderService = inject(OrderService);
+
   private orderSubject = new BehaviorSubject<OrderDto | null>(null);
   readonly order$ = this.orderSubject.asObservable();
 
@@ -27,7 +29,10 @@ export class ActiveOrderService {
 
   hasDiscount = this.orderSubject.value?.discountAmount !== 0;
 
-  constructor(private orderService: OrderService) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.restoreActiveOrder();
   }
 

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +6,7 @@ import { Subject, from, of } from 'rxjs';
 import {
   catchError,
   distinctUntilChanged,
+  filter,
   finalize,
   map,
   switchMap,
@@ -16,6 +17,7 @@ import {
 import { ForumService } from '../../forum.service';
 import { ForumThreadListItem } from '../../forum.model';
 import { AuthService } from '../../../auth/auth.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-forum-thread-list',
@@ -24,6 +26,11 @@ import { AuthService } from '../../../auth/auth.service';
   imports: [CommonModule, FormsModule, RouterModule],
 })
 export class ForumThreadListComponent implements OnInit, OnDestroy {
+  private readonly route = inject(ActivatedRoute);
+  private readonly forum = inject(ForumService);
+  private readonly auth = inject(AuthService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
   private readonly destroy$ = new Subject<void>();
 
   restaurantId!: string;
@@ -36,15 +43,8 @@ export class ForumThreadListComponent implements OnInit, OnDestroy {
   title = '';
   content = '';
 
-  constructor(
-    private readonly route: ActivatedRoute,
-    private readonly forum: ForumService,
-    private readonly auth: AuthService,
-    private readonly cdr: ChangeDetectorRef,
-  ) {}
-
   get isLoggedIn(): boolean {
-    return !!this.auth.getToken();
+    return this.auth.isLoggedIn;
   }
 
   ngOnInit() {
@@ -53,25 +53,25 @@ export class ForumThreadListComponent implements OnInit, OnDestroy {
         map((pm) => pm.get('id')),
         distinctUntilChanged(),
         tap((id) => {
-          if (!id || id === 'undefined' || id === 'null') {
-            this.error = 'Restaurant-ID fehlt in der URL (Forum-Link ist falsch).';
-            this.restaurantId = '';
-            this.threads = [];
-            this.loading = false;
-            this.cdr.detectChanges();
-            return;
-          }
-          this.restaurantId = id;
-        }),
-        switchMap((id) => {
-          if (!id || id === 'undefined' || id === 'null') return of([] as ForumThreadListItem[]);
-
-          this.loading = true;
           this.error = null;
-          this.cdr.detectChanges();
+          this.loading = true;
+          this.threads = [];
 
-          return from(this.forum.listThreads(id)).pipe(
-            catchError((e: any) => {
+          const isValid = id && id !== 'undefined' && id !== 'null';
+
+          if (!isValid) {
+            this.error = 'Restaurant-ID fehlt oder ist ungültig.';
+            this.restaurantId = '';
+            this.loading = false;
+          } else {
+            this.restaurantId = id!;
+          }
+          this.cdr.detectChanges();
+        }),
+        filter((id): id is string => !!id && id !== 'undefined' && id !== 'null'),
+        switchMap((id) =>
+          from(this.forum.listThreads(id)).pipe(
+            catchError((e: HttpErrorResponse) => {
               console.error('[Forum] listThreads ERROR', e);
               this.error = e?.error?.message ?? e?.message ?? 'Fehler beim Laden der Threads';
               return of([] as ForumThreadListItem[]);
@@ -80,13 +80,12 @@ export class ForumThreadListComponent implements OnInit, OnDestroy {
               this.loading = false;
               this.cdr.detectChanges();
             }),
-          );
-        }),
+          ),
+        ),
         takeUntil(this.destroy$),
       )
       .subscribe((data) => {
-        console.log('[Forum] listThreads OK', { restaurantId: this.restaurantId, data });
-        this.threads = Array.isArray(data) ? data : [];
+        this.threads = data;
         this.cdr.detectChanges();
       });
   }
@@ -98,18 +97,19 @@ export class ForumThreadListComponent implements OnInit, OnDestroy {
 
   async createThread() {
     try {
+      this.loading = true;
       this.error = null;
       await this.forum.createThread(this.restaurantId, this.title, this.content);
       this.title = '';
       this.content = '';
 
-      // “reload” ist jetzt automatisch über param subscription abgedeckt,
-      // aber wir können optional die Liste direkt neu holen:
-      this.loading = true;
       this.cdr.detectChanges();
       this.threads = await this.forum.listThreads(this.restaurantId);
-    } catch (e: any) {
-      this.error = e?.error?.message ?? 'Fehler beim Erstellen des Threads';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.loading = false;
+      this.cdr.detectChanges();
+      this.error = err?.error?.message ?? 'Fehler beim Erstellen des Threads';
     } finally {
       this.loading = false;
       this.cdr.detectChanges();

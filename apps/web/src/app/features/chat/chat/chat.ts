@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatMessage } from '../chat-message.dto';
 import { ChatService } from '../services/chat-service';
-import { Observable, Subscription } from 'rxjs';
-import { UserRole } from '../../admin/services/admin-users.service';
+import { Subscription } from 'rxjs';
+import { UserRole } from '../../admin/model/admin-user.model';
 
 @Component({
   selector: 'app-chat-drawer',
@@ -14,6 +14,8 @@ import { UserRole } from '../../admin/services/admin-users.service';
   imports: [CommonModule, FormsModule],
 })
 export class ChatDrawerComponent implements OnInit, OnDestroy {
+  private chatService = inject(ChatService);
+
   unreadCount = 0;
   newMessage = '';
   messages: ChatMessage[] = [];
@@ -26,7 +28,7 @@ export class ChatDrawerComponent implements OnInit, OnDestroy {
 
   private subscription = new Subscription();
 
-  constructor(private chatService: ChatService) {
+  constructor() {
     this.role = this.chatService.contextRole;
     this.userId = this.chatService.contextId;
   }
@@ -43,7 +45,6 @@ export class ChatDrawerComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.chatService.messages$.subscribe((msgs) => {
         this.messages = msgs;
-        console.log('Received messages', msgs);
         // Scroll automatisch zum Ende, falls Drawer offen
         if (this.isOpen) {
           setTimeout(() => this.scrollToBottom(), 50);

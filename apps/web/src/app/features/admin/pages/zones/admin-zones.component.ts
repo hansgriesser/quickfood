@@ -1,8 +1,10 @@
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { AdminZonesService, DeliveryZone } from '../../services/admin-zones.service';
+import { AdminZonesService } from '../../services/admin-zones.service';
+import { CreateZonePayload, DeliveryZone } from '../../model/admin-zones.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 type ZoneFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
 
@@ -14,6 +16,9 @@ type ZoneFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
   styleUrls: ['./admin-zones.component.css'],
 })
 export class AdminZonesComponent implements OnInit {
+  private readonly adminZones = inject(AdminZonesService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
   loading = false;
   error: string | null = null;
 
@@ -33,11 +38,6 @@ export class AdminZonesComponent implements OnInit {
   formTypicalMin = 20;
   formTypicalMax = 35;
 
-  constructor(
-    private readonly adminZones: AdminZonesService,
-    private readonly cdr: ChangeDetectorRef,
-  ) {}
-
   ngOnInit(): void {
     void this.load();
   }
@@ -53,8 +53,9 @@ export class AdminZonesComponent implements OnInit {
       if (this.filter === 'INACTIVE') active = false;
 
       this.zones = await this.adminZones.list(active);
-    } catch (e: any) {
-      this.error = e?.message || e?.message || 'An error occurred while loading zones.';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err?.message || err?.message || 'An error occurred while loading zones.';
     } finally {
       this.loading = false;
       this.cdr.detectChanges();
@@ -110,9 +111,10 @@ export class AdminZonesComponent implements OnInit {
 
     try {
       await this.adminZones.update(z.id, { active: z.active });
-    } catch (e: any) {
+    } catch (e) {
+      const err = e as HttpErrorResponse;
       z.active = previous;
-      this.error = e?.error?.message || e?.message || 'Update failed.';
+      this.error = err?.error?.message || err?.message || 'Update failed.';
       this.cdr.detectChanges();
     } finally {
       this.rowBusy.delete(z.id);
@@ -150,13 +152,14 @@ export class AdminZonesComponent implements OnInit {
 
     try {
       if (this.modalMode === 'CREATE') {
-        await this.adminZones.create({
-          code,
-          name,
+        const payload: CreateZonePayload = {
+          code: this.formCode.trim(),
+          name: this.formName.trim(),
           active: this.formActive,
-          typicalDeliveryMin: min,
-          typicalDeliveryMax: max,
-        });
+          typicalDeliveryMin: Number(this.formTypicalMin),
+          typicalDeliveryMax: Number(this.formTypicalMax),
+        };
+        await this.adminZones.create(payload);
       } else {
         if (!this.modalZoneId) throw new Error('Missing zone id');
         await this.adminZones.update(this.modalZoneId, {
@@ -169,10 +172,11 @@ export class AdminZonesComponent implements OnInit {
       }
 
       await this.load();
-    } catch (e: any) {
+    } catch (e) {
+      const err = e as HttpErrorResponse;
       // Bei Fehler: Modal wieder öffnen + Fehlermeldung anzeigen
       this.modalOpen = wasOpen;
-      this.modalErrors = e?.error?.message || e?.message || 'Submission failed.';
+      this.modalErrors = err?.error?.message || err?.message || 'Submission failed.';
     } finally {
       this.modalSubmitting = false;
       this.cdr.detectChanges();

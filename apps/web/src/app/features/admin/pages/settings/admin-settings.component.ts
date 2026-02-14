@@ -1,22 +1,22 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import {
-  AdminSettingsService,
-  Voucher,
-  VoucherType,
-  CreateVoucherPayload,
-} from '../../services/admin-settings.service';
+import { AdminSettingsService } from '../../services/admin-settings.service';
+import { Voucher, CreateVoucherPayload, VoucherType } from '../../model/admin-settings.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-admin-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule],
   templateUrl: './admin-settings.component.html',
   styleUrls: ['./admin-settings.component.css'],
 })
 export class AdminSettingsComponent implements OnInit {
+  private readonly settings = inject(AdminSettingsService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
   loading = true;
   error: string | null = null;
 
@@ -39,11 +39,6 @@ export class AdminSettingsComponent implements OnInit {
     active: true,
   };
 
-  constructor(
-    private readonly settings: AdminSettingsService,
-    private readonly cdr: ChangeDetectorRef,
-  ) {}
-
   ngOnInit(): void {
     void this.load();
   }
@@ -58,8 +53,9 @@ export class AdminSettingsComponent implements OnInit {
       this.serviceFeePercent = fee.percent ?? 0;
 
       this.vouchers = await this.settings.listVouchers();
-    } catch (e: any) {
-      this.error = e?.error?.message ?? 'Failed to load settings';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err?.error?.message ?? 'Failed to load settings';
     } finally {
       this.loading = false;
       this.cdr.detectChanges();
@@ -73,8 +69,9 @@ export class AdminSettingsComponent implements OnInit {
 
     try {
       await this.settings.updateServiceFee(this.serviceFeePercent);
-    } catch (e: any) {
-      this.error = e?.error?.message ?? 'Failed to save service fee';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err?.error?.message ?? 'Failed to save service fee';
     } finally {
       this.savingFee = false;
       this.cdr.detectChanges();
@@ -102,8 +99,9 @@ export class AdminSettingsComponent implements OnInit {
       this.validToDate = '';
 
       this.vouchers = await this.settings.listVouchers();
-    } catch (e: any) {
-      this.error = e?.error?.message ?? 'Failed to create voucher';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err?.error?.message ?? 'Failed to create voucher';
     } finally {
       this.creatingVoucher = false;
       this.cdr.detectChanges();
@@ -133,8 +131,9 @@ export class AdminSettingsComponent implements OnInit {
 
       // update the local voucher object with server response so UI reflects change
       Object.assign(v, updated);
-    } catch (e: any) {
-      this.error = e?.error?.message ?? 'Failed to update voucher';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err?.error?.message ?? 'Failed to update voucher';
     } finally {
       this.updatingVoucherIds.delete(v.id);
       this.cdr.detectChanges();

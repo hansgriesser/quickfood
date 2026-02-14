@@ -1,9 +1,18 @@
-export interface AuthenticatedRequest extends Request {
-  user: JwtPayload;
-}
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export interface JwtPayload {
-  sub: number;
-  username: string;
-  role: string;
+export class JwtPayload {
+  @IsNumber()
+  @IsNotEmpty()
+  sub!: number;
+  @IsString()
+  @IsNotEmpty()
+  username!: string;
+  @IsString()
+  @IsNotEmpty()
+  role!: string;
+}
+export class AuthenticatedRequest extends Request {
+  @IsNotEmpty()
+  @IsEnum(JwtPayload)
+  user!: JwtPayload;
 }

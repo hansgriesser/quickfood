@@ -4,10 +4,17 @@ const { defineConfig } = require("eslint/config");
 const tseslint = require("typescript-eslint");
 const angular = require("angular-eslint");
 const eslintPluginPrettierRecommended = require("eslint-plugin-prettier/recommended");
+const ts = require("typescript");
 
 module.exports = defineConfig([
   {
     files: ["**/*.ts"],
+    languageOptions: {
+      parserOptions: {
+        project: ["./tsconfig.json", "./tsconfig.app.json", "./tsconfig.spec.json"],
+        tsconfigRootDir: __dirname,
+      }
+    },
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,

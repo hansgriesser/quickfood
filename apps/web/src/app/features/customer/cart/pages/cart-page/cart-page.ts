@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { map, Observable, combineLatest, startWith, switchMap, of } from 'rxjs';
 import { CartService } from '../../services/cart';
 import { Dish, Restaurant } from '../../../restaurant/restaurant.model';
@@ -16,6 +16,10 @@ import { RestaurantService } from '../../../restaurant/restaurant.service';
   standalone: true,
 })
 export class CartPage {
+  cartService = inject(CartService);
+  private router = inject(Router);
+  private restaurantService = inject(RestaurantService);
+
   totalPrice$: Observable<number>;
   subtotal$: Observable<number>;
   cartItems$: Observable<CartItemDto[]>;
@@ -28,11 +32,10 @@ export class CartPage {
 
   restaurant$: Observable<Restaurant | null>;
 
-  constructor(
-    public cartService: CartService,
-    private router: Router,
-    private restaurantService: RestaurantService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.totalPrice$ = this.cartService.totalPrice$;
     this.subtotal$ = this.cartService.cartItems$.pipe(
       map((items) => items.reduce((sum, i) => sum + i.price * i.quantity, 0)),

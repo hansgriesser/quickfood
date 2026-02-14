@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { VoucherDto } from '../voucherDTO';
 import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
@@ -7,6 +7,8 @@ import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
   providedIn: 'root',
 })
 export class Voucher {
+  private http = inject(HttpClient);
+
   private baseUrl = 'http://localhost:3000/api/voucher';
   private appliedVoucherSubject = new BehaviorSubject<VoucherDto | null>(null);
   appliedVoucher$ = this.appliedVoucherSubject.asObservable();
@@ -16,7 +18,10 @@ export class Voucher {
   );
   voucherState$ = this.voucherStateSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   checkVoucher(code: string) {
     this.voucherStateSubject.next('checking');

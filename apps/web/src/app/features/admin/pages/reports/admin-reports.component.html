@@ -10,86 +10,101 @@
   <section class="admin-panel">
     <div class="controls">
       <div class="control">
-        <label>Report</label>
-        <select [(ngModel)]="kind" (change)="load()">
+        <label for="filterType">Report</label>
+        <select id="filterType" [(ngModel)]="kind" (change)="load()">
           <option value="revenue">Revenue</option>
           <option value="orders">Orders</option>
         </select>
       </div>
 
       <div class="control">
-        <label>Group by</label>
-        <select [(ngModel)]="groupBy" (change)="load()">
+        <label for="groupBy">Group by</label>
+        <select id="groupBy" [(ngModel)]="groupBy" (change)="load()">
           <option value="day">Day</option>
           <option value="restaurant">Restaurant</option>
         </select>
       </div>
 
       <div class="control">
-        <label>From</label>
-        <input type="date" [(ngModel)]="from" />
+        <label for="fromDate">From</label>
+        <input id="fromDate" type="date" [(ngModel)]="from" />
       </div>
 
       <div class="control">
-        <label>To</label>
-        <input type="date" [(ngModel)]="to" />
+        <label for="toDate">To</label>
+        <input id="toDate" type="date" [(ngModel)]="to" />
       </div>
 
       <button class="btn" (click)="load()" [disabled]="loading">Generate</button>
     </div>
 
-    <div class="loading" *ngIf="loading">Lade Report…</div>
-    <div class="alert" *ngIf="error">{{ error }}</div>
+    @if (loading) {
+      <div class="loading">Lade Report…</div>
+    }
+    @if (error) {
+      <div class="alert">{{ error }}</div>
+    }
 
-    <div *ngIf="report" class="summary">
-      <div class="summary-item">
-        <div class="label">Range</div>
-        <div class="value">{{ report.range.from }} → {{ report.range.to }}</div>
+    @if (report) {
+      <div class="summary">
+        <div class="summary-item">
+          <div class="label">Range</div>
+          <div class="value">{{ report.range.from }} → {{ report.range.to }}</div>
+        </div>
+        <div class="summary-item">
+          <div class="label">Total Orders</div>
+          <div class="value">{{ report.totals.orders }}</div>
+        </div>
+        <div class="summary-item">
+          <div class="label">Total Revenue</div>
+          <div class="value">€ {{ euro(report.totals.revenueCents) }}</div>
+        </div>
       </div>
-      <div class="summary-item">
-        <div class="label">Total Orders</div>
-        <div class="value">{{ report.totals.orders }}</div>
-      </div>
-      <div class="summary-item">
-        <div class="label">Total Revenue</div>
-        <div class="value">€ {{ euro(report.totals.revenueCents) }}</div>
-      </div>
-    </div>
+    }
 
-    <div *ngIf="report" class="table-wrap">
-      <table class="table" *ngIf="report.groupBy === 'day'">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th class="num">Orders</th>
-            <th class="num">Revenue</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let p of report.points">
-            <td>{{ p.date }}</td>
-            <td class="num">{{ p.orders }}</td>
-            <td class="num">€ {{ euro(p.revenueCents) }}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <table class="table" *ngIf="report.groupBy === 'restaurant'">
-        <thead>
-          <tr>
-            <th>Restaurant</th>
-            <th class="num">Orders</th>
-            <th class="num">Revenue</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let p of report.points">
-            <td>{{ p.restaurantName }}</td>
-            <td class="num">{{ p.orders }}</td>
-            <td class="num">€ {{ euro(p.revenueCents) }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    @if (report) {
+      <div class="table-wrap">
+        @if (report.groupBy === 'day') {
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th class="num">Orders</th>
+                <th class="num">Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of report.points; track p) {
+                <tr>
+                  <td>{{ p.date }}</td>
+                  <td class="num">{{ p.orders }}</td>
+                  <td class="num">€ {{ euro(p.revenueCents) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+        @if (report.groupBy === 'restaurant') {
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Restaurant</th>
+                <th class="num">Orders</th>
+                <th class="num">Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of report.points; track p) {
+                <tr>
+                  <td>{{ p.restaurantName }}</td>
+                  <td class="num">{{ p.orders }}</td>
+                  <td class="num">€ {{ euro(p.revenueCents) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    }
   </section>
 </div>

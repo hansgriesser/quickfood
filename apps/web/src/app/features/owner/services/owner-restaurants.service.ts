@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
@@ -18,10 +18,15 @@ import {
   providedIn: 'root',
 })
 export class OwnerRestaurantsService {
+  private http = inject(HttpClient);
+
   private readonly baseUrl = '/api/owner/restaurants';
   private readonly publicRestaurantsUrl = '/api/restaurants';
 
-  constructor(private http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   getMyRestaurants(): Observable<OwnerRestaurant[]> {
     return this.http.get<OwnerRestaurant[]>(this.baseUrl);

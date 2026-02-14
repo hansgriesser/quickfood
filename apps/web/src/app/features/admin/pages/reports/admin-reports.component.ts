@@ -1,23 +1,22 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import {
-  AdminReportsService,
-  OrdersRevenueReport,
-  ReportGroupBy,
-} from '../../services/admin-reports.service';
-
-type ReportKind = 'orders' | 'revenue';
+import { AdminReportsService } from '../../services/admin-reports.service';
+import { ReportGroupBy, OrdersRevenueReport, ReportKind } from '../../model/admin-reports.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-admin-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule],
   templateUrl: './admin-reports.component.html',
   styleUrls: ['./admin-reports.component.css'],
 })
 export class AdminReportsComponent implements OnInit {
+  private readonly reports = inject(AdminReportsService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
   kind: ReportKind = 'revenue';
   groupBy: ReportGroupBy = 'day';
 
@@ -27,11 +26,6 @@ export class AdminReportsComponent implements OnInit {
   loading = false;
   error: string | null = null;
   report: OrdersRevenueReport | null = null;
-
-  constructor(
-    private readonly reports: AdminReportsService,
-    private readonly cdr: ChangeDetectorRef,
-  ) {}
 
   ngOnInit(): void {
     const now = new Date();
@@ -61,8 +55,9 @@ export class AdminReportsComponent implements OnInit {
         this.kind === 'orders'
           ? await this.reports.getOrdersReport(params)
           : await this.reports.getRevenueReport(params);
-    } catch (e: any) {
-      this.error = e?.error?.message ?? 'Failed to load report';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err?.error?.message ?? 'Failed to load report';
     } finally {
       this.loading = false;
       this.cdr.detectChanges();

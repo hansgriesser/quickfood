@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
+
 import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import {
@@ -12,11 +12,15 @@ import { Restaurant } from '../../restaurant.model';
 @Component({
   selector: 'app-restaurant-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, RestaurantFilterComponent],
+  imports: [RouterModule, RestaurantFilterComponent],
   templateUrl: './restaurant-list.component.html',
   styleUrls: ['./restaurant-list.component.css'],
 })
 export class RestaurantListComponent implements OnInit, OnDestroy {
+  private restaurantService = inject(RestaurantService);
+  private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
+
   allRestaurants: Restaurant[] = [];
   filteredRestaurants: Restaurant[] = [];
 
@@ -24,11 +28,10 @@ export class RestaurantListComponent implements OnInit, OnDestroy {
 
   private sub = new Subscription();
 
-  constructor(
-    private restaurantService: RestaurantService,
-    private cdr: ChangeDetectorRef,
-    private router: Router,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     const s = this.restaurantService.getRestaurants().subscribe((restaurants) => {
