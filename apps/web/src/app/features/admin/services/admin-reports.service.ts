@@ -1,41 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-
-export type ReportGroupBy = 'day' | 'restaurant';
-
-export interface DayPoint {
-  date: string;
-  orders: number;
-  revenueCents: number;
-}
-
-export interface RestaurantPoint {
-  restuarantId: string;
-  restaurantName: string;
-  orders: number;
-  revenueCents: number;
-}
-
-export interface DayReport {
-  range: { from: string; to: string };
-  groupBy: 'day';
-  totals: { orders: number; revenueCents: number };
-  points: DayPoint[];
-}
-
-export interface RestaurantReport {
-  range: { from: string; to: string };
-  groupBy: 'restaurant';
-  totals: { orders: number; revenueCents: number };
-  points: RestaurantPoint[];
-}
-
-export type OrdersRevenueReport = DayReport | RestaurantReport;
+import { ReportGroupBy, OrdersRevenueReport } from '../model/admin-reports.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdminReportsService {
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   getRevenueReport(params: { from?: string; to?: string; groupBy?: ReportGroupBy }) {
     return firstValueFrom(this.getRevenueReport$(params));

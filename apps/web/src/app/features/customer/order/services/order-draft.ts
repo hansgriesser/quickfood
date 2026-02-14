@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { CartDto, CartItemDto } from '../../cart/cartDTO';
 import { Voucher } from './voucher';
 import { BehaviorSubject, combineLatest, distinctUntilChanged, map, Observable, tap } from 'rxjs';
@@ -10,6 +10,9 @@ import { OrderItemDto } from '../dto/orderDTO';
   providedIn: 'root',
 })
 export class OrderDraft {
+  private voucherService = inject(Voucher);
+  private feeService = inject(ServiceFeeService);
+
   private readonly STORAGE_KEY = 'orderDraft';
 
   subtotalAmount$: Observable<number>;
@@ -17,10 +20,10 @@ export class OrderDraft {
   feeAmount$: Observable<number>;
   totalAmount$: Observable<number>;
 
-  constructor(
-    private voucherService: Voucher,
-    private feeService: ServiceFeeService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     // Lade gespeicherten Draft
     const saved = localStorage.getItem(this.STORAGE_KEY);
     if (saved) {

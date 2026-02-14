@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { OrderDraft } from '../../services/order-draft';
 import { Router } from '@angular/router';
 import { CheckoutService } from '../../services/checkout-service';
@@ -10,10 +10,13 @@ import { CheckoutService } from '../../services/checkout-service';
   styleUrl: './payment.css',
 })
 export class Payment {
-  constructor(
-    private checkoutService: CheckoutService,
-    private router: Router,
-  ) {}
+  private checkoutService = inject(CheckoutService);
+  private router = inject(Router);
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   placeOrder() {
     this.checkoutService.placeOrder().subscribe({

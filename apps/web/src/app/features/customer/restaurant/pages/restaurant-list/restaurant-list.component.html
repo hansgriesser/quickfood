@@ -1,34 +1,43 @@
 <div class="restaurant-list-container">
-  <div *ngIf="hasActiveOrder" class="active-order-banner" (click)="goToActiveOrder()">
-    <p>Du hast eine aktive Bestellung – klicke hier, um sie zu sehen!</p>
-  </div>
+  @if (hasActiveOrder) {
+    <div class="active-order-banner" (click)="goToActiveOrder()">
+      <p>Du hast eine aktive Bestellung – klicke hier, um sie zu sehen!</p>
+    </div>
+  }
 
   <h1>Restaurantübersicht</h1>
 
   <app-restaurant-filter (filterChanged)="onFilterChange($event)"></app-restaurant-filter>
 
-  <div class="results-info" *ngIf="filteredRestaurants.length > 0">
-    <p>
-      {{ filteredRestaurants.length }} Restaurant<span *ngIf="filteredRestaurants.length !== 1"
-        >s</span
-      >
-      gefunden
-    </p>
-  </div>
-
-  <div *ngIf="filteredRestaurants.length > 0; else noResults" class="restaurants-grid">
-    <div *ngFor="let restaurant of filteredRestaurants" class="restaurant-card">
-      <a [routerLink]="[restaurant.id]" class="restaurant-link">
-        <h3>{{ restaurant.name }}</h3>
-        <p class="category">{{ restaurant.category }}</p>
-        <p class="rating">⭐ {{ restaurant.rating }}</p>
-      </a>
+  @if (filteredRestaurants.length > 0) {
+    <div class="results-info">
+      <p>
+        {{ filteredRestaurants.length }} Restaurant@if (filteredRestaurants.length !== 1) {
+        <span
+          >s</span
+          >
+        }
+        gefunden
+      </p>
     </div>
-  </div>
+  }
 
-  <ng-template #noResults>
+  @if (filteredRestaurants.length > 0) {
+    <div class="restaurants-grid">
+      @for (restaurant of filteredRestaurants; track restaurant) {
+        <div class="restaurant-card">
+          <a [routerLink]="[restaurant.id]" class="restaurant-link">
+            <h3>{{ restaurant.name }}</h3>
+            <p class="category">{{ restaurant.category }}</p>
+            <p class="rating">⭐ {{ restaurant.rating }}</p>
+          </a>
+        </div>
+      }
+    </div>
+  } @else {
     <div class="no-results">
       <p>Keine Restaurants gefunden. Versuche deine Filter anzupassen.</p>
     </div>
-  </ng-template>
+  }
+
 </div>

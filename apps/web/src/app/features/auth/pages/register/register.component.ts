@@ -1,18 +1,22 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../auth.service';
 import { RegisterRole } from '../../auth-model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
 })
 export class RegisterComponent {
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
   isSubmitting = false;
   errorMessage: string | null = null;
 
@@ -36,11 +40,6 @@ export class RegisterComponent {
     }),
   });
 
-  constructor(
-    private readonly auth: AuthService,
-    private readonly router: Router,
-  ) {}
-
   async onSubmit(): Promise<void> {
     this.errorMessage = null;
 
@@ -56,8 +55,9 @@ export class RegisterComponent {
 
       // Nach Register hast du schon Token -> einfach weiterleiten
       await this.router.navigate(['/restaurants']);
-    } catch (e: any) {
-      this.errorMessage = e?.error?.message || 'Registration failed';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.errorMessage = err?.error?.message || 'Registration failed';
     } finally {
       this.isSubmitting = false;
     }

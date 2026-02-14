@@ -6,6 +6,10 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateDeliveryZoneDto } from './dto/create-delivery-zone.dto';
 import { UpdateDeliveryZoneDto } from './dto/update-delivery-zone.dto';
+import { Prisma } from '@generated/prisma/client';
+import { DeliveryZoneUpdateInput } from '@generated/prisma/models';
+
+const PRISMA_ERROR_UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
 
 @Injectable()
 export class AdmiZonesService {
@@ -19,7 +23,6 @@ export class AdmiZonesService {
   }
 
   async create(dto: CreateDeliveryZoneDto) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const code = dto.code.trim().toUpperCase();
     const name = dto.name.trim();
 
@@ -50,11 +53,12 @@ export class AdmiZonesService {
         },
       });
     } catch (e: any) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (e?.code === 'P2002') {
-        throw new BadRequestException(
-          `Delivery zone with code '${code}' already exists.`,
-        );
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e?.code === PRISMA_ERROR_UNIQUE_CONSTRAINT_VIOLATION) {
+          throw new BadRequestException(
+            `Delivery zone with code '${code}' already exists.`,
+          );
+        }
       }
       throw e;
     }
@@ -68,31 +72,26 @@ export class AdmiZonesService {
       throw new NotFoundException('Delivery zone not found');
     }
 
-    const data: any = {};
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const data: DeliveryZoneUpdateInput = {};
+
     if (dto.name !== undefined) data.name = dto.name.trim();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (dto.active !== undefined) data.active = dto.active;
 
     if (dto.code !== undefined) {
       const code = dto.code.trim().toUpperCase();
       if (!code) throw new BadRequestException('Code cannot be empty');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       data.code = code;
     }
 
-    if (dto.typicalDeliveryMin !== undefined)
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      data.typicalDeliveryMin = Number(dto.typicalDeliveryMin);
+    const min =
+      dto.typicalDeliveryMin !== undefined
+        ? Number(dto.typicalDeliveryMin)
+        : existing.typicalDeliveryMin;
 
-    if (dto.typicalDeliveryMax !== undefined)
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      data.typicalDeliveryMax = Number(dto.typicalDeliveryMax);
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const min = data.typicalDeliveryMin ?? existing.typicalDeliveryMin;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const max = data.typicalDeliveryMax ?? existing.typicalDeliveryMax;
+    const max =
+      dto.typicalDeliveryMax !== undefined
+        ? Number(dto.typicalDeliveryMax)
+        : existing.typicalDeliveryMax;
 
     if (!Number.isFinite(min) || !Number.isFinite(max)) {
       throw new BadRequestException('typicalDeliveryMin/Max must be numbers');
@@ -104,18 +103,21 @@ export class AdmiZonesService {
       );
     }
 
+    if (dto.typicalDeliveryMin !== undefined) data.typicalDeliveryMin = min;
+    if (dto.typicalDeliveryMax !== undefined) data.typicalDeliveryMax = max;
+
     try {
       return await this.prisma.deliveryZone.update({
         where: { id },
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data,
       });
-    } catch (e: any) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (e?.code === 'P2002') {
-        throw new BadRequestException(
-          `Delivery zone with code '${dto.code}' already exists.`,
-        );
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e?.code === PRISMA_ERROR_UNIQUE_CONSTRAINT_VIOLATION) {
+          throw new BadRequestException(
+            `Delivery zone with code '${dto.code}' already exists.`,
+          );
+        }
       }
       throw e;
     }

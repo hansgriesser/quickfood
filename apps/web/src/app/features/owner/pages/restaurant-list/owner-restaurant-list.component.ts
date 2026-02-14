@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+
 import { RouterModule } from '@angular/router';
 import { OwnerRestaurantsService } from '../../services/owner-restaurants.service';
 import { OwnerRestaurant } from '../../services/owner-restaurant.model';
@@ -9,20 +9,23 @@ import { catchError, finalize, of, take } from 'rxjs';
 @Component({
   selector: 'app-owner-restaurant-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, OwnerRestaurantFormComponent],
+  imports: [RouterModule, OwnerRestaurantFormComponent],
   templateUrl: './owner-restaurant-list.component.html',
   styleUrls: ['./owner-restaurant-list.component.css'],
 })
 export class OwnerRestaurantListComponent implements OnInit {
+  private ownerRestaurantsService = inject(OwnerRestaurantsService);
+  private cdr = inject(ChangeDetectorRef);
+
   restaurants: OwnerRestaurant[] = [];
   isLoading = false;
   isSubmitting = false;
   errorMessage = '';
 
-  constructor(
-    private ownerRestaurantsService: OwnerRestaurantsService,
-    private cdr: ChangeDetectorRef,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.loadRestaurants();

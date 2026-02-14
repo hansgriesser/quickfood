@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -29,6 +29,10 @@ interface OpeningHourForm {
   styleUrls: ['./owner-restaurant-detail.component.css'],
 })
 export class OwnerRestaurantDetailComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private ownerRestaurantsService = inject(OwnerRestaurantsService);
+  private cdr = inject(ChangeDetectorRef);
+
   restaurantId?: string;
   restaurant?: OwnerRestaurant;
   errorMessage = '';
@@ -93,11 +97,10 @@ export class OwnerRestaurantDetailComponent implements OnInit {
     pictureUrl: '',
   };
 
-  constructor(
-    private route: ActivatedRoute,
-    private ownerRestaurantsService: OwnerRestaurantsService,
-    private cdr: ChangeDetectorRef,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

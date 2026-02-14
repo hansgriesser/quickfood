@@ -1,88 +1,83 @@
 <!doctype html>
-<div class="order-confirmation" *ngIf="order$ | async as order">
-  <div class="header">
-    <app-restaurant-header
-      class="restaurant-header"
-      *ngIf="restaurant$ | async as restaurant"
-      [restaurant]="restaurant"
-    >
-    </app-restaurant-header>
-  </div>
-
-  <div class="container">
-    <h1>Deine Bestellung</h1>
-
-    <div class="order-id">
-      Bestellnummer: <span id="orderId">{{ order.id }}</span>
+@if (order$ | async; as order) {
+  <div class="order-confirmation">
+    <div class="header">
+      @if (restaurant$ | async; as restaurant) {
+        <app-restaurant-header
+          class="restaurant-header"
+          [restaurant]="restaurant"
+          >
+        </app-restaurant-header>
+      }
     </div>
-
-    <div id="orderStatus" class="status">
-      Aktueller Status: {{ OrderStatusLabel[order.status] }}
-    </div>
-
-    <div class="section">
-      <span class="label">Voraussichtliche Ankunft</span>
-      <span id="eta">{{ order.estimatedArrivalAt | date: 'HH:mm' }}</span>
-    </div>
-
-    <section class="items">
-      <div class="item-header">
-        <h2>Bestellte Artikel:</h2>
+    <div class="container">
+      <h1>Deine Bestellung</h1>
+      <div class="order-id">
+        Bestellnummer: <span id="orderId">{{ order.id }}</span>
       </div>
-
-      <div class="cart-item-card" *ngFor="let item of order.items">
-        <div class="item-info">
-          <h3>{{ item.name }}</h3>
-          <p>{{ item.quantity }} × {{ item.unitPrice / 100 | currency: 'EUR' }}</p>
-          <p>
-            <strong>
-              {{ item.totalPrice / 100 | currency: 'EUR' }}
-            </strong>
-          </p>
+      <div id="orderStatus" class="status">
+        Aktueller Status: {{ OrderStatusLabel[order.status] }}
+      </div>
+      <div class="section">
+        <span class="label">Voraussichtliche Ankunft</span>
+        <span id="eta">{{ order.estimatedArrivalAt | date: 'HH:mm' }}</span>
+      </div>
+      <section class="items">
+        <div class="item-header">
+          <h2>Bestellte Artikel:</h2>
         </div>
+        @for (item of order.items; track item) {
+          <div class="cart-item-card">
+            <div class="item-info">
+              <h3>{{ item.name }}</h3>
+              <p>{{ item.quantity }} × {{ item.unitPrice / 100 | currency: 'EUR' }}</p>
+              <p>
+                <strong>
+                  {{ item.totalPrice / 100 | currency: 'EUR' }}
+                </strong>
+              </p>
+            </div>
+          </div>
+        }
+      </section>
+      <div class="section">
+        <span class="label">Letztes Update</span>
+        <span id="updatedAt">{{ order.updatedAt | date: 'HH:mm' }}</span>
       </div>
-    </section>
-
-    <div class="section">
-      <span class="label">Letztes Update</span>
-      <span id="updatedAt">{{ order.updatedAt | date: 'HH:mm' }}</span>
+      <section class="price-summary">
+        @if (order.subtotalAmount) {
+          <div class="price-row">
+            <span>Zwischensumme: </span>
+            <span>{{ order.subtotalAmount / 100 | currency: 'EUR' }}</span>
+          </div>
+        }
+        @if (hasDiscount) {
+          <div class="price-row">
+            <span>Rabatt: </span>
+            <span>-{{ (order.discountAmount ?? 0) / 100 | currency: 'EUR' }}</span>
+          </div>
+        }
+        <div class="price-row">
+          <span>Servicegebühr: </span>
+          <span>{{ (order.serviceAmount ?? 0) / 100 | currency: 'EUR' }}</span>
+        </div>
+        <div class="price-row total">
+          <strong>Gesamt: </strong>
+          <strong>{{
+            order.totalAmount != null ? (order.totalAmount / 100 | currency: 'EUR') : '-'
+          }}</strong>
+        </div>
+      </section>
+      <div class="hint">Diese Seite aktualisiert sich automatisch alle 10 Sekunden</div>
+      <div class="back-button">
+        <button type="button" (click)="goToHome()">Zur Startseite</button>
+      </div>
+      <app-chat-button
+        [unreadCount]="unreadCount$ | async"
+        (openChat)="onOpenChat($event)"
+        [orderId]="order.id"
+        >
+      </app-chat-button>
     </div>
-
-    <section class="price-summary">
-      <div class="price-row" *ngIf="order.subtotalAmount">
-        <span>Zwischensumme: </span>
-        <span>{{ order.subtotalAmount / 100 | currency: 'EUR' }}</span>
-      </div>
-
-      <div class="price-row" *ngIf="hasDiscount">
-        <span>Rabatt: </span>
-        <span>-{{ (order.discountAmount ?? 0) / 100 | currency: 'EUR' }}</span>
-      </div>
-
-      <div class="price-row">
-        <span>Servicegebühr: </span>
-        <span>{{ (order.serviceAmount ?? 0) / 100 | currency: 'EUR' }}</span>
-      </div>
-
-      <div class="price-row total">
-        <strong>Gesamt: </strong>
-        <strong>{{
-          order.totalAmount != null ? (order.totalAmount / 100 | currency: 'EUR') : '-'
-        }}</strong>
-      </div>
-    </section>
-
-    <div class="hint">Diese Seite aktualisiert sich automatisch alle 10 Sekunden</div>
-
-    <div class="back-button">
-      <button type="button" (click)="goToHome()">Zur Startseite</button>
-    </div>
-
-    <app-chat-button
-      [unreadCount]="unreadCount$ | async"
-      (openChat)="onOpenChat($event)"
-      [orderId]="order.id"
-    >
-    </app-chat-button>
   </div>
-</div>
+}

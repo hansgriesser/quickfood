@@ -1,8 +1,10 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { AdminUsersService, AdminUser, UserRole } from '../../services/admin-users.service';
+import { AdminUsersService } from '../../services/admin-users.service';
+import { UserRole, AdminUser } from '../../model/admin-user.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-admin-users',
@@ -12,6 +14,9 @@ import { AdminUsersService, AdminUser, UserRole } from '../../services/admin-use
   styleUrls: ['./admin-users.component.css'],
 })
 export class AdminUsersComponent implements OnInit {
+  private readonly adminUsers = inject(AdminUsersService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
   roles: (UserRole | 'ALL')[] = ['ALL', 'USER', 'OWNER', 'ADMIN'];
   suspendedFilters: ('ALL' | 'SUSPENDED' | 'NOT_SUSPENDED')[] = [
     'ALL',
@@ -38,11 +43,6 @@ export class AdminUsersComponent implements OnInit {
   modalSubmitting = false;
   modalError: string | null = null;
 
-  constructor(
-    private readonly adminUsers: AdminUsersService,
-    private readonly cdr: ChangeDetectorRef,
-  ) {}
-
   ngOnInit(): void {
     void this.load();
   }
@@ -66,8 +66,9 @@ export class AdminUsersComponent implements OnInit {
       const suspended = this.toSuspendParam();
 
       this.users = await this.adminUsers.list(role, suspended);
-    } catch (e: any) {
-      this.error = e.message || e?.message || 'Failed to load users';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err.message || err?.message || 'Failed to load users';
     } finally {
       this.loading = false;
       this.cdr.detectChanges();
@@ -113,8 +114,9 @@ export class AdminUsersComponent implements OnInit {
       await this.adminUsers.suspend(this.modalUser.id, until, reason);
       this.closeUserActionModal();
       await this.load();
-    } catch (e: any) {
-      this.modalError = e?.error?.message || e?.message || 'Action failed';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.modalError = err?.error?.message || err?.message || 'Action failed';
     } finally {
       this.modalSubmitting = false;
       this.cdr.detectChanges();
@@ -127,12 +129,14 @@ export class AdminUsersComponent implements OnInit {
       await this.adminUsers.warn(user.id, reason);
       alert('User warned successfully');
       this.warnReason[user.id] = '';
-    } catch (e: any) {
-      this.error = e.message || e?.message || 'Failed to warn user';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err.message || err?.message || 'Failed to warn user';
     } finally {
       this.cdr.detectChanges();
     }
   }
+
   async suspend(user: AdminUser): Promise<void> {
     try {
       const reason = (this.suspendReason[user.id] || '').trim() || undefined;
@@ -144,8 +148,9 @@ export class AdminUsersComponent implements OnInit {
       this.suspendReason[user.id] = '';
       this.suspendUntil[user.id] = '';
       await this.load();
-    } catch (e: any) {
-      this.error = e.message || e?.message || 'Failed to suspend user';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err.message || err?.message || 'Failed to suspend user';
     } finally {
       this.cdr.detectChanges();
     }
@@ -156,8 +161,9 @@ export class AdminUsersComponent implements OnInit {
       await this.adminUsers.unsuspend(user.id);
       alert('User unsuspended successfully');
       await this.load();
-    } catch (e: any) {
-      this.error = e.message || e?.message || 'Failed to unsuspend user';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err.message || err?.message || 'Failed to unsuspend user';
     } finally {
       this.cdr.detectChanges();
     }

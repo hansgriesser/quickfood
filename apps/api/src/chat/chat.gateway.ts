@@ -83,7 +83,6 @@ export class ChatGateway implements OnGatewayConnection {
     for (const orderId of orderIds) {
       await client.join(`order-${orderId}`);
     }
-    console.log(orderIds);
     return orderIds;
   }
 }

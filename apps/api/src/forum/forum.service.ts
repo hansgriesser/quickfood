@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   ForbiddenException,
   Injectable,
@@ -9,18 +5,13 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@generated/prisma/client';
 
 @Injectable()
 export class ForumService {
   constructor(private readonly prisma: PrismaService) {}
 
   async listThreadsByRestaurant(restaurantId: string) {
-    const restaurant = await this.prisma.restaurant.findUnique({
-      where: { id: restaurantId },
-      select: { id: true },
-    });
-    if (!restaurant) throw new NotFoundException('Restaurant not found');
-
     return this.prisma.forumThread.findMany({
       where: { restaurantId },
       orderBy: { createdAt: 'desc' },
@@ -36,28 +27,34 @@ export class ForumService {
     restaurantId: string,
     dto: { title: string; content: string },
   ) {
-    if (!dto.title?.trim() || !dto.content?.trim()) {
+    const title = dto.title?.trim();
+    const content = dto.content?.trim();
+    if (!title || !content) {
       throw new BadRequestException('title and content are required');
     }
 
-    const resaurant = await this.prisma.restaurant.findUnique({
-      where: { id: restaurantId },
-      select: { id: true },
-    });
-    if (!resaurant) throw new NotFoundException('Restaurant not found');
-
-    return this.prisma.forumThread.create({
-      data: {
-        restaurantId,
-        authorId: userId,
-        title: dto.title.trim(),
-        content: dto.content.trim(),
-      },
-      include: {
-        author: { select: { id: true, username: true } },
-        _count: { select: { post: true } },
-      },
-    });
+    try {
+      return await this.prisma.forumThread.create({
+        data: {
+          restaurantId,
+          authorId: userId,
+          title,
+          content,
+        },
+        include: {
+          author: { select: { id: true, username: true } },
+          _count: { select: { post: true } },
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2003'
+      ) {
+        throw new NotFoundException('Restaurant (or User) not found');
+      }
+      throw error;
+    }
   }
 
   async getThread(threadId: number) {

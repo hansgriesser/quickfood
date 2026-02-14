@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import {
   CreateOwnerRestaurantPayload,
@@ -9,7 +9,7 @@ import {
 @Component({
   selector: 'app-owner-restaurant-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './owner-restaurant-form.component.html',
   styleUrls: ['./owner-restaurant-form.component.css'],
 })

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { CartService } from '../../cart/services/cart';
 import { OrderDraft } from './order-draft';
 import { tap } from 'rxjs';
@@ -8,11 +8,14 @@ import { ActiveOrderService } from './order-session';
   providedIn: 'root',
 })
 export class CheckoutService {
-  constructor(
-    private activeOrderService: ActiveOrderService,
-    private cartService: CartService,
-    private draftService: OrderDraft,
-  ) {}
+  private activeOrderService = inject(ActiveOrderService);
+  private cartService = inject(CartService);
+  private draftService = inject(OrderDraft);
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   placeOrder() {
     const draft = this.draftService.getDraft();

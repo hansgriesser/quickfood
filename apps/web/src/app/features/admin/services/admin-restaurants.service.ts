@@ -1,22 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-
-export type RestaurantStatus = 'PENDING' | 'ACTIVE' | 'REJECTED' | 'SUSPENDED';
-
-export interface AdminRestaurant {
-  id: string;
-  name: string;
-  status: RestaurantStatus;
-  createdAt: string;
-  approvedAt: string | null;
-  rejectedAt: string | null;
-  owner?: { id: number; username: string; role: string };
-}
+import { RestaurantStatus, AdminRestaurant } from '../model/admin-restaurants.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdminRestaurantsService {
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   list(status?: RestaurantStatus): Promise<AdminRestaurant[]> {
     const url = status

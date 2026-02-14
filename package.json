@@ -23,6 +23,8 @@
   },
   "homepage": "https://github.com/hansgriesser/quickfood#readme",
   "devDependencies": {
+    "@types/passport": "^1.0.17",
+    "@types/passport-jwt": "^4.0.1",
     "concurrently": "^9.2.1"
   },
   "dependencies": {

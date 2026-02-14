@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-chat-button',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './chat-button.html',
   styleUrl: './chat-button.css',
 })

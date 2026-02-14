@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Dish } from '../../restaurant/restaurant.model';
 import { BehaviorSubject, map, Observable } from 'rxjs';
 import { CartDto, CartItemDto } from '../cartDTO';
@@ -10,6 +10,9 @@ import { combineLatest } from 'rxjs';
   providedIn: 'root',
 })
 export class CartService {
+  private orderDraftService = inject(OrderDraft);
+  private feeService = inject(ServiceFeeService);
+
   private cartSubject = new BehaviorSubject<CartDto>({
     restaurantId: '',
     items: [],
@@ -22,10 +25,10 @@ export class CartService {
   serviceFee$!: Observable<number>;
   totalPrice$!: Observable<number>;
 
-  constructor(
-    private orderDraftService: OrderDraft,
-    private feeService: ServiceFeeService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     const saved = localStorage.getItem('cart');
     if (saved) {
       this.cartSubject.next(JSON.parse(saved) as CartDto);

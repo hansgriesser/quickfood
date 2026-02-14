@@ -1,8 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 import {
+  OrderItem,
   Order as PrismaOrder,
   OrderItem as PrismaOrderItem,
   OrderStatus as PrismaOrderStatus,
@@ -10,7 +7,11 @@ import {
 
 import {
   IsArray,
+  IsDateString,
+  IsEnum,
   IsInt,
+  IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
@@ -20,24 +21,30 @@ import { Type } from 'class-transformer';
 
 export class CreateOrderItemDto {
   @IsInt()
-  dishId: number;
+  @IsOptional()
+  dishId?: number;
 
   @IsString()
-  name: string;
+  @IsNotEmpty()
+  name!: string;
 
   @IsInt()
-  quantity: number;
+  @IsNotEmpty()
+  quantity!: number;
 
   @IsInt()
-  unitPrice: number;
+  @IsNotEmpty()
+  unitPrice!: number;
 
   @IsInt()
-  totalPrice: number;
+  @IsNotEmpty()
+  totalPrice!: number;
 }
 
 export class CreateOrderDto {
   @IsString()
-  restaurantId: string;
+  @IsNotEmpty()
+  restaurantId!: string;
 
   @IsOptional()
   @IsString()
@@ -46,34 +53,8 @@ export class CreateOrderDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
-  items: CreateOrderItemDto[];
-}
-
-export class OrderDto {
-  id: string;
-  restaurantId: string;
-  customerId: number;
-  status: OrderStatus;
-  subtotalAmount: number;
-  discountAmount?: number;
-  serviceAmount: number;
-  totalAmount: number;
-  voucherCode?: string;
-  estimatedArrivalAt?: string;
-  createdAt: string;
-  updatedAt: string;
-  items: OrderItemDto[];
-}
-
-export class OrderItemDto {
-  id: number;
-  orderId: string;
-  dishId?: number;
-  name: string;
-  unitPrice: number;
-  quantity: number;
-  totalPrice: number;
-  createdAt: string;
+  @IsNotEmpty()
+  items!: CreateOrderItemDto[];
 }
 
 export enum OrderStatus {
@@ -84,6 +65,77 @@ export enum OrderStatus {
   DISPATCHED = 'DISPATCHED',
   REJECTED = 'REJECTED',
   CANCELLED = 'CANCELLED',
+  COMPLETED = 'COMPLETED',
+}
+export class OrderDto {
+  @IsNotEmpty()
+  @IsString()
+  id!: string;
+  @IsNotEmpty()
+  @IsString()
+  restaurantId!: string;
+  @IsNotEmpty()
+  @IsInt()
+  customerId!: number;
+  @IsEnum(OrderStatus)
+  @IsNotEmpty()
+  status!: OrderStatus;
+  @IsNumber()
+  @IsNotEmpty()
+  subtotalAmount!: number;
+  @IsNumber()
+  @IsOptional()
+  discountAmount?: number;
+  @IsNumber()
+  @IsNotEmpty()
+  serviceAmount!: number;
+  @IsNumber()
+  @IsNotEmpty()
+  totalAmount!: number;
+  @IsString()
+  @IsOptional()
+  voucherCode?: string;
+  @IsDateString()
+  @IsOptional()
+  estimatedArrivalAt?: string;
+  @IsDateString()
+  @IsNotEmpty()
+  createdAt!: string;
+  @IsDateString()
+  @IsNotEmpty()
+  updatedAt!: string;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OrderItemDto)
+  @IsNotEmpty()
+  items!: OrderItemDto[];
+}
+
+export class OrderItemDto {
+  @IsNumber()
+  @IsNotEmpty()
+  id!: number;
+  @IsString()
+  @IsNotEmpty()
+  orderId!: string;
+  @IsInt()
+  @IsOptional()
+  dishId?: number;
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
+  @IsNumber()
+  @IsNotEmpty()
+  unitPrice!: number;
+  @IsInt()
+  @IsNotEmpty()
+  quantity!: number;
+  @IsNumber()
+  @IsNotEmpty()
+  totalPrice!: number;
+  @IsDateString()
+  @IsNotEmpty()
+  createdAt!: string;
 }
 
 export function mapOrderToDto(
@@ -106,7 +158,7 @@ export function mapOrderToDto(
   };
 }
 
-export function mapOrderItemToDto(item: any): OrderItemDto {
+export function mapOrderItemToDto(item: OrderItem): OrderItemDto {
   return {
     id: item.id,
     orderId: item.orderId,
@@ -136,5 +188,7 @@ function mapOrderStatus(status: PrismaOrderStatus): OrderStatus {
       return OrderStatus.REJECTED;
     case 'CANCELLED':
       return OrderStatus.CANCELLED;
+    case 'COMPLETED':
+      return OrderStatus.COMPLETED;
   }
 }

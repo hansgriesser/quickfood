@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { OrderDraftDto } from '../dto/orderDraftDTO';
 import { OrderDto } from '../dto/orderDTO';
@@ -9,9 +9,14 @@ import { CreateOrderDto } from '../dto/sendOrderDTO';
   providedIn: 'root',
 })
 export class OrderService {
+  private http = inject(HttpClient);
+
   private baseUrl = 'http://localhost:3000/api/order';
 
-  constructor(private http: HttpClient) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   placeOrder(orderDraft: OrderDraftDto) {
     const order = this.mapToCreateOrderDto(orderDraft);

@@ -1,7 +1,9 @@
+import { Role } from './auth-model';
+
 export interface JWTPayload {
   sub?: string;
   username?: string;
-  role?: 'ADMIN' | 'OWNER' | 'USER';
+  role?: Role;
   iat?: number;
   exp?: number;
 }

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -18,13 +18,12 @@ export interface RestaurantFilter {
   selector: 'app-restaurant-filter',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatFormFieldModule,
-  ],
+    MatFormFieldModule
+],
   templateUrl: './restaurant-filter.component.html',
   styleUrls: ['./restaurant-filter.component.css'],
 })

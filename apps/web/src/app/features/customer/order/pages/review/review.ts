@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { OrderDraft } from '../../services/order-draft';
 import { CommonModule } from '@angular/common';
 import { Observable, of, switchMap, take } from 'rxjs';
@@ -17,12 +17,15 @@ import { OrderDraftDto } from '../../dto/orderDraftDTO';
   styleUrl: './review.css',
 })
 export class Review {
-  constructor(
-    public orderDraftService: OrderDraft,
-    private voucherService: Voucher,
-    private router: Router,
-    private restaurantService: RestaurantService,
-  ) {
+  orderDraftService = inject(OrderDraft);
+  private voucherService = inject(Voucher);
+  private router = inject(Router);
+  private restaurantService = inject(RestaurantService);
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.draft$ = this.orderDraftService.draft$;
     this.voucherState$ = this.voucherService.voucherState$;
     this.appliedVoucher$ = this.voucherService.appliedVoucher$;

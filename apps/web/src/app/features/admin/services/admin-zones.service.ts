@@ -1,40 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-
-export interface DeliveryZone {
-  id: string;
-  code: string;
-  name: string;
-  active: boolean;
-
-  typicalDeliveryMin: number;
-  typicalDeliveryMax: number;
-}
-
-export interface CreateZonePayload {
-  code: string;
-  name: string;
-  active?: boolean;
-
-  typicalDeliveryMin: number;
-  typicalDeliveryMax: number;
-}
-
-export interface UpdateZonePayload {
-  code?: string;
-  name?: string;
-  active?: boolean;
-
-  typicalDeliveryMin?: number;
-  typicalDeliveryMax?: number;
-}
-
+import { DeliveryZone, CreateZonePayload, UpdateZonePayload } from '../model/admin-zones.model';
 @Injectable({
   providedIn: 'root',
 })
 export class AdminZonesService {
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   list(active?: boolean): Promise<DeliveryZone[]> {
     const url =

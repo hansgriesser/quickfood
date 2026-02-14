@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -18,6 +18,10 @@ import { RestaurantHeader } from '../../components/restaurant-header/restaurant-
   styleUrls: ['./restaurant-detail.component.css'],
 })
 export class RestaurantDetailComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private restaurantService = inject(RestaurantService);
+  private cartService = inject(CartService);
+
   restaurant$!: Observable<Restaurant | null>;
   categories$: Observable<MenuCategory[]> | undefined;
   cartItems$: Observable<CartItemDto[]>;
@@ -47,11 +51,10 @@ export class RestaurantDetailComponent implements OnInit {
     });
   }
 
-  constructor(
-    private route: ActivatedRoute,
-    private restaurantService: RestaurantService,
-    private cartService: CartService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.cartItems$ = this.cartService.cartItems$;
     this.totalItems$ = this.cartItems$.pipe(
       map((items) => items.reduce((sum, item) => sum + item.quantity, 0)),

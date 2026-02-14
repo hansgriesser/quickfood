@@ -2,83 +2,98 @@
   <a routerLink="/owner/restaurants">Back to restaurants</a>
   <h1>Restaurant Profile</h1>
 
-  <div class="status error" *ngIf="errorMessage">{{ errorMessage }}</div>
+  @if (errorMessage) {
+    <div class="status error">{{ errorMessage }}</div>
+  }
 
   <div class="detail-grid">
-    <div class="panel" *ngIf="restaurant">
-      <h2>Restaurant Info</h2>
-      <p>Status: {{ restaurant.status }}</p>
-      <app-owner-restaurant-form
-        [restaurant]="restaurant"
-        submitLabel="Save"
-        (submitForm)="saveRestaurant($event)"
-      ></app-owner-restaurant-form>
-
-      <div class="profile-section">
-        <h3>Opening Hours</h3>
-        <p class="hint">Set when you accept orders.</p>
-        <div class="status error" *ngIf="hoursError">{{ hoursError }}</div>
-        <form class="hours-form" (ngSubmit)="saveOpeningHours()">
-          <div class="hours-row" *ngFor="let entry of openingHoursForm; trackBy: trackByOpeningDay">
-            <span class="day-label">{{ entry.label }}</span>
-            <label class="closed-toggle">
-              <input
-                type="checkbox"
-                [(ngModel)]="entry.isClosed"
-                name="closed{{ entry.dayOfWeek }}"
-              />
-              Closed
-            </label>
-            <input
-              type="time"
-              [(ngModel)]="entry.opensAt"
-              name="opens{{ entry.dayOfWeek }}"
-              [disabled]="entry.isClosed"
-            />
-            <span class="hours-divider">to</span>
-            <input
-              type="time"
-              [(ngModel)]="entry.closesAt"
-              name="closes{{ entry.dayOfWeek }}"
-              [disabled]="entry.isClosed"
-            />
-          </div>
-          <button type="submit" [disabled]="isHoursSaving">Save Opening Hours</button>
-        </form>
-      </div>
-
-      <div class="profile-section">
-        <h3>Delivery Zones</h3>
-        <p class="hint">Choose where you deliver. Zones are managed by the site admin.</p>
-        <div class="status" *ngIf="isZonesLoading">Loading delivery zones...</div>
-        <div class="status error" *ngIf="zonesError">{{ zonesError }}</div>
-        <form
-          class="zone-form"
-          *ngIf="!isZonesLoading && deliveryZones.length > 0"
-          (ngSubmit)="saveDeliveryZones()"
-        >
-          <div class="zone-list">
-            <label class="zone-option" *ngFor="let zone of deliveryZones; trackBy: trackByZoneId">
-              <input
-                type="checkbox"
-                [checked]="isZoneSelected(zone.id)"
-                (change)="toggleZoneSelection(zone.id, $event)"
-              />
-              <div class="zone-meta">
-                <span class="zone-name">{{ zone.name }}</span>
-                <span class="muted">
-                  {{ zone.code }} - {{ zone.typicalDeliveryMin }}-{{ zone.typicalDeliveryMax }} min
-                </span>
+    @if (restaurant) {
+      <div class="panel">
+        <h2>Restaurant Info</h2>
+        <p>Status: {{ restaurant.status }}</p>
+        <app-owner-restaurant-form
+          [restaurant]="restaurant"
+          submitLabel="Save"
+          (submitForm)="saveRestaurant($event)"
+        ></app-owner-restaurant-form>
+        <div class="profile-section">
+          <h3>Opening Hours</h3>
+          <p class="hint">Set when you accept orders.</p>
+          @if (hoursError) {
+            <div class="status error">{{ hoursError }}</div>
+          }
+          <form class="hours-form" (ngSubmit)="saveOpeningHours()">
+            @for (entry of openingHoursForm; track trackByOpeningDay($index, entry)) {
+              <div class="hours-row">
+                <span class="day-label">{{ entry.label }}</span>
+                <label class="closed-toggle">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="entry.isClosed"
+                    name="closed{{ entry.dayOfWeek }}"
+                    />
+                  Closed
+                </label>
+                <input
+                  type="time"
+                  [(ngModel)]="entry.opensAt"
+                  name="opens{{ entry.dayOfWeek }}"
+                  [disabled]="entry.isClosed"
+                  />
+                <span class="hours-divider">to</span>
+                <input
+                  type="time"
+                  [(ngModel)]="entry.closesAt"
+                  name="closes{{ entry.dayOfWeek }}"
+                  [disabled]="entry.isClosed"
+                  />
               </div>
-            </label>
-          </div>
-          <button type="submit" [disabled]="isZonesSaving">Save Delivery Zones</button>
-        </form>
-        <div class="status" *ngIf="!isZonesLoading && deliveryZones.length === 0">
-          No delivery zones configured.
+            }
+            <button type="submit" [disabled]="isHoursSaving">Save Opening Hours</button>
+          </form>
+        </div>
+        <div class="profile-section">
+          <h3>Delivery Zones</h3>
+          <p class="hint">Choose where you deliver. Zones are managed by the site admin.</p>
+          @if (isZonesLoading) {
+            <div class="status">Loading delivery zones...</div>
+          }
+          @if (zonesError) {
+            <div class="status error">{{ zonesError }}</div>
+          }
+          @if (!isZonesLoading && deliveryZones.length > 0) {
+            <form
+              class="zone-form"
+              (ngSubmit)="saveDeliveryZones()"
+              >
+              <div class="zone-list">
+                @for (zone of deliveryZones; track trackByZoneId($index, zone)) {
+                  <label class="zone-option">
+                    <input
+                      type="checkbox"
+                      [checked]="isZoneSelected(zone.id)"
+                      (change)="toggleZoneSelection(zone.id, $event)"
+                      />
+                    <div class="zone-meta">
+                      <span class="zone-name">{{ zone.name }}</span>
+                      <span class="muted">
+                        {{ zone.code }} - {{ zone.typicalDeliveryMin }}-{{ zone.typicalDeliveryMax }} min
+                      </span>
+                    </div>
+                  </label>
+                }
+              </div>
+              <button type="submit" [disabled]="isZonesSaving">Save Delivery Zones</button>
+            </form>
+          }
+          @if (!isZonesLoading && deliveryZones.length === 0) {
+            <div class="status">
+              No delivery zones configured.
+            </div>
+          }
         </div>
       </div>
-    </div>
+    }
 
     <div class="panel">
       <div class="panel-header">
@@ -86,8 +101,12 @@
         <p class="hint">Prices are in cents.</p>
       </div>
 
-      <div class="status" *ngIf="isMenuLoading">Loading menu...</div>
-      <div class="status error" *ngIf="menuError">{{ menuError }}</div>
+      @if (isMenuLoading) {
+        <div class="status">Loading menu...</div>
+      }
+      @if (menuError) {
+        <div class="status error">{{ menuError }}</div>
+      }
 
       <div class="menu-forms">
         <form class="menu-form" (ngSubmit)="createCategory()">
@@ -103,7 +122,7 @@
               [(ngModel)]="categoryForm.sortOrder"
               name="newCategorySort"
               min="0"
-            />
+              />
           </label>
           <button type="submit">Add Category</button>
         </form>
@@ -131,15 +150,17 @@
               name="newDishPrice"
               min="1"
               required
-            />
+              />
           </label>
           <label>
             Category
             <select [(ngModel)]="dishForm.categoryId" name="newDishCategory">
               <option [ngValue]="null">Uncategorized</option>
-              <option *ngFor="let category of categoryOptions" [ngValue]="category.id">
-                {{ category.name }}
-              </option>
+              @for (category of categoryOptions; track category) {
+                <option [ngValue]="category.id">
+                  {{ category.name }}
+                </option>
+              }
             </select>
           </label>
           <label>
@@ -149,154 +170,170 @@
               [(ngModel)]="dishForm.pictureUrl"
               name="newDishPhoto"
               placeholder="https://example.com/photo.jpg"
-            />
+              />
           </label>
           <button type="submit">Add Dish</button>
         </form>
       </div>
 
-      <div class="menu-empty" *ngIf="!isMenuLoading && !menuError && menuCategories.length === 0">
-        No menu items yet.
-      </div>
+      @if (!isMenuLoading && !menuError && menuCategories.length === 0) {
+        <div class="menu-empty">
+          No menu items yet.
+        </div>
+      }
 
       <div class="menu-list">
-        <div
-          class="category-card"
-          *ngFor="let category of menuCategories; trackBy: trackByCategoryId"
-        >
-          <div class="category-header">
-            <div class="category-meta" *ngIf="editingCategoryId !== category.id">
-              <h3>{{ category.name }}</h3>
-              <span class="muted">Sort: {{ category.sortOrder }}</span>
-            </div>
-
-            <form
-              class="category-edit"
-              *ngIf="editingCategoryId === category.id"
-              (ngSubmit)="saveCategoryEdit(category)"
+        @for (category of menuCategories; track trackByCategoryId($index, category)) {
+          <div
+            class="category-card"
             >
-              <input
-                type="text"
-                [(ngModel)]="categoryEditForm.name"
-                name="categoryEditName{{ category.id }}"
-                required
-              />
-              <input
-                type="number"
-                [(ngModel)]="categoryEditForm.sortOrder"
-                name="categoryEditSort{{ category.id }}"
-                min="0"
-              />
-              <div class="actions">
-                <button type="submit">Save</button>
-                <button type="button" class="ghost" (click)="cancelCategoryEdit()">Cancel</button>
-              </div>
-            </form>
-
-            <div
-              class="category-actions"
-              *ngIf="category.id !== 0 && editingCategoryId !== category.id"
-            >
-              <button type="button" (click)="startCategoryEdit(category)">Edit</button>
-              <button type="button" class="danger" (click)="deleteCategory(category)">
-                Delete
-              </button>
-            </div>
-
-            <div class="category-actions" *ngIf="category.id === 0">
-              <span class="muted">Uncategorized</span>
-            </div>
-          </div>
-
-          <div class="dish-list" *ngIf="category.dishes.length > 0; else noDishes">
-            <div class="dish-card" *ngFor="let dish of category.dishes; trackBy: trackByDishId">
-              <div class="dish-view" *ngIf="editingDishId !== dish.id">
-                <div class="dish-info">
-                  <h4>{{ dish.name }}</h4>
-                  <p class="dish-description" *ngIf="dish.description">
-                    {{ dish.description }}
-                  </p>
-                  <p class="dish-price">{{ dish.price / 100 | currency: 'EUR' }}</p>
-                  <p class="dish-meta" *ngIf="dish.pictureUrl">Photo attached</p>
+            <div class="category-header">
+              @if (editingCategoryId !== category.id) {
+                <div class="category-meta">
+                  <h3>{{ category.name }}</h3>
+                  <span class="muted">Sort: {{ category.sortOrder }}</span>
                 </div>
-                <img
-                  *ngIf="dish.pictureUrl"
-                  [src]="dish.pictureUrl"
-                  [alt]="dish.name"
-                  class="dish-photo"
-                />
-                <div class="dish-actions">
-                  <button type="button" (click)="startDishEdit(dish)">Edit</button>
-                  <button type="button" class="danger" (click)="deleteDish(dish)">Delete</button>
-                </div>
-              </div>
-
-              <form
-                class="dish-edit"
-                *ngIf="editingDishId === dish.id"
-                (ngSubmit)="saveDishEdit(dish)"
-              >
-                <label>
-                  Name
+              }
+              @if (editingCategoryId === category.id) {
+                <form
+                  class="category-edit"
+                  (ngSubmit)="saveCategoryEdit(category)"
+                  >
                   <input
                     type="text"
-                    [(ngModel)]="dishEditForm.name"
-                    name="dishEditName{{ dish.id }}"
+                    [(ngModel)]="categoryEditForm.name"
+                    name="categoryEditName{{ category.id }}"
                     required
-                  />
-                </label>
-                <label>
-                  Description
-                  <textarea
-                    rows="3"
-                    [(ngModel)]="dishEditForm.description"
-                    name="dishEditDescription{{ dish.id }}"
-                    required
-                  ></textarea>
-                </label>
-                <label>
-                  Price (cents)
+                    />
                   <input
                     type="number"
-                    [(ngModel)]="dishEditForm.price"
-                    name="dishEditPrice{{ dish.id }}"
-                    min="1"
-                    required
-                  />
-                </label>
-                <label>
-                  Category
-                  <select
-                    [(ngModel)]="dishEditForm.categoryId"
-                    name="dishEditCategory{{ dish.id }}"
+                    [(ngModel)]="categoryEditForm.sortOrder"
+                    name="categoryEditSort{{ category.id }}"
+                    min="0"
+                    />
+                  <div class="actions">
+                    <button type="submit">Save</button>
+                    <button type="button" class="ghost" (click)="cancelCategoryEdit()">Cancel</button>
+                  </div>
+                </form>
+              }
+              @if (category.id !== 0 && editingCategoryId !== category.id) {
+                <div
+                  class="category-actions"
                   >
-                    <option [ngValue]="null">Uncategorized</option>
-                    <option *ngFor="let option of categoryOptions" [ngValue]="option.id">
-                      {{ option.name }}
-                    </option>
-                  </select>
-                </label>
-                <label>
-                  Photo URL
-                  <input
-                    type="url"
-                    [(ngModel)]="dishEditForm.pictureUrl"
-                    name="dishEditPhoto{{ dish.id }}"
-                    placeholder="https://example.com/photo.jpg"
-                  />
-                </label>
-                <div class="actions">
-                  <button type="submit">Save</button>
-                  <button type="button" class="ghost" (click)="cancelDishEdit()">Cancel</button>
+                  <button type="button" (click)="startCategoryEdit(category)">Edit</button>
+                  <button type="button" class="danger" (click)="deleteCategory(category)">
+                    Delete
+                  </button>
                 </div>
-              </form>
+              }
+              @if (category.id === 0) {
+                <div class="category-actions">
+                  <span class="muted">Uncategorized</span>
+                </div>
+              }
             </div>
+            @if (category.dishes.length > 0) {
+              <div class="dish-list">
+                @for (dish of category.dishes; track trackByDishId($index, dish)) {
+                  <div class="dish-card">
+                    @if (editingDishId !== dish.id) {
+                      <div class="dish-view">
+                        <div class="dish-info">
+                          <h4>{{ dish.name }}</h4>
+                          @if (dish.description) {
+                            <p class="dish-description">
+                              {{ dish.description }}
+                            </p>
+                          }
+                          <p class="dish-price">{{ dish.price / 100 | currency: 'EUR' }}</p>
+                          @if (dish.pictureUrl) {
+                            <p class="dish-meta">Photo attached</p>
+                          }
+                        </div>
+                        @if (dish.pictureUrl) {
+                          <img
+                            [src]="dish.pictureUrl"
+                            [alt]="dish.name"
+                            class="dish-photo"
+                            />
+                        }
+                        <div class="dish-actions">
+                          <button type="button" (click)="startDishEdit(dish)">Edit</button>
+                          <button type="button" class="danger" (click)="deleteDish(dish)">Delete</button>
+                        </div>
+                      </div>
+                    }
+                    @if (editingDishId === dish.id) {
+                      <form
+                        class="dish-edit"
+                        (ngSubmit)="saveDishEdit(dish)"
+                        >
+                        <label>
+                          Name
+                          <input
+                            type="text"
+                            [(ngModel)]="dishEditForm.name"
+                            name="dishEditName{{ dish.id }}"
+                            required
+                            />
+                        </label>
+                        <label>
+                          Description
+                          <textarea
+                            rows="3"
+                            [(ngModel)]="dishEditForm.description"
+                            name="dishEditDescription{{ dish.id }}"
+                            required
+                          ></textarea>
+                        </label>
+                        <label>
+                          Price (cents)
+                          <input
+                            type="number"
+                            [(ngModel)]="dishEditForm.price"
+                            name="dishEditPrice{{ dish.id }}"
+                            min="1"
+                            required
+                            />
+                        </label>
+                        <label>
+                          Category
+                          <select
+                            [(ngModel)]="dishEditForm.categoryId"
+                            name="dishEditCategory{{ dish.id }}"
+                            >
+                            <option [ngValue]="null">Uncategorized</option>
+                            @for (option of categoryOptions; track option) {
+                              <option [ngValue]="option.id">
+                                {{ option.name }}
+                              </option>
+                            }
+                          </select>
+                        </label>
+                        <label>
+                          Photo URL
+                          <input
+                            type="url"
+                            [(ngModel)]="dishEditForm.pictureUrl"
+                            name="dishEditPhoto{{ dish.id }}"
+                            placeholder="https://example.com/photo.jpg"
+                            />
+                        </label>
+                        <div class="actions">
+                          <button type="submit">Save</button>
+                          <button type="button" class="ghost" (click)="cancelDishEdit()">Cancel</button>
+                        </div>
+                      </form>
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="muted">No dishes in this category yet.</p>
+            }
           </div>
-
-          <ng-template #noDishes>
-            <p class="muted">No dishes in this category yet.</p>
-          </ng-template>
-        </div>
+        }
       </div>
     </div>
   </div>

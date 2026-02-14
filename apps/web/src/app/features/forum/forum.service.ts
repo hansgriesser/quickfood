@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ForumThreadDetail, ForumThreadListItem, ForumPost } from './forum.model';
 
 @Injectable({ providedIn: 'root' })
 export class ForumService {
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
 
   listThreads(restaurantId: string) {
     return firstValueFrom(

@@ -23,13 +23,9 @@
 
         <p id="username-hint" class="hint">Der Username ist im System eindeutig.</p>
 
-        <p
-          id="username-error"
-          class="error"
-          *ngIf="form.controls.username.touched && form.controls.username.invalid"
-        >
-          Username ist erforderlich.
-        </p>
+        @if (form.controls.username.touched && form.controls.username.invalid) {
+          <p id="username-error" class="error">Username ist erforderlich.</p>
+        }
       </div>
 
       <!-- Passwort -->
@@ -47,26 +43,28 @@
           [attr.aria-describedby]="'password-error'"
         />
 
-        <p
-          id="password-error"
-          class="error"
-          *ngIf="form.controls.password.touched && form.controls.password.invalid"
-        >
-          Passwort ist erforderlich.
-        </p>
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <p id="password-error" class="error">Passwort ist erforderlich.</p>
+        }
       </div>
 
       <!-- Global Error -->
-      <div class="error-banner" role="alert" *ngIf="errorMessage">
-        <strong>Login fehlgeschlagen.</strong>
-        <span>{{ errorMessage }}</span>
-      </div>
+      @if (errorMessage) {
+        <div class="error-banner" role="alert">
+          <strong>Login fehlgeschlagen.</strong>
+          <span>{{ errorMessage }}</span>
+        </div>
+      }
 
       <!-- Actions -->
       <div class="actions">
         <button class="btn primary" type="submit" [disabled]="isSubmitting || form.invalid">
-          <span *ngIf="!isSubmitting">Anmelden</span>
-          <span *ngIf="isSubmitting">Anmelden…</span>
+          @if (!isSubmitting) {
+            <span>Anmelden</span>
+          }
+          @if (isSubmitting) {
+            <span>Anmelden…</span>
+          }
         </button>
         <p class="register-link">
           Noch keinen Account?

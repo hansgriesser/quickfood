@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, Subscription, timer, exhaustMap, catchError, finalize, of } from 'rxjs';
 import { OwnerOrdersService } from '../../services/owner-orders.service';
@@ -14,6 +14,10 @@ import { AuthService } from '../../../auth/auth.service';
   styleUrls: ['./owner-orders.component.css'],
 })
 export class OwnerOrdersComponent implements OnInit, OnDestroy {
+  private ownerOrdersService = inject(OwnerOrdersService);
+  private cdr = inject(ChangeDetectorRef);
+  private chatService = inject(ChatService);
+
   orders: OwnerOrder[] = [];
   orders$!: Observable<OwnerOrder[]>;
   isLoading = false;
@@ -26,11 +30,10 @@ export class OwnerOrdersComponent implements OnInit, OnDestroy {
   private readonly sub = new Subscription();
   private readonly busyOrders = new Set<string>();
 
-  constructor(
-    private ownerOrdersService: OwnerOrdersService,
-    private cdr: ChangeDetectorRef,
-    private chatService: ChatService,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.totalUnreadMessages$ = this.chatService.totalUnreadMessages$;
   }
 

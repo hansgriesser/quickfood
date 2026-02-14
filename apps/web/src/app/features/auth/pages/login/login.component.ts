@@ -1,23 +1,21 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import {
-  ReactiveFormsModule,
-  FormBuilder,
-  FormGroup,
-  Validators,
-  FormControl,
-} from '@angular/forms';
+import { Component, inject } from '@angular/core';
+
+import { ReactiveFormsModule, FormGroup, Validators, FormControl } from '@angular/forms';
 import { AuthService } from '../../auth.service';
 import { Router, RouterModule } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
   isSubmitting = false;
   errorMessage: string | null = null;
 
@@ -31,11 +29,6 @@ export class LoginComponent {
       validators: [Validators.required],
     }),
   });
-
-  constructor(
-    private readonly auth: AuthService,
-    private readonly router: Router,
-  ) {}
 
   async onSubmit(): Promise<void> {
     this.errorMessage = null;
@@ -66,8 +59,9 @@ export class LoginComponent {
         default:
           await this.router.navigate(['/']);
       }
-    } catch (e: any) {
-      this.errorMessage = e?.error?.message || 'Login failed';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.errorMessage = err?.error?.message || 'Login failed';
     } finally {
       this.isSubmitting = false;
     }

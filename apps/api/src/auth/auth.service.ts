@@ -11,6 +11,8 @@ import { Role } from '@generated/prisma/enums';
 
 import { ActivityService } from '../activity/activity.service';
 import { ActivityType } from '@generated/prisma/enums';
+import { Prisma } from '@generated/prisma/client';
+const PRISMA_ERROR_UNIQUE_CONSTRAINT = 'P2002';
 import { JwtPayload } from './jwt-payload.type';
 @Injectable()
 export class AuthService {
@@ -82,9 +84,10 @@ export class AuthService {
         user,
       };
     } catch (e: any) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (e.code === 'P2002') {
-        throw new ConflictException('Username already taken');
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === PRISMA_ERROR_UNIQUE_CONSTRAINT) {
+          throw new ConflictException('Username already taken');
+        }
       }
       throw e;
     }

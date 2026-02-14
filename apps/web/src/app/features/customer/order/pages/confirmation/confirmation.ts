@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { filter, map, Observable, switchMap, take, tap } from 'rxjs';
 import { OrderDto } from '../../dto/orderDTO';
 import { CommonModule } from '@angular/common';
@@ -18,18 +18,23 @@ import { Router } from '@angular/router';
   styleUrl: './confirmation.css',
 })
 export class Confirmation {
+  private activeOrderService = inject(ActiveOrderService);
+  private restaurantService = inject(RestaurantService);
+  private chatService = inject(ChatService);
+  private router = inject(Router);
+
   order$: Observable<OrderDto | null>;
   restaurant$: Observable<Restaurant | null>;
   OrderStatusLabel = OrderStatusLabel;
   hasDiscount;
   unreadCount$: Observable<number>;
 
-  constructor(
-    private activeOrderService: ActiveOrderService,
-    private restaurantService: RestaurantService,
-    private chatService: ChatService,
-    private router: Router,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    const activeOrderService = this.activeOrderService;
+
     this.order$ = this.activeOrderService.order$;
     this.restaurant$ = this.order$.pipe(
       map((order) => order?.restaurantId),

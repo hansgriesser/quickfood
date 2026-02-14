@@ -1,27 +1,30 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { Header } from './layout/header/header';
 import { Footer } from './layout/footer/footer';
 import { filter, map } from 'rxjs';
-import { CommonModule } from '@angular/common';
+
 import { ChatDrawerComponent } from './features/chat/chat/chat';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Footer, CommonModule, ChatDrawerComponent],
+  imports: [RouterOutlet, Header, Footer, ChatDrawerComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
   standalone: true,
 })
 export class App {
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
+
   protected readonly title = signal('web');
 
   showFooter = false;
 
-  constructor(
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       const route = this.getChild(this.activatedRoute);
       this.showFooter = route?.snapshot.data['footer'] ?? false;
