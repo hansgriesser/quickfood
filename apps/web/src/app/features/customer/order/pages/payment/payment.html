@@ -1,48 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
-<head>
-  <meta charset="UTF-8" />
-  <title>Zahlungsmethode wählen</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Zahlungsmethode wählen</title>
+  </head>
 
-</head>
+  <body>
+    <div class="payment-page">
+      <h2>Zahlungsmethode auswählen</h2>
 
-<body>
+      <label class="payment-option">
+        <input type="radio" name="payment" value="cash" checked />
+        <div class="payment-details">
+          <span class="payment-title">Barzahlung</span>
+          <span class="payment-subtitle">Bezahlung bei Abholung / Lieferung</span>
+        </div>
+      </label>
 
-  <div class="payment-page">
-    <h2>Zahlungsmethode auswählen</h2>
+      <label class="payment-option">
+        <input type="radio" name="payment" value="card" />
+        <div class="payment-details">
+          <span class="payment-title">Kredit- / Debitkarte</span>
+          <span class="payment-subtitle">Visa, MasterCard, Maestro</span>
+        </div>
+      </label>
 
-    <label class="payment-option">
-      <input type="radio" name="payment" value="cash" checked />
-      <div class="payment-details">
-        <span class="payment-title">Barzahlung</span>
-        <span class="payment-subtitle">Bezahlung bei Abholung / Lieferung</span>
-      </div>
-    </label>
+      <label class="payment-option">
+        <input type="radio" name="payment" value="paypal" />
+        <div class="payment-details">
+          <span class="payment-title">Online bezahlen</span>
+          <span class="payment-subtitle">z. B. PayPal</span>
+        </div>
+      </label>
+    </div>
 
-    <label class="payment-option">
-      <input type="radio" name="payment" value="card" />
-      <div class="payment-details">
-        <span class="payment-title">Kredit- / Debitkarte</span>
-        <span class="payment-subtitle">Visa, MasterCard, Maestro</span>
-      </div>
-    </label>
+    <button class="checkout-button" (click)="placeOrder()">Zahlungspflichtig bestellen</button>
 
-    <label class="payment-option">
-      <input type="radio" name="payment" value="paypal" />
-      <div class="payment-details">
-        <span class="payment-title">Online bezahlen</span>
-        <span class="payment-subtitle">z. B. PayPal</span>
-      </div>
-    </label>
-  </div>
-
-  <button class="checkout-button" (click)="placeOrder()">
-    Zahlungspflichtig bestellen
-  </button>
-
-  <div class="checkout-disclaimer">
-    Wir belasten die von Ihnen ausgewählte Zahlungsmethode mit dem angegebenen Betrag.
-  </div>
-
-</body>
+    <div class="checkout-disclaimer">
+      Wir belasten die von Ihnen ausgewählte Zahlungsmethode mit dem angegebenen Betrag.
+    </div>
+  </body>
 </html>

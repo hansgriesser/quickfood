@@ -11,18 +11,17 @@ export class CheckoutService {
   constructor(
     private activeOrderService: ActiveOrderService,
     private cartService: CartService,
-    private draftService: OrderDraft
+    private draftService: OrderDraft,
   ) {}
 
   placeOrder() {
-
     const draft = this.draftService.getDraft();
 
     return this.activeOrderService.createOrder(draft).pipe(
       tap(() => {
         this.cartService.clearCart();
         this.draftService.clearDraft();
-      })
+      }),
     );
   }
 }

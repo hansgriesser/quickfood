@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -17,16 +17,14 @@ import { RestaurantHeader } from '../../components/restaurant-header/restaurant-
   templateUrl: './restaurant-detail.component.html',
   styleUrls: ['./restaurant-detail.component.css'],
 })
-export class RestaurantDetailComponent {
-
+export class RestaurantDetailComponent implements OnInit {
   restaurant$!: Observable<Restaurant | null>;
   categories$: Observable<MenuCategory[]> | undefined;
   cartItems$: Observable<CartItemDto[]>;
   id: string | undefined;
   restaurantIdFromRoute = '';
   disableCartActions = false;
-  totalItems$: Observable<Number>;
-
+  totalItems$: Observable<number>;
 
   ngOnInit() {
     this.restaurantIdFromRoute = this.route.snapshot.paramMap.get('id') ?? '';
@@ -34,31 +32,33 @@ export class RestaurantDetailComponent {
     this.restaurant$ = this.restaurantService.getRestaurantById(this.id);
     this.categories$ = this.restaurantService.getCategoriesForRestaurant(this.id);
 
-
     //falls Cart von anderem Restaurant belegt
-    this.cartService.cart$.pipe(take(1)).subscribe(cart => {
+    this.cartService.cart$.pipe(take(1)).subscribe((cart) => {
       if (cart.items.length > 0 && cart.restaurantId !== this.id) {
         const confirmClear = confirm(
-          'Du hast noch Items von einem anderen Restaurant im Warenkorb. Möchtest du den Warenkorb leeren?'
+          'Du hast noch Items von einem anderen Restaurant im Warenkorb. Möchtest du den Warenkorb leeren?',
         );
         if (confirmClear) {
           this.cartService.clearCart();
-        }else{
+        } else {
           this.disableCartActions = true;
         }
       }
     });
   }
 
-
-  constructor(private route: ActivatedRoute, private restaurantService: RestaurantService, private cartService: CartService) {
+  constructor(
+    private route: ActivatedRoute,
+    private restaurantService: RestaurantService,
+    private cartService: CartService,
+  ) {
     this.cartItems$ = this.cartService.cartItems$;
     this.totalItems$ = this.cartItems$.pipe(
-      map(items => items.reduce((sum, item) => sum + item.quantity, 0))
+      map((items) => items.reduce((sum, item) => sum + item.quantity, 0)),
     );
   }
 
-  addToCart(dish: Dish){
+  addToCart(dish: Dish) {
     this.cartService.addDish(dish, this.id);
   }
 }

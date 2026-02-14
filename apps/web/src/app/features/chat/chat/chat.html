@@ -1,7 +1,8 @@
 <div class="chat-drawer" [class.open]="isOpen">
   <div class="chat-header">
     <h3>
-      {{ role === 'OWNER' 
+      {{
+        role === 'OWNER'
           ? 'Chat mit Kunde #' + (orderId | slice: 0 : 8)
           : 'Chat mit Restaurant #' + (orderId | slice: 0 : 8)
       }}
@@ -12,12 +13,18 @@
   <div class="chat-messages">
     <div *ngFor="let msg of messages" class="chat-message" [class.own]="isOwnMessage(msg)">
       <p>{{ msg.message }}</p>
-      <span class="timestamp">{{ msg.timestamp | date:'HH:mm' }}</span>
+      <span class="timestamp">{{ msg.timestamp | date: 'HH:mm' }}</span>
     </div>
   </div>
 
   <div class="chat-input">
-    <input type="text" [(ngModel)]="newMessage" placeholder="Nachricht schreiben..." (keyup.enter)="sendMessage()" [disabled]="!isOpen">
+    <input
+      type="text"
+      [(ngModel)]="newMessage"
+      placeholder="Nachricht schreiben..."
+      (keyup.enter)="sendMessage()"
+      [disabled]="!isOpen"
+    />
     <button (click)="sendMessage()" [disabled]="!isOpen || !newMessage.trim()">Senden</button>
   </div>
 </div>

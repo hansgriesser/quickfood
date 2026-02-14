@@ -10,7 +10,7 @@
   <div class="status" *ngIf="isLoading">Loading orders...</div>
   <div class="status error" *ngIf="errorMessage">{{ errorMessage }}</div>
   <div class="status" *ngIf="!isLoading && !errorMessage && orders.length === 0">
-    No orders yet. 
+    No orders yet.
   </div>
   <div class="status" *ngIf="totalUnreadMessages$ | async as totalUnreadMessages">
     {{ totalUnreadMessages }} ungelesene Nachrichten von Kunden.
@@ -90,18 +90,11 @@
           Mark dispatched
         </button>
         <div class="chat-actions">
-          <button
-            type="button"
-            class="secondary chat-btn"
-            (click)="openChat(order.id)"
-          >
-            💬
-          </button>
-          <p *ngIf="unreadCountForOrder(order.id)>0">
+          <button type="button" class="secondary chat-btn" (click)="openChat(order.id)">💬</button>
+          <p *ngIf="unreadCountForOrder(order.id) > 0">
             {{ unreadCountForOrder(order.id) }}
           </p>
         </div>
-        
       </div>
     </article>
   </div>

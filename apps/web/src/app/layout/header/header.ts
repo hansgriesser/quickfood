@@ -10,11 +10,11 @@ import { CommonModule } from '@angular/common';
   styleUrl: './header.css',
 })
 export class Header {
-
-  constructor(private authService: AuthService, private router: Router){
-    
-  }
-  logout(){
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) {}
+  logout() {
     this.authService.logout();
     this.router.navigate(['login']);
   }

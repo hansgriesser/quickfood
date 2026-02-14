@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -28,7 +28,7 @@ interface OpeningHourForm {
   templateUrl: './owner-restaurant-detail.component.html',
   styleUrls: ['./owner-restaurant-detail.component.css'],
 })
-export class OwnerRestaurantDetailComponent {
+export class OwnerRestaurantDetailComponent implements OnInit {
   restaurantId?: string;
   restaurant?: OwnerRestaurant;
   errorMessage = '';
@@ -125,7 +125,12 @@ export class OwnerRestaurantDetailComponent {
     });
   }
 
-  saveRestaurant(payload: { name: string; category?: string; contactEmail?: string; contactPhone?: string }): void {
+  saveRestaurant(payload: {
+    name: string;
+    category?: string;
+    contactEmail?: string;
+    contactPhone?: string;
+  }): void {
     if (!this.restaurant) return;
 
     this.ownerRestaurantsService.updateRestaurant(this.restaurant.id, payload).subscribe({
@@ -200,8 +205,7 @@ export class OwnerRestaurantDetailComponent {
 
     const invalidEntry = this.openingHoursForm.find(
       (entry) =>
-        !entry.isClosed &&
-        (!this.isValidTime(entry.opensAt) || !this.isValidTime(entry.closesAt)),
+        !entry.isClosed && (!this.isValidTime(entry.opensAt) || !this.isValidTime(entry.closesAt)),
     );
 
     if (invalidEntry) {
@@ -218,23 +222,21 @@ export class OwnerRestaurantDetailComponent {
       isClosed: entry.isClosed,
     }));
 
-    this.ownerRestaurantsService
-      .updateRestaurant(this.restaurant.id, { openingHours })
-      .subscribe({
-        next: (updated) => {
-          this.restaurant = updated;
-          this.initOpeningHours(updated.openingHours);
-        },
-        error: () => {
-          this.hoursError = 'Could not update opening hours.';
-          this.isHoursSaving = false;
-          this.cdr.detectChanges();
-        },
-        complete: () => {
-          this.isHoursSaving = false;
-          this.cdr.detectChanges();
-        },
-      });
+    this.ownerRestaurantsService.updateRestaurant(this.restaurant.id, { openingHours }).subscribe({
+      next: (updated) => {
+        this.restaurant = updated;
+        this.initOpeningHours(updated.openingHours);
+      },
+      error: () => {
+        this.hoursError = 'Could not update opening hours.';
+        this.isHoursSaving = false;
+        this.cdr.detectChanges();
+      },
+      complete: () => {
+        this.isHoursSaving = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   get categoryOptions(): OwnerMenuCategory[] {
@@ -335,16 +337,14 @@ export class OwnerRestaurantDetailComponent {
       return;
     }
 
-    this.ownerRestaurantsService
-      .deleteCategory(this.restaurantId, category.id)
-      .subscribe({
-        next: () => {
-          this.loadMenu(this.restaurantId!);
-        },
-        error: () => {
-          this.menuError = 'Could not delete category.';
-        },
-      });
+    this.ownerRestaurantsService.deleteCategory(this.restaurantId, category.id).subscribe({
+      next: () => {
+        this.loadMenu(this.restaurantId!);
+      },
+      error: () => {
+        this.menuError = 'Could not delete category.';
+      },
+    });
   }
 
   createDish(): void {

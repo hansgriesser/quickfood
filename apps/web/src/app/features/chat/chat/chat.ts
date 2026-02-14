@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatMessage } from '../chat-message.dto';
@@ -13,11 +13,11 @@ import { UserRole } from '../../admin/services/admin-users.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
 })
-export class ChatDrawerComponent {
+export class ChatDrawerComponent implements OnInit, OnDestroy {
   unreadCount = 0;
   newMessage = '';
-  messages: ChatMessage[]= [];
-  isOpen: boolean = false;
+  messages: ChatMessage[] = [];
+  isOpen = false;
   role: UserRole | null;
   userId: number | null;
   orderId: string | null = null;
@@ -34,34 +34,33 @@ export class ChatDrawerComponent {
   ngOnInit() {
     // Drawer öffnen / schließen beobachten
     this.subscription.add(
-      this.chatService.isOpen$.subscribe(open => {
+      this.chatService.isOpen$.subscribe((open) => {
         this.isOpen = open;
-      })
+      }),
     );
 
     // Messages aus dem Service
     this.subscription.add(
-      this.chatService.messages$.subscribe(msgs => {
+      this.chatService.messages$.subscribe((msgs) => {
         this.messages = msgs;
         console.log('Received messages', msgs);
         // Scroll automatisch zum Ende, falls Drawer offen
         if (this.isOpen) {
           setTimeout(() => this.scrollToBottom(), 50);
         }
-      })
+      }),
     );
 
     this.subscription.add(
-    this.chatService.activeOrderId$.subscribe(id => {
-      this.orderId = id;
-    })
-  );
+      this.chatService.activeOrderId$.subscribe((id) => {
+        this.orderId = id;
+      }),
+    );
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
-
 
   toggleChat() {
     if (this.isOpen) {

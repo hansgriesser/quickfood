@@ -26,10 +26,14 @@ export class AdminRestaurantsService {
   }
 
   approve(id: string): Promise<AdminRestaurant> {
-    return firstValueFrom(this.http.patch<AdminRestaurant>(`/api/admin/restaurants/${id}/approve`, {}));
+    return firstValueFrom(
+      this.http.patch<AdminRestaurant>(`/api/admin/restaurants/${id}/approve`, {}),
+    );
   }
 
   reject(id: string): Promise<AdminRestaurant> {
-    return firstValueFrom(this.http.patch<AdminRestaurant>(`/api/admin/restaurants/${id}/reject`, {}));
+    return firstValueFrom(
+      this.http.patch<AdminRestaurant>(`/api/admin/restaurants/${id}/reject`, {}),
+    );
   }
 }

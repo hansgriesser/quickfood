@@ -1,4 +1,4 @@
-import { OrderItemDto } from "./orderDTO";
+import { OrderItemDto } from './orderDTO';
 
 export interface OrderDraftDto {
   restaurantId: string;

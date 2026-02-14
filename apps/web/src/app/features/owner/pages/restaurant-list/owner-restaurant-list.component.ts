@@ -51,7 +51,12 @@ export class OwnerRestaurantListComponent implements OnInit {
       });
   }
 
-  createRestaurant(payload: { name: string; category?: string; contactEmail?: string; contactPhone?: string }): void {
+  createRestaurant(payload: {
+    name: string;
+    category?: string;
+    contactEmail?: string;
+    contactPhone?: string;
+  }): void {
     this.isSubmitting = true;
     this.errorMessage = '';
 

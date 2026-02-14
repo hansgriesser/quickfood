@@ -2,14 +2,11 @@
   <header class="admin-header">
     <div>
       <h1 class="admin-title">Admin</h1>
-      <p class="admin-subtitle">
-        Verwaltung von Restaurants, Nutzern und Plattformstatistiken.
-      </p>
+      <p class="admin-subtitle">Verwaltung von Restaurants, Nutzern und Plattformstatistiken.</p>
     </div>
   </header>
 
   <section class="admin-panel">
-
     <div class="loading" *ngIf="!summary && !error">Lade Statistiken…</div>
     <div class="alert" *ngIf="error">{{ error }}</div>
 
@@ -36,16 +33,12 @@
     <div class="overview-grid">
       <a class="overview-card" routerLink="/admin/restaurants">
         <h2 class="overview-title">Restaurants</h2>
-        <p class="overview-desc">
-          Prüfen und freigeben oder ablehnen von Restaurant-Anfragen.
-        </p>
+        <p class="overview-desc">Prüfen und freigeben oder ablehnen von Restaurant-Anfragen.</p>
       </a>
 
       <a class="overview-card" routerLink="/admin/users">
         <h2 class="overview-title">Users</h2>
-        <p class="overview-desc">
-          Warnen, sperren und entsperren von Nutzern.
-        </p>
+        <p class="overview-desc">Warnen, sperren und entsperren von Nutzern.</p>
       </a>
 
       <a class="overview-card" routerLink="/admin/zones">
@@ -63,30 +56,24 @@
 
       <a class="overview-card" routerLink="/admin/settings">
         <h2 class="overview-title">Global Settings</h2>
-        <p class="overview-desc">
-          Service Fee und Voucher Codes verwalten.
-        </p>
+        <p class="overview-desc">Service Fee und Voucher Codes verwalten.</p>
       </a>
-
     </div>
   </section>
   <section class="recent-activity">
-  <h3>Recent Activity</h3>
+    <h3>Recent Activity</h3>
 
-  <div *ngIf="loadingActivity">Loading activity...</div>
+    <div *ngIf="loadingActivity">Loading activity...</div>
 
-  <ul *ngIf="!loadingActivity && recentActivity.length">
-    <li *ngFor="let a of recentActivity">
-      <strong>{{ activityLabel(a) }}</strong>
-      <span class="time">
-        {{ a.createdAt | date:'short' }}
-      </span>
-    </li>
-  </ul>
+    <ul *ngIf="!loadingActivity && recentActivity.length">
+      <li *ngFor="let a of recentActivity">
+        <strong>{{ activityLabel(a) }}</strong>
+        <span class="time">
+          {{ a.createdAt | date: 'short' }}
+        </span>
+      </li>
+    </ul>
 
-  <div *ngIf="!loadingActivity && !recentActivity.length">
-    No recent activity.
-  </div>
-</section>
-
+    <div *ngIf="!loadingActivity && !recentActivity.length">No recent activity.</div>
+  </section>
 </div>
