@@ -4,12 +4,13 @@ import { RouterModule } from '@angular/router';
 import { OwnerRestaurantsService } from '../../services/owner-restaurants.service';
 import { OwnerRestaurant } from '../../services/owner-restaurant.model';
 import { OwnerRestaurantFormComponent } from '../../components/restaurant-form/owner-restaurant-form.component';
+import { OwnerNavComponent } from '../../components/nav/owner-nav.component';
 import { catchError, finalize, of, take } from 'rxjs';
 
 @Component({
   selector: 'app-owner-restaurant-list',
   standalone: true,
-  imports: [RouterModule, OwnerRestaurantFormComponent],
+  imports: [RouterModule, OwnerRestaurantFormComponent, OwnerNavComponent],
   templateUrl: './owner-restaurant-list.component.html',
   styleUrls: ['./owner-restaurant-list.component.css'],
 })

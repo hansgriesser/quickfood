@@ -1,0 +1,56 @@
+<section class="owner-analytics">
+  <app-owner-nav></app-owner-nav>
+
+  <header>
+    <h1>Analytics</h1>
+    <p>Track orders and popular dishes from the last 7 days.</p>
+  </header>
+
+  <div class="status" *ngIf="isLoading">Loading analytics...</div>
+  <div class="status error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <ng-container *ngIf="summary && !isLoading">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <p class="label">Today</p>
+        <h2>{{ todayOrders }}</h2>
+        <p class="hint">{{ summary.range.to }}</p>
+      </div>
+      <div class="stat-card">
+        <p class="label">Last 7 days</p>
+        <h2>{{ summary.weeklyOrders }}</h2>
+        <p class="hint">{{ summary.range.from }} → {{ summary.range.to }}</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Daily orders</h2>
+        <span class="muted">Last 7 days</span>
+      </div>
+      <div class="daily-grid">
+        <div class="daily-card" *ngFor="let point of summary.dailyOrders; trackBy: trackByDate">
+          <span class="date">{{ point.date }}</span>
+          <span class="count">{{ point.orders }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Top dishes</h2>
+        <span class="muted">Most ordered items</span>
+      </div>
+      <div class="status" *ngIf="summary.topDishes.length === 0">No orders yet.</div>
+      <div class="dish-list" *ngIf="summary.topDishes.length > 0">
+        <div class="dish-row" *ngFor="let dish of summary.topDishes; trackBy: trackByDishId">
+          <div>
+            <strong>{{ dish.name }}</strong>
+            <span class="muted" *ngIf="dish.restaurantName">({{ dish.restaurantName }})</span>
+          </div>
+          <span class="count">{{ dish.orders }} ordered</span>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</section>

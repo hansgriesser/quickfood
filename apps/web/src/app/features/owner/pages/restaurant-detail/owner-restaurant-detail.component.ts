@@ -12,6 +12,7 @@ import {
   OwnerRestaurantDeliveryZone,
 } from '../../services/owner-restaurant.model';
 import { OwnerRestaurantFormComponent } from '../../components/restaurant-form/owner-restaurant-form.component';
+import { OwnerNavComponent } from '../../components/nav/owner-nav.component';
 
 interface OpeningHourForm {
   dayOfWeek: number;
@@ -24,7 +25,13 @@ interface OpeningHourForm {
 @Component({
   selector: 'app-owner-restaurant-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, OwnerRestaurantFormComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    OwnerRestaurantFormComponent,
+    OwnerNavComponent,
+  ],
   templateUrl: './owner-restaurant-detail.component.html',
   styleUrls: ['./owner-restaurant-detail.component.css'],
 })
