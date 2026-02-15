@@ -168,7 +168,12 @@
           @if (modalAction === 'SUSPEND') {
             <label class="admin-field">
               <div class="admin-field-label">Suspend until (optional)</div>
-              <input class="admin-input date-input-fixed" type="date" [(ngModel)]="modalUntil" />
+              <input
+                class="admin-input date-input-fixed"
+                type="date"
+                [(ngModel)]="modalUntil"
+                [min]="minSuspendDate"
+              />
             </label>
           }
           @if (modalError) {
