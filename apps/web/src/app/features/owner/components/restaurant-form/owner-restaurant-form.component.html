@@ -19,5 +19,47 @@
     <input type="tel" [(ngModel)]="form.contactPhone" name="contactPhone" />
   </label>
 
+  <div class="image-grid">
+    <div class="image-field">
+      <span class="image-label">Logo</span>
+      <div class="image-preview" [class.empty]="!form.logoUrl">
+        @if (form.logoUrl) {
+          <img [src]="form.logoUrl" alt="Logo preview" />
+        } @else {
+          <span>No logo selected</span>
+        }
+      </div>
+      <div class="image-actions">
+        <label class="upload-button">
+          Upload logo
+          <input type="file" accept="image/*" (change)="onLogoSelected($event)" />
+        </label>
+        <button type="button" class="ghost" (click)="clearLogo()" [disabled]="!form.logoUrl">
+          Remove
+        </button>
+      </div>
+    </div>
+
+    <div class="image-field">
+      <span class="image-label">Banner</span>
+      <div class="image-preview" [class.empty]="!form.bannerUrl">
+        @if (form.bannerUrl) {
+          <img [src]="form.bannerUrl" alt="Banner preview" />
+        } @else {
+          <span>No banner selected</span>
+        }
+      </div>
+      <div class="image-actions">
+        <label class="upload-button">
+          Upload banner
+          <input type="file" accept="image/*" (change)="onBannerSelected($event)" />
+        </label>
+        <button type="button" class="ghost" (click)="clearBanner()" [disabled]="!form.bannerUrl">
+          Remove
+        </button>
+      </div>
+    </div>
+  </div>
+
   <button type="submit">{{ submitLabel }}</button>
 </form>
