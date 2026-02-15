@@ -1,65 +1,5 @@
 @import '../../admin-ui.css';
 
-.admin-modal-overlay {
-  position: fixed !important;
-  inset: 0 !important;
-  background: rgba(15, 23, 42, 0.75) !important;
-  backdrop-filter: blur(8px) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  z-index: 9999 !important;
-  padding: 20px !important;
-}
-
-.admin-modal {
-  background: #ffffff !important;
-  width: 100% !important;
-  max-width: 480px !important;
-  max-height: 90vh !important;
-  border-radius: 24px !important;
-  position: relative !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4) !important;
-  overflow: hidden !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-button.admin-icon-btn {
-  position: absolute !important;
-  top: 18px !important;
-  right: 18px !important;
-  width: 32px !important;
-  height: 32px !important;
-  border-radius: 50% !important;
-  background: #f1f5f9 !important;
-  border: none !important;
-  color: #64748b !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  z-index: 110 !important;
-}
-
-.admin-modal-header {
-  padding: 24px 30px !important;
-  border-bottom: 1px solid #f1f5f9 !important;
-}
-
-.admin-modal-body {
-  padding: 30px !important;
-  overflow-y: auto !important;
-}
-
-.admin-modal-footer {
-  padding: 20px 30px !important;
-  background: #f8fafc !important;
-  border-top: 1px solid #f1f5f9 !important;
-  display: flex !important;
-  justify-content: flex-end !important;
-  gap: 12px !important;
-}
-
 .admin-segment {
   display: flex !important;
   background: #f1f5f9 !important;
@@ -84,7 +24,35 @@ button.admin-icon-btn {
   box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
 }
 
-.badge-admin { background: #fee2e2; color: #991b1b; } /* Admins */
-.badge-owner { background: #e0f2fe; color: #075985; } /* Owner */
-.admin-badge-danger { background: #fee2e2; color: #ef4444; } /* Status Suspended */
+.admin-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  resize: vertical;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+}
+
+.admin-textarea:focus {
+  outline: none;
+  border-color: #f97316;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+}
+
+.admin-textarea::placeholder {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.badge-admin { background: #fee2e2; color: #991b1b; }
+.badge-owner { background: #e0f2fe; color: #075985; }
+.admin-badge-danger { background: #fee2e2; color: #ef4444; }
 

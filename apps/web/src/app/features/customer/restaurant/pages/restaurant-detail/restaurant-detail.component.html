@@ -1,14 +1,10 @@
-
-
 @if (restaurant$ | async; as restaurant) {
   <section>
     <!-- Zurück-Link -->
     <nav class="restaurant-nav">
       <a routerLink="/restaurants">← Zurück zur Liste</a>
       @if (restaurantIdFromRoute) {
-        <a [routerLink]="['/forum/restaurant', restaurantIdFromRoute]">
-          Forum
-        </a>
+        <a [routerLink]="['/forum/restaurant', restaurantIdFromRoute]"> Forum </a>
       }
       <button [disabled]="disableCartActions" class="cart-indicator" routerLink="/cart">
         🛒 {{ totalItems$ | async }}
@@ -16,10 +12,7 @@
     </nav>
     <!-- Header -->
     @if (restaurant$ | async; as restaurant) {
-      <app-restaurant-header
-        class="restaurant-header"
-        [restaurant]="restaurant"
-        >
+      <app-restaurant-header class="restaurant-header" [restaurant]="restaurant">
       </app-restaurant-header>
     }
     <!-- Speisekarte -->
@@ -51,7 +44,7 @@
                     aria-label="Zum Warenkorb hinzufügen"
                     (click)="addToCart(dish)"
                     [disabled]="disableCartActions"
-                    >
+                  >
                     +
                   </button>
                 </div>
@@ -66,11 +59,7 @@
     <!-- Fixierter Warenkorb-Button -->
     @if (cartItems$ | async; as items) {
       @if (items.length > 0) {
-        <button
-          class="cart-button"
-          routerLink="/cart"
-          [disabled]="disableCartActions"
-          >
+        <button class="cart-button" routerLink="/cart" [disabled]="disableCartActions">
           🛒 Zum Einkaufswagen
         </button>
       }

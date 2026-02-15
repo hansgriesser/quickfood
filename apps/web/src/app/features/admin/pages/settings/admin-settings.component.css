@@ -7,7 +7,7 @@
 }
 
 .admin-panel-header-btn {
-  justify-items: flex-end
+  justify-items: flex-end;
 }
 
 @media (max-width: 900px) {

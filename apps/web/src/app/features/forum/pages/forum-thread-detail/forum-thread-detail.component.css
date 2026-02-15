@@ -167,11 +167,10 @@
   line-height: 1.45;
 }
 
-/* Form-Bereich: begrenzte Lesebreite */
 .form {
   display: grid;
   gap: 10px;
-  max-width: 980px; /* <- verhindert "zu breit" */
+  max-width: 980px;
 }
 
 .textarea {
@@ -225,11 +224,11 @@
 }
 
 .btn--primary {
-  background: #000000;
+  background: #f97316;
   color: #fff;
 }
 .btn--primary:hover {
-  background: #000000;
+  background: #f97316;
 }
 
 .btn--ghost {

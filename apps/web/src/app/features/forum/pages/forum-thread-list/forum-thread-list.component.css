@@ -181,7 +181,6 @@
   margin-bottom: 6px;
 }
 
-/* Vorschau als 2 Zeilen statt endlos breit */
 .q__preview {
   color: #374151;
   font-size: 13px;
@@ -192,15 +191,13 @@
   overflow: hidden;
 }
 
-/* Form: macht Inputs nicht "zu breit lesbar" */
 .form {
   display: grid;
   gap: 12px;
 }
 
-/* angenehme Lesebreite innerhalb der Form */
 .form__row {
-  max-width: 860px; /* <- wichtig: verhindert "endlos rechts" */
+  max-width: 860px;
 }
 
 .label {
@@ -262,17 +259,17 @@
 }
 
 .btn--primary {
-  background: #000000;
+  background: #f97316;
   color: #ffffff;
 }
 
 .btn--primary:hover {
-  background: #000000;
+  background: #f97316;
 }
 
 .btn--ghost {
   background: #ffffff;
-  color: #111827;
+  color: #f97316;
   border-color: #e5e7eb;
 }
 
@@ -280,7 +277,6 @@
   background: #f9fafb;
 }
 
-/* Responsive */
 @media (max-width: 720px) {
   .forum-page {
     padding: 16px 14px 36px;
