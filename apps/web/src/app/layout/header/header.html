@@ -3,7 +3,7 @@
 
   @if (isLoggedIn) {
     <div class="actions">
-      <button class="btn profile-btn">Profil</button>
+      <button class="btn profile-btn" (click)="goToProfile()">Profil</button>
       <button class="btn logout-btn" (click)="logout()">Logout</button>
     </div>
   }

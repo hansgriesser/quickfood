@@ -1,0 +1,62 @@
+<div class="profile-page">
+  <h2>Profil</h2>
+
+  @if (fullUser$ | async; let fullUser) {
+    <div>
+      <p>
+        Profil als <strong>{{ fullUser.role }}</strong>
+        angelegt am
+        <strong>{{ fullUser.createdAt | date: 'dd.MM.yyyy' }}</strong>
+      </p>
+
+      @if (fullUser.isSuspended) {
+        <p style="color: red">
+          Account gesperrt
+          @if (fullUser.suspendedUntil) {
+            <span>({{ fullUser.suspendedUntil }})</span>
+          }
+        </p>
+      }
+    </div>
+
+    <section class="profile-section">
+      <div>
+        <label>
+          Benutzername:
+          <input
+            type="text"
+            [value]="profileService.currUserSubject.value.username"
+            (input)="onUsernameChange($event.target.value)"
+          />
+        </label>
+        @if (!usernameAvailable) {
+          <p style="color: red">Benutzername bereits vergeben</p>
+        }
+      </div>
+    </section>
+
+    <section class="profile-section">
+      <div>
+        <label>
+          Neues Passwort:
+          <input type="password" (input)="onNewPasswordChange($event.target.value)" />
+        </label>
+      </div>
+
+      <div>
+        <label>
+          Passwort bestätigen:
+          <input type="password" (input)="onNewPasswordConfirmChange($event.target.value)" />
+        </label>
+      </div>
+
+      @if (!passwordsMatch) {
+        <p style="color: red">Passwörter stimmen nicht überein</p>
+      }
+    </section>
+
+    <button (click)="saveChanges()">Speichern</button>
+  } @else {
+    <p class="error">Userdaten konnten nicht geladen werden.</p>
+  }
+</div>

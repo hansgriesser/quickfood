@@ -61,7 +61,11 @@ export class LoginComponent {
       }
     } catch (e) {
       const err = e as HttpErrorResponse;
-      this.errorMessage = err?.error?.message || 'Login failed';
+      if (err.status === 403) {
+        this.errorMessage = 'Ihr Account ist gesperrt-';
+      } else {
+        this.errorMessage = err?.error?.message || 'Login failed';
+      }
     } finally {
       this.isSubmitting = false;
     }
