@@ -10,7 +10,7 @@ import {
 @Component({
   selector: 'app-owner-dashboard',
   standalone: true,
-  imports: [RouterModule, OwnerNavComponent],
+  imports: [CommonModule,RouterModule, OwnerNavComponent],
   templateUrl: './owner-dashboard.component.html',
   styleUrls: ['./owner-dashboard.component.css'],
 })
