@@ -110,6 +110,15 @@
               Mark dispatched
             </button>
           }
+          @if (order.status === orderStatus.DISPATCHED) {
+            <button
+              type="button"
+              (click)="updateStatus(order, orderStatus.COMPLETED)"
+              [disabled]="isBusy(order.id)"
+              >
+              Mark completed
+            </button>
+          }
           <div class="chat-actions">
             <button type="button" class="secondary chat-btn" (click)="openChat(order.id)">💬</button>
             @if (unreadCountForOrder(order.id) > 0) {

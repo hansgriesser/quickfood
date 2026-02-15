@@ -12,10 +12,10 @@ const STATUS_FLOW: Record<PrismaOrderStatus, PrismaOrderStatus | null> = {
   ACCEPTED: PrismaOrderStatus.PREPARING,
   PREPARING: PrismaOrderStatus.READY,
   READY: PrismaOrderStatus.DISPATCHED,
-  DISPATCHED: null,
+  DISPATCHED: PrismaOrderStatus.COMPLETED,
   REJECTED: null,
   CANCELLED: null,
-  COMPLETED: PrismaOrderStatus.COMPLETED,
+  COMPLETED: null,
 };
 
 @Injectable()
@@ -106,10 +106,11 @@ export class OwnerOrdersService {
     if (
       status !== PrismaOrderStatus.PREPARING &&
       status !== PrismaOrderStatus.READY &&
-      status !== PrismaOrderStatus.DISPATCHED
+      status !== PrismaOrderStatus.DISPATCHED &&
+      status !== PrismaOrderStatus.COMPLETED
     ) {
       throw new BadRequestException(
-        'Status updates are limited to PREPARING, READY, or DISPATCHED.',
+        'Status updates are limited to PREPARING, READY, DISPATCHED, or COMPLETED.',
       );
     }
 
