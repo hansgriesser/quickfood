@@ -16,9 +16,8 @@ export class Profile {
 
   currUserSubject: BehaviorSubject<User> = new BehaviorSubject<User>({ username: null, id: null });
 
-  private currFullUserSubject: BehaviorSubject<FullUser | null> = new BehaviorSubject<FullUser | null>(
-    null,
-  );
+  private currFullUserSubject: BehaviorSubject<FullUser | null> =
+    new BehaviorSubject<FullUser | null>(null);
   readonly currFullUser$ = this.currFullUserSubject.asObservable();
 
   newPasswordSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
@@ -36,12 +35,13 @@ export class Profile {
     return this.newPasswordSubject.value === this.newPasswordConfirmSubject.value;
   }
 
-  async updateProfile() {
+  updateProfile(): Observable<FullUser> {
     const updateUserDto = {
       username: this.currUserSubject.value.username ?? null,
       password: this.newPasswordSubject.value ?? null,
     };
-    const response = await this.http
+
+    return this.http
       .patch<FullUser>(`${this.baseUrl}/${this.currUserSubject.value.id}`, updateUserDto)
       .pipe(
         tap((res) => {
@@ -51,8 +51,6 @@ export class Profile {
           });
         }),
       );
-    this.logout();
-    return response;
   }
 
   logout() {

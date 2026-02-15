@@ -7,6 +7,7 @@ import { debounceTime, Observable, Subject, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.css'],
   imports: [CommonModule],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
@@ -23,8 +24,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.profileService.loadProfile();
-    
+    this.profileService.loadProfile().subscribe({
+      error: (err) => console.error(err),
+    });
+
     this.profileService.currUserSubject
       .pipe(debounceTime(400), takeUntil(this.destroy$))
       .subscribe(() => {
@@ -48,7 +51,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.profileService.updateProfile();
+    this.profileService.updateProfile().subscribe({
+      next: () => {
+        this.profileService.logout();
+      },
+      error: (err) => {
+        console.error('Update fehlgeschlagen', err);
+      },
+    });
     alert('Profil erfolgreich aktualisiert. Sie werden ausgeloggt');
   }
 

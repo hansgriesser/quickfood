@@ -1,8 +1,8 @@
 <div class="profile-page">
   <h2>Profil</h2>
 
-  @if (fullUser$ | async; let fullUser) {
-    <div>
+  @if (fullUser$ | async; as fullUser) {
+    <div class="profile-info-card">
       <p>
         Profil als <strong>{{ fullUser.role }}</strong>
         angelegt am
@@ -10,7 +10,7 @@
       </p>
 
       @if (fullUser.isSuspended) {
-        <p style="color: red">
+        <p class="suspended">
           Account gesperrt
           @if (fullUser.suspendedUntil) {
             <span>({{ fullUser.suspendedUntil }})</span>
@@ -19,8 +19,9 @@
       }
     </div>
 
-    <section class="profile-section">
-      <div>
+    <section class="profile-section card">
+      <h3>Benutzername</h3>
+      <div class="field">
         <label>
           Benutzername:
           <input
@@ -35,15 +36,16 @@
       </div>
     </section>
 
-    <section class="profile-section">
-      <div>
+    <section class="profile-section card">
+      <h3>Passwort ändern</h3>
+      <div class="field">
         <label>
           Neues Passwort:
           <input type="password" (input)="onNewPasswordChange($event.target.value)" />
         </label>
       </div>
 
-      <div>
+      <div class="field">
         <label>
           Passwort bestätigen:
           <input type="password" (input)="onNewPasswordConfirmChange($event.target.value)" />
@@ -51,11 +53,11 @@
       </div>
 
       @if (!passwordsMatch) {
-        <p style="color: red">Passwörter stimmen nicht überein</p>
+        <p class="error-text">Passwörter stimmen nicht überein</p>
       }
     </section>
 
-    <button (click)="saveChanges()">Speichern</button>
+    <button class="save-btn" (click)="saveChanges()">Speichern</button>
   } @else {
     <p class="error">Userdaten konnten nicht geladen werden.</p>
   }

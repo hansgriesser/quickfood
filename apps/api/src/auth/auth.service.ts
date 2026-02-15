@@ -51,16 +51,9 @@ export class AuthService {
       meta: { username: user.username },
     });
 
-    const payload = { id: user.id, username: user.username, role: user.role };
-    const access_token = await this.generateJwt(payload);
+    const payload = { sub: user.id, username: user.username, role: user.role };
 
-    return { access_token: access_token };
-  }
-
-  async generateJwt(user: { id: number; username: string; role: Role }) {
-    const token = await this.jwt.signAsync(user);
-    console.log(token);
-    return token;
+    return { access_token: await this.jwt.signAsync(payload) };
   }
 
   async register(username: string, password: string, roleRaw: string) {
@@ -94,12 +87,12 @@ export class AuthService {
       });
 
       const payload = {
-        id: user.id,
+        sub: user.id,
         username: user.username,
         role: user.role,
       };
       return {
-        access_token: await this.generateJwt(payload),
+        access_token: await this.jwt.signAsync(payload),
         user,
       };
     } catch (e: any) {

@@ -8,7 +8,7 @@ const routes: Routes = [
   { path: 'review', component: Review },
   { path: 'confirmation', component: Confirmation },
   { path: 'payment', component: Payment },
-  { path: '*', redirectTo: 'review' }
+  { path: '*', redirectTo: 'review' },
 ];
 
 @NgModule({
