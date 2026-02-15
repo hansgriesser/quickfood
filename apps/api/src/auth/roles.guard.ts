@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from './roles.decorator';
+import { AuthenticatedRequest } from './requests/auth.requests';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -19,9 +20,7 @@ export class RolesGuard implements CanActivate {
 
     if (!requiredRoles || requiredRoles.length === 0) return true;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const req = context.switchToHttp().getRequest();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const req: AuthenticatedRequest = context.switchToHttp().getRequest();
     const role = req.user?.role;
 
     if (!role || !requiredRoles.includes(role)) {

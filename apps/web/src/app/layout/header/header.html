@@ -1,13 +1,10 @@
 <header class="header">
   <h1 class="title">QuickFood</h1>
 
-  <div class="actions" *ngIf="isLoggedIn">
-    <button class="btn profile-btn">
-      Profil
-    </button>
-
-    <button class="btn logout-btn" (click)="logout()">
-      Logout
-    </button>
-  </div>
+  @if (isLoggedIn) {
+    <div class="actions">
+      <button class="btn profile-btn" (click)="goToProfile()">Profil</button>
+      <button class="btn logout-btn" (click)="logout()">Logout</button>
+    </div>
+  }
 </header>

@@ -1,77 +1,73 @@
-import { Component } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import {
-    ReactiveFormsModule,
-    FormBuilder,
-    FormGroup,
-    Validators,
-    FormControl
-} from "@angular/forms";
-import { AuthService } from "../../auth.service";
-import { Router, RouterModule } from "@angular/router";
+import { Component, inject } from '@angular/core';
+
+import { ReactiveFormsModule, FormGroup, Validators, FormControl } from '@angular/forms';
+import { AuthService } from '../../auth.service';
+import { Router, RouterModule } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
-    selector: 'app-login',
-    standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
-    templateUrl: './login.component.html',
-    styleUrls: ['./login.component.css']
+  selector: 'app-login',
+  standalone: true,
+  imports: [ReactiveFormsModule, RouterModule],
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {
-    isSubmitting = false;
-    errorMessage: string | null = null;
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
-    form = new FormGroup({
-        username: new FormControl<string>('', {
-            nonNullable: true,
-            validators: [Validators.required]
-        }),
-        password: new FormControl<string>('', {
-            nonNullable: true,
-            validators: [Validators.required]
-        })
-    });
-    
-    constructor(
-        private readonly auth: AuthService,
-        private readonly router: Router
-    ) {}
+  isSubmitting = false;
+  errorMessage: string | null = null;
 
-    async onSubmit(): Promise<void> {
-        this.errorMessage = null;
-        
-        if (this.form.invalid) {
-            this.form.markAllAsTouched();
-            return;
-        }
+  form = new FormGroup({
+    username: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    password: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+  });
 
-        this.isSubmitting = true;
-        
-        try {
-            const { username, password } = this.form.getRawValue();
-            await this.auth.login({ username, password });
+  async onSubmit(): Promise<void> {
+    this.errorMessage = null;
 
-            const role = this.auth.getUserRole();
-
-
-            switch (role) {
-                case 'ADMIN':
-                    await this.router.navigate(['/admin']);
-                    break;
-                case 'USER':
-                    await this.router.navigate(['/restaurants']);
-                    break;
-                case 'OWNER': 
-                    await this.router.navigate(['/owner']);
-                    break;
-                default:
-                    await this.router.navigate(['/']);
-            }
-
-        } catch (e: any) {
-            this.errorMessage = e?.error?.message || 'Login failed';
-        } finally {
-            this.isSubmitting = false;
-        }
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
     }
+
+    this.isSubmitting = true;
+
+    try {
+      const { username, password } = this.form.getRawValue();
+      await this.auth.login({ username, password });
+
+      const role = this.auth.getUserRole();
+
+      switch (role) {
+        case 'ADMIN':
+          await this.router.navigate(['/admin']);
+          break;
+        case 'USER':
+          await this.router.navigate(['/restaurants']);
+          break;
+        case 'OWNER':
+          await this.router.navigate(['/owner']);
+          break;
+        default:
+          await this.router.navigate(['/']);
+      }
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      if (err.status === 403) {
+        this.errorMessage = 'Ihr Account ist gesperrt-';
+      } else {
+        this.errorMessage = err?.error?.message || 'Login failed';
+      }
+    } finally {
+      this.isSubmitting = false;
+    }
+  }
 }

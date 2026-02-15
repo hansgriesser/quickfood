@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   BadRequestException,
   ConflictException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
@@ -11,6 +12,11 @@ import { Role } from '@generated/prisma/enums';
 
 import { ActivityService } from '../activity/activity.service';
 import { ActivityType } from '@generated/prisma/enums';
+import { Prisma } from '@generated/prisma/client';
+import { JwtPayload } from './jwt-payload.type';
+
+const PRISMA_ERROR_UNIQUE_CONSTRAINT = 'P2002';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -23,6 +29,13 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { username } });
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
+    if (user.isSuspended) {
+      const now = new Date();
+      const suspendedUntil = user.suspendedUntil;
+      if (suspendedUntil === null || suspendedUntil > now) {
+        throw new ForbiddenException('Ihr Account wurde gesperrt');
+      }
+    }
     const isHashed = user.password.startsWith('$2');
     const ok = isHashed
       ? await bcrypt.compare(password, user.password)
@@ -31,7 +44,6 @@ export class AuthService {
     if (!ok) throw new UnauthorizedException('Invalid credentials');
 
     await this.activity.log({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       type: ActivityType.AUTH_LOGIN_SUCCESS,
       actorId: user.id,
       targetType: null,
@@ -40,10 +52,10 @@ export class AuthService {
     });
 
     const payload = { sub: user.id, username: user.username, role: user.role };
-    return {
-      access_token: await this.jwt.signAsync(payload),
-    };
+
+    return { access_token: await this.jwt.signAsync(payload) };
   }
+
   async register(username: string, password: string, roleRaw: string) {
     const role = this.normalizeRole(roleRaw);
 
@@ -52,7 +64,9 @@ export class AuthService {
     if (!password?.trim())
       throw new BadRequestException('Password cannot be empty');
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await this.hashPassword(password);
+
+    if (!passwordHash) return;
 
     try {
       const user = await this.prisma.user.create({
@@ -65,7 +79,6 @@ export class AuthService {
       });
 
       await this.activity.log({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         type: ActivityType.AUTH_REGISTER,
         actorId: user.id,
         meta: { username: user.username, role: user.role },
@@ -83,12 +96,21 @@ export class AuthService {
         user,
       };
     } catch (e: any) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (e.code === 'P2002') {
-        throw new ConflictException('Username already taken');
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === PRISMA_ERROR_UNIQUE_CONSTRAINT) {
+          throw new ConflictException('Username already taken');
+        }
       }
       throw e;
     }
+  }
+
+  verifyToken(token: string): JwtPayload {
+    return this.jwt.verify(token);
+  }
+
+  async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, 10);
   }
 
   private normalizeRole(roleRaw: string): Role {

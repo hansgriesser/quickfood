@@ -1,9 +1,42 @@
 <section class="owner-dashboard">
-  <h1>Owner Dashboard</h1>
-  <p>Manage your restaurants, menus, and incoming orders.</p>
+  <app-owner-nav></app-owner-nav>
+  <header class="hero">
+    <h1>Owner Dashboard</h1>
+    <p>At-a-glance performance for the last 7 days.</p>
+  </header>
 
-  <div class="quick-links">
-    <a routerLink="/owner/restaurants">My Restaurants</a>
-    <a routerLink="/owner/orders">Orders</a>
-  </div>
+  <div class="status" *ngIf="isLoading">Loading overview...</div>
+  <div class="status error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <ng-container *ngIf="summary && !isLoading">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <p class="label">Today</p>
+        <h2>{{ todayOrders }}</h2>
+        <p class="hint">{{ summary.range.to }}</p>
+      </div>
+      <div class="stat-card">
+        <p class="label">Last 7 days</p>
+        <h2>{{ summary.weeklyOrders }}</h2>
+        <p class="hint">{{ summary.range.from }} → {{ summary.range.to }}</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Top dishes</h2>
+        <a routerLink="/owner/analytics">View full analytics</a>
+      </div>
+      <div class="status" *ngIf="summary.topDishes.length === 0">No orders yet.</div>
+      <div class="dish-list" *ngIf="summary.topDishes.length > 0">
+        <div class="dish-row" *ngFor="let dish of topDishesPreview; trackBy: trackByDishId">
+          <div>
+            <strong>{{ dish.name }}</strong>
+            <span class="muted" *ngIf="dish.restaurantName">({{ dish.restaurantName }})</span>
+          </div>
+          <span class="count">{{ dish.orders }} ordered</span>
+        </div>
+      </div>
+    </div>
+  </ng-container>
 </section>

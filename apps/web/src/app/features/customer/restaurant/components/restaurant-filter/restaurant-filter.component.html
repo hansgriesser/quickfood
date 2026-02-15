@@ -15,27 +15,33 @@
     <mat-form-field class="filter-field">
       <mat-label>Kategorie</mat-label>
       <mat-select [(ngModel)]="category" (selectionChange)="onFilterChange()">
-        <mat-option *ngFor="let cat of categories" [value]="cat.value">
-          {{ cat.label }}
-        </mat-option>
+        @for (cat of categories; track cat) {
+          <mat-option [value]="cat.value">
+            {{ cat.label }}
+          </mat-option>
+        }
       </mat-select>
     </mat-form-field>
 
     <mat-form-field class="filter-field">
       <mat-label>Mindestbewertung</mat-label>
       <mat-select [(ngModel)]="minRating" (selectionChange)="onFilterChange()">
-        <mat-option *ngFor="let rating of ratings" [value]="rating.value">
-          {{ rating.label }}
-        </mat-option>
+        @for (rating of ratings; track rating) {
+          <mat-option [value]="rating.value">
+            {{ rating.label }}
+          </mat-option>
+        }
       </mat-select>
     </mat-form-field>
 
     <mat-form-field class="filter-field">
       <mat-label>Sortieren nach</mat-label>
       <mat-select [(ngModel)]="sortBy" (selectionChange)="onFilterChange()">
-        <mat-option *ngFor="let option of sortOptions" [value]="option.value">
-          {{ option.label }}
-        </mat-option>
+        @for (option of sortOptions; track option) {
+          <mat-option [value]="option.value">
+            {{ option.label }}
+          </mat-option>
+        }
       </mat-select>
     </mat-form-field>
 
@@ -49,8 +55,6 @@
   </div>
 
   <div class="filter-actions">
-    <button mat-stroked-button (click)="resetFilters()">
-      Zurücksetzen
-    </button>
+    <button mat-stroked-button (click)="resetFilters()">Zurücksetzen</button>
   </div>
 </div>

@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Dish } from '../../restaurant/restaurant.model';
-import { BehaviorSubject, map, Observable} from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { CartDto, CartItemDto } from '../cartDTO';
 import { OrderDraft } from '../../order/services/order-draft';
 import { ServiceFeeService } from '../../order/services/service-fee';
@@ -10,58 +10,47 @@ import { combineLatest } from 'rxjs';
   providedIn: 'root',
 })
 export class CartService {
+  private orderDraftService = inject(OrderDraft);
+  private feeService = inject(ServiceFeeService);
 
   private cartSubject = new BehaviorSubject<CartDto>({
     restaurantId: '',
     items: [],
-    totalPrice: 0
+    totalPrice: 0,
   });
 
   cart$ = this.cartSubject.asObservable();
-  cartItems$ = this.cart$.pipe(
-    map(cart => cart.items)
-  );
-  restaurantId$ = this.cart$.pipe(
-    map(cart => cart.restaurantId)
-  );
+  cartItems$ = this.cart$.pipe(map((cart) => cart.items));
+  restaurantId$ = this.cart$.pipe(map((cart) => cart.restaurantId));
   serviceFee$!: Observable<number>;
   totalPrice$!: Observable<number>;
 
-  constructor(
-    private orderDraftService: OrderDraft,
-    private feeService: ServiceFeeService
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     const saved = localStorage.getItem('cart');
     if (saved) {
       this.cartSubject.next(JSON.parse(saved) as CartDto);
     }
 
-    this.cart$.subscribe(cart =>
-      localStorage.setItem('cart', JSON.stringify(cart))
-    );
+    this.cart$.subscribe((cart) => localStorage.setItem('cart', JSON.stringify(cart)));
 
     this.feeService.loadServiceFee();
     this.serviceFee$ = this.feeService.serviceFee$;
 
-    this.totalPrice$ = combineLatest([
-      this.cart$,
-      this.serviceFee$
-    ]).pipe(
+    this.totalPrice$ = combineLatest([this.cart$, this.serviceFee$]).pipe(
       map(([cart, serviceFee]) => {
-        const subtotal = cart.items.reduce(
-          (acc, i) => acc + i.price * i.quantity,
-          0
-        );
+        const subtotal = cart.items.reduce((acc, i) => acc + i.price * i.quantity, 0);
 
         const feeAmount = Math.round(subtotal * (serviceFee / 100));
         return subtotal + feeAmount;
-      })
+      }),
     );
   }
 
-
   //Kommunikation mit Services
-  
+
   prepareOrder() {
     return this.orderDraftService.prepareOrder(this.cartSubject.value);
   }
@@ -73,10 +62,10 @@ export class CartService {
     this.cartSubject.next({
       restaurantId: '',
       items: [],
-      totalPrice: 0
+      totalPrice: 0,
     });
   }
-  
+
   addDish(dish: Dish, restaurantId?: string) {
     const cart = this.cartSubject.value;
 
@@ -85,10 +74,10 @@ export class CartService {
       name: dish.name,
       price: dish.price,
       quantity: 1,
-      pictureUrl: dish.pictureUrl
+      pictureUrl: dish.pictureUrl,
     };
 
-    const existing = cart.items.find(i => i.dishId === item.dishId);
+    const existing = cart.items.find((i) => i.dishId === item.dishId);
     if (existing) {
       existing.quantity++;
     } else {
@@ -101,7 +90,7 @@ export class CartService {
 
   addItem(item: CartItemDto) {
     const cart = this.cartSubject.value;
-    const existing = cart.items.find(i => i.dishId === item.dishId);
+    const existing = cart.items.find((i) => i.dishId === item.dishId);
 
     if (existing) {
       existing.quantity++; // Mutieren ist okay, updateCart macht neues Array
@@ -117,7 +106,7 @@ export class CartService {
 
     this.updateCart({
       ...cart,
-      items: cart.items.filter(i => i.dishId !== dishId)
+      items: cart.items.filter((i) => i.dishId !== dishId),
     });
   }
 
@@ -125,16 +114,12 @@ export class CartService {
     const cart = this.cartSubject.value;
 
     const updatedItems = cart.items
-      .map(i =>
-        i.dishId === dishId
-          ? { ...i, quantity: i.quantity - 1 }
-          : i
-      )
-      .filter(i => i.quantity > 0);
+      .map((i) => (i.dishId === dishId ? { ...i, quantity: i.quantity - 1 } : i))
+      .filter((i) => i.quantity > 0);
 
     this.updateCart({
       ...cart,
-      items: updatedItems
+      items: updatedItems,
     });
   }
 
@@ -148,7 +133,7 @@ export class CartService {
 
     this.cartSubject.next({
       ...cart,
-      items: [...cart.items]
+      items: [...cart.items],
     });
 
     localStorage.setItem('cart', JSON.stringify(this.cartSubject.value));

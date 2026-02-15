@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AdminStatsService, AdminStatsSummary } from '../../services/admin-stats.service';
@@ -6,6 +6,7 @@ import { AdminActivityService } from '../../services/admin-activity.service';
 import { ActivityLog } from '../../model/activity-log.model';
 import { firstValueFrom } from 'rxjs';
 import { finalize, take } from 'rxjs/operators';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-admin-overview',
@@ -16,6 +17,10 @@ import { finalize, take } from 'rxjs/operators';
   providers: [AdminStatsService],
 })
 export class AdminOverviewComponent implements OnInit {
+  private readonly activityService = inject(AdminActivityService);
+  private readonly stats = inject(AdminStatsService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
   recentActivity: ActivityLog[] = [];
   loadingActivity = true;
 
@@ -23,12 +28,6 @@ export class AdminOverviewComponent implements OnInit {
   error: string | null = null;
 
   summary: AdminStatsSummary | null = null;
-
-  constructor(
-    private readonly activityService: AdminActivityService,
-    private readonly stats: AdminStatsService,
-    private readonly cdr: ChangeDetectorRef
-  ) {}
 
   async ngOnInit(): Promise<void> {
     this.error = null;
@@ -38,16 +37,14 @@ export class AdminOverviewComponent implements OnInit {
 
     try {
       // parallel starten
-      const [summary] = await Promise.all([
-        this.loadSummary(),
-        this.loadRecentActivity(),
-      ]);
+      const [summary] = await Promise.all([this.loadSummary(), this.loadRecentActivity()]);
 
       this.summary = summary;
       // console.log('SUMMARY', this.summary);
-    } catch (e: any) {
+    } catch (e) {
+      const err = e as HttpErrorResponse;
       // wenn Summary fehlschlägt
-      this.error = e?.error?.message ?? e?.message ?? 'Failed to load statistics';
+      this.error = err?.error?.message ?? err?.message ?? 'Failed to load statistics';
     } finally {
       this.loadingStats = false;
       this.cdr.detectChanges();
@@ -88,6 +85,8 @@ export class AdminOverviewComponent implements OnInit {
         return `Restaurant approved (${a.meta?.name ?? a.targetId})`;
       case 'ADMIN_RESTAURANT_REJECT':
         return `Restaurant rejected (${a.meta?.name ?? a.targetId})`;
+      case 'AUTH_REGISTER':
+        return `New ${String(a.meta?.role).toLowerCase()} registered: ${a.meta?.username}`;
       default:
         return a.type;
     }

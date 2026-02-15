@@ -1,17 +1,22 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectorRef, OnInit, inject } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { AdminRestaurantsService, AdminRestaurant, RestaurantStatus } from '../../services/admin-restaurants.service';
+import { AdminRestaurantsService } from '../../services/admin-restaurants.service';
+import { RestaurantStatus, AdminRestaurant } from '../../model/admin-restaurants.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-admin-restaurants',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule],
   templateUrl: './admin-restaurants.component.html',
   styleUrls: ['./admin-restaurants.component.css'],
 })
-export class AdminRestaurantsComponent {
+export class AdminRestaurantsComponent implements OnInit {
+  private readonly adminRestaurants = inject(AdminRestaurantsService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
   statuses: (RestaurantStatus | 'ALL')[] = ['ALL', 'PENDING', 'ACTIVE', 'REJECTED'];
   selected: RestaurantStatus | 'ALL' = 'PENDING';
 
@@ -25,17 +30,13 @@ export class AdminRestaurantsComponent {
   restaurantModalSubmitting = false;
   restaurantModalError: string | null = null;
 
-  constructor(private readonly adminRestaurants: AdminRestaurantsService,
-              private readonly cdr: ChangeDetectorRef
-  ) {}
-
   ngOnInit(): void {
     void this.load();
   }
 
   async onStatusChange(value: RestaurantStatus | 'ALL'): Promise<void> {
-  this.selected = value;
-  await this.load();
+    this.selected = value;
+    await this.load();
   }
 
   async load(): Promise<void> {
@@ -45,8 +46,9 @@ export class AdminRestaurantsComponent {
     try {
       const status = this.selected === 'ALL' ? undefined : this.selected;
       this.restaurants = await this.adminRestaurants.list(status);
-    } catch (e: any) {
-      this.error = e?.error?.message || e?.message || 'Failed to load restaurants';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err?.error?.message || err?.message || 'Failed to load restaurants';
     } finally {
       this.loading = false;
       this.cdr.detectChanges();
@@ -57,8 +59,9 @@ export class AdminRestaurantsComponent {
     try {
       await this.adminRestaurants.approve(r.id);
       await this.load();
-    } catch (e: any) {
-      this.error = e?.error?.message || e?.message || 'Approve failed';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err?.error?.message || err?.message || 'Approve failed';
     }
   }
 
@@ -66,15 +69,13 @@ export class AdminRestaurantsComponent {
     try {
       await this.adminRestaurants.reject(r.id);
       await this.load();
-    } catch (e: any) {
-      this.error = e?.error?.message || e?.message || 'Reject failed';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err?.error?.message || err?.message || 'Reject failed';
     }
   }
 
-  openRestaurantDecisionModal(
-    r: AdminRestaurant,
-    decision: 'APPROVE' | 'REJECT'
-  ): void {
+  openRestaurantDecisionModal(r: AdminRestaurant, decision: 'APPROVE' | 'REJECT'): void {
     this.modalRestaurant = r;
     this.restaurantDecision = decision;
     this.restaurantModalError = null;
@@ -103,9 +104,9 @@ export class AdminRestaurantsComponent {
         await this.reject(this.modalRestaurant);
       }
       this.closeRestaurantDecisionModal();
-    } catch (e: any) {
-      this.restaurantModalError =
-        e?.error?.message || e?.message || 'Action failed';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.restaurantModalError = err?.error?.message || err?.message || 'Action failed';
     } finally {
       this.restaurantModalSubmitting = false;
       this.cdr.detectChanges();

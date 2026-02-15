@@ -1,85 +1,75 @@
-<section class="review-page" *ngIf="draft$ | async as draft">
+@if (draft$ | async; as draft) {
+  <section class="review-page">
+    @if (restaurant$ | async; as restaurant) {
+      <app-restaurant-header class="restaurant-header" [restaurant]="restaurant">
+      </app-restaurant-header>
+    }
+    <h2>Bestellung prüfen</h2>
+    @for (item of draft.items; track item) {
+      <div class="cart-item-card">
+        <div class="item-info">
+          <h3>{{ item.name }}</h3>
+          <p>{{ item.quantity }} × {{ item.unitPrice / 100 | currency: 'EUR' }}</p>
+          <p>
+            <strong>
+              {{ item.totalPrice / 100 | currency: 'EUR' }}
+            </strong>
+          </p>
+        </div>
+      </div>
+    }
+    @if (voucherState$ | async; as voucherState) {
+      <div class="voucher-box">
+        <label for="voucher">Gutscheincode</label>
+        <div class="voucher-input">
+          <input
+            id="voucher"
+            type="text"
+            [(ngModel)]="voucherCode"
+            placeholder="z.B. FOOD10"
+            (input)="onInputChange()"
+            (keyup.enter)="checkVoucher()"
+          />
+          <button
+            (click)="checkVoucher()"
+            [ngClass]="{
+              success: voucherState === 'valid',
+              error: voucherState === 'invalid',
+            }"
+            [disabled]="voucherState === 'valid'"
+          >
+            Prüfen
+          </button>
+        </div>
+        @if (voucherState === 'valid') {
+          <p class="voucher-success">✔ Gutschein angewendet</p>
+        }
+        @if (voucherState === 'invalid') {
+          <p class="voucher-error">✖ Ungültiger Gutschein</p>
+        }
+      </div>
+    }
+    @if (orderDraftService.subtotalAmount$ | async; as subtotal) {
+      <div class="cart-summary">
+        <p>Subtotal: {{ subtotal / 100 | currency: 'EUR' }}</p>
+        @if (orderDraftService.discountAmount$ | async; as discount) {
+          <p>
+            @if (discount > 0) {
+              <span> Rabatt: − {{ discount / 100 | currency: 'EUR' }} </span>
+            }
+          </p>
+        }
+        @if (orderDraftService.feeAmount$ | async; as fee) {
+          <p>Service Fees: {{ fee / 100 | currency: 'EUR' }}</p>
+        }
+        @if (orderDraftService.totalAmount$ | async; as total) {
+          <p>
+            <strong> Gesamt: {{ total / 100 | currency: 'EUR' }} </strong>
+          </p>
+        }
+      </div>
+    }
+  </section>
+}
 
-  <app-restaurant-header class="restaurant-header"
-    *ngIf="restaurant$ | async as restaurant"
-    [restaurant]="restaurant">
-  </app-restaurant-header>
-  
-  <h2>Bestellung prüfen</h2>
-
-  <div class="cart-item-card" *ngFor="let item of draft.items">
-
-    <div class="item-info">
-      <h3>{{ item.name }}</h3>
-      <p>
-        {{ item.quantity }} × {{ item.unitPrice / 100 | currency:'EUR' }}
-      </p>
-      <p>
-        <strong>
-          {{ item.totalPrice / 100 | currency:'EUR' }}
-        </strong>
-      </p>
-    </div>
-  </div>
-
-  <div class="voucher-box" *ngIf="voucherState$ | async as voucherState">
-    <label for="voucher">Gutscheincode</label>
-
-    <div class="voucher-input">
-      <input
-        id="voucher"
-        type="text"
-        [(ngModel)]="voucherCode"
-        placeholder="z.B. FOOD10"
-        (input)="onInputChange()"
-        (keyup.enter)="checkVoucher()"
-      />
-
-      <button
-        (click)="checkVoucher()"
-        [ngClass]="{
-          success: voucherState === 'valid',
-          error: voucherState === 'invalid'
-        }"
-        [disabled]="voucherState === 'valid'"
-      >
-        Prüfen
-      </button>
-    </div>
-
-    <p class="voucher-success" *ngIf="voucherState === 'valid'">
-      ✔ Gutschein angewendet
-    </p>
-    <p class="voucher-error" *ngIf="voucherState === 'invalid'">
-      ✖ Ungültiger Gutschein
-    </p>
-  </div>
-
-  <div class="cart-summary" *ngIf="orderDraftService.subtotalAmount$ | async as subtotal">
-    <p>Subtotal: {{ subtotal / 100 | currency:'EUR' }}</p>
-
-    <p *ngIf="orderDraftService.discountAmount$ | async as discount">
-      <span *ngIf="discount > 0">
-        Rabatt: − {{ discount / 100 | currency:'EUR' }}
-      </span>
-    </p>
-
-    <p *ngIf="orderDraftService.feeAmount$ | async as fee">
-      Service Fees: {{ fee / 100 | currency:'EUR' }}
-    </p>
-
-    <p *ngIf="orderDraftService.totalAmount$ | async as total"><strong>
-      Gesamt: {{ total / 100 | currency:'EUR' }}
-    </strong></p>
-  </div>
-
-
-</section>
-
-<button
-  class="checkout-button"
-  (click)="goToPayment()"
->
-  Weiter zur Zahlung
-</button>
-
+<button class="checkout-button" (click)="goToPayment()">Weiter zur Zahlung</button>

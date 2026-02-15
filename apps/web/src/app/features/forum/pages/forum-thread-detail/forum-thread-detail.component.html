@@ -1,96 +1,114 @@
 <section class="forum-page">
   <header class="forum-header">
     <div class="forum-header__titles">
-      <h1 *ngIf="thread; else loadingTitle">{{ thread.title }}</h1>
-      <ng-template #loadingTitle>
+      @if (thread) {
+        <h1>{{ thread.title }}</h1>
+      } @else {
         <h1>Frage</h1>
-      </ng-template>
+      }
 
-      <p *ngIf="thread" class="muted">
-        Restaurant: <strong>{{ thread.restaurant.name }}</strong>
-        · von <strong>{{ thread.author.username }}</strong>
-        · {{ thread.createdAt | date:'dd.MM.yyyy, HH:mm' }}
-      </p>
+      @if (thread) {
+        <p class="muted">
+          Restaurant: <strong>{{ thread.restaurant.name }}</strong> · von
+          <strong>{{ thread.author.username }}</strong> ·
+          {{ thread.createdAt | date: 'dd.MM.yyyy, HH:mm' }}
+        </p>
+      }
     </div>
 
-    <a class="link-back" *ngIf="thread" [routerLink]="['/forum/restaurant', thread.restaurantId]">
-      ← Zurück zum Restaurant
-    </a>
+    @if (thread) {
+      <a class="link-back" [routerLink]="['/forum/restaurant', thread.restaurantId]">
+        ← Zurück zum Restaurant
+      </a>
+    }
   </header>
 
-  <div *ngIf="loading" class="state state--loading">
-    <div class="spinner" aria-hidden="true"></div>
-    <div>
-      <div class="state__title">Lade Inhalte…</div>
-      <div class="state__text">Bitte einen Moment.</div>
+  @if (loading) {
+    <div class="state state--loading">
+      <div class="spinner" aria-hidden="true"></div>
+      <div>
+        <div class="state__title">Lade Inhalte…</div>
+        <div class="state__text">Bitte einen Moment.</div>
+      </div>
     </div>
-  </div>
+  }
 
-  <div *ngIf="!loading && error" class="state state--error">
-    <div class="state__title">Konnte nicht geladen werden</div>
-    <div class="state__text">{{ error }}</div>
-  </div>
+  @if (!loading && error) {
+    <div class="state state--error">
+      <div class="state__title">Konnte nicht geladen werden</div>
+      <div class="state__text">{{ error }}</div>
+    </div>
+  }
 
-  <ng-container *ngIf="!loading && !error && thread">
+  @if (!loading && !error && thread) {
     <div class="card">
       <div class="card__head">
         <h2>Frage</h2>
-        <span class="pill" *ngIf="thread.isClosed">Geschlossen</span>
+        @if (thread.isClosed) {
+          <span class="pill">Geschlossen</span>
+        }
       </div>
-
       <p class="body">{{ thread.content }}</p>
-
-      <div class="row-actions" *ngIf="canModerate">
-        <button class="btn btn--ghost" type="button" (click)="closeThread()" [disabled]="thread.isClosed">
-          Frage schließen
-        </button>
-        <button class="btn btn--danger" type="button" (click)="deleteThread()">
-          Frage löschen
-        </button>
-      </div>
+      @if (canModerate) {
+        <div class="row-actions">
+          <button
+            class="btn btn--ghost"
+            type="button"
+            (click)="closeThread()"
+            [disabled]="thread.isClosed"
+          >
+            Frage schließen
+          </button>
+          <button class="btn btn--danger" type="button" (click)="deleteThread()">
+            Frage löschen
+          </button>
+        </div>
+      }
     </div>
-
     <div class="card">
       <div class="card__head">
         <h2>Antworten</h2>
         <span class="pill">{{ thread.post.length }}</span>
       </div>
-
-      <div *ngIf="thread.post.length === 0" class="empty">
-        <div class="empty__title">Noch keine Antworten</div>
-        <div class="empty__text">Sei die erste Person, die hilft.</div>
-      </div>
-
-      <ul *ngIf="thread.post.length > 0" class="list">
-        <li *ngFor="let p of thread.post" class="answer">
-          <div class="answer__head">
-            <div class="answer__who">
-              <strong>{{ p.author.username }}</strong>
-              <span class="muted">· {{ p.createdAt | date:'dd.MM.yyyy, HH:mm' }}</span>
-            </div>
-
-            <button
-              *ngIf="canModerate"
-              class="btn btn--danger btn--small"
-              type="button"
-              (click)="deletePost(p.id)"
-              title="Antwort löschen"
-            >
-              Löschen
-            </button>
-          </div>
-
-          <div class="answer__text">{{ p.content }}</div>
-        </li>
-      </ul>
+      @if (thread.post.length === 0) {
+        <div class="empty">
+          <div class="empty__title">Noch keine Antworten</div>
+          <div class="empty__text">Sei die erste Person, die hilft.</div>
+        </div>
+      }
+      @if (thread.post.length > 0) {
+        <ul class="list">
+          @for (p of thread.post; track p) {
+            <li class="answer">
+              <div class="answer__head">
+                <div class="answer__who">
+                  <strong>{{ p.author.username }}</strong>
+                  <span class="muted">· {{ p.createdAt | date: 'dd.MM.yyyy, HH:mm' }}</span>
+                </div>
+                @if (canModerate) {
+                  <button
+                    class="btn btn--danger btn--small"
+                    type="button"
+                    (click)="deletePost(p.id)"
+                    title="Antwort löschen"
+                  >
+                    Löschen
+                  </button>
+                }
+              </div>
+              <div class="answer__text">{{ p.content }}</div>
+            </li>
+          }
+        </ul>
+      }
     </div>
-
     <div class="card card--form">
       <div class="card__head">
         <h2>Antwort schreiben</h2>
-        <span class="muted" *ngIf="thread.isClosed">Diese Frage ist geschlossen.</span>
+        @if (thread.isClosed) {
+          <span class="muted">Diese Frage ist geschlossen.</span>
+        }
       </div>
-
       <form (ngSubmit)="sendReply()" class="form">
         <textarea
           class="textarea"
@@ -102,17 +120,20 @@
           [disabled]="thread.isClosed || !isLoggedIn"
           required
         ></textarea>
-
         <div class="hint muted">{{ reply.length }}/1500</div>
-
         <div class="form__actions">
-          <button class="btn btn--primary" type="submit" [disabled]="thread.isClosed || !isLoggedIn || !reply.trim()">
+          <button
+            class="btn btn--primary"
+            type="submit"
+            [disabled]="thread.isClosed || !isLoggedIn || !reply.trim()"
+          >
             Antworten
           </button>
-
-          <span *ngIf="!isLoggedIn" class="muted">Zum Antworten bitte anmelden.</span>
+          @if (!isLoggedIn) {
+            <span class="muted">Zum Antworten bitte anmelden.</span>
+          }
         </div>
       </form>
     </div>
-  </ng-container>
+  }
 </section>

@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { mapOrderToDto, OrderDto } from './order.dto';
+import { CreateOrderDto, mapOrderToDto, OrderDto } from './order.dto';
 import { VoucherService } from 'src/voucher/voucher.service';
+import { OrderStatus } from '@generated/prisma/enums';
 
 export const SERVICE_FEE_KEY = 'SERVICE_FEE_PERCENT';
 
@@ -12,7 +13,7 @@ export class OrderService {
     private voucherService: VoucherService,
   ) {}
 
-  async placeOrder(order: OrderDto, userId: number) {
+  async placeOrder(order: CreateOrderDto, userId: number) {
     const itemsWithTotals = order.items.map((item) => {
       const totalPrice = BigInt(item.quantity) * BigInt(item.unitPrice ?? 0);
       return {
@@ -45,7 +46,7 @@ export class OrderService {
       data: {
         restaurantId: order.restaurantId,
         customerId: userId,
-        status: order.status,
+        status: OrderStatus.PENDING,
         subtotalAmount: subtotalAmount,
         discountAmount: discountAmount,
         serviceAmount: serviceFeeAmount,

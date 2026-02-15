@@ -1,44 +1,40 @@
-<section class="cart-page" *ngIf="cartItems$ | async as items; else emptyCart">
-
-  <app-restaurant-header class="restaurant-header"
-    *ngIf="restaurant$ | async as restaurant"
-    [restaurant]="restaurant">
-  </app-restaurant-header>
-
-  <h2>Dein Warenkorb</h2>
-
-  <div class="cart-item-card" *ngFor="let item of items">
-  
-    <img *ngIf="item.pictureUrl" [src]="item.pictureUrl" class="dish-image">
-
-    <div class="item-info">
-        <h3>{{ item.name }}</h3>
-        <p>Preis: {{ item.price / 100 | currency:'EUR' }}</p>
-
-        <div class="quantity-control">
-        <button (click)="decreaseQuantity(item.dishId)">-</button>
-        <span>{{ item.quantity }}</span>
-        <button (click)="increaseQuantityInCart(item)">+</button>
+@if (cartItems$ | async; as items) {
+  <section class="cart-page">
+    @if (restaurant$ | async; as restaurant) {
+      <app-restaurant-header class="restaurant-header" [restaurant]="restaurant">
+      </app-restaurant-header>
+    }
+    <h2>Dein Warenkorb</h2>
+    @for (item of items; track item) {
+      <div class="cart-item-card">
+        @if (item.pictureUrl) {
+          <img [src]="item.pictureUrl" class="dish-image" />
+        }
+        <div class="item-info">
+          <h3>{{ item.name }}</h3>
+          <p>Preis: {{ item.price / 100 | currency: 'EUR' }}</p>
+          <div class="quantity-control">
+            <button (click)="decreaseQuantity(item.dishId)">-</button>
+            <span>{{ item.quantity }}</span>
+            <button (click)="increaseQuantityInCart(item)">+</button>
+          </div>
         </div>
-    </div>
-
-    <button class="remove-button" (click)="removeItem(item.dishId)">×</button>
-  </div>
-
-  <ng-container *ngIf="cartSummary$ | async as summary">
-    <div class="cart-summary">
-        <p>Subtotal: {{ summary.subtotal / 100 | currency:'EUR' }}</p>
-        <p>Service Fee: {{ summary.fee / 100 | currency:'EUR' }}</p>
-        <p><strong>Gesamt: {{ summary.total / 100 | currency:'EUR' }}</strong></p>
-    </div>
-  </ng-container>
-
-
-</section>
-
-<ng-template #emptyCart>
+        <button class="remove-button" (click)="removeItem(item.dishId)">×</button>
+      </div>
+    }
+    @if (cartSummary$ | async; as summary) {
+      <div class="cart-summary">
+        <p>Subtotal: {{ summary.subtotal / 100 | currency: 'EUR' }}</p>
+        <p>Service Fee: {{ summary.fee / 100 | currency: 'EUR' }}</p>
+        <p>
+          <strong>Gesamt: {{ summary.total / 100 | currency: 'EUR' }}</strong>
+        </p>
+      </div>
+    }
+  </section>
+} @else {
   <p>Dein Warenkorb ist leer.</p>
-</ng-template>
+}
 
 <!-- Fixierter Bestellen-Button -->
 <button class="checkout-button" (click)="placeOrder()">Bestellen</button>

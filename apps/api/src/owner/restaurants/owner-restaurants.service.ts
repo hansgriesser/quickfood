@@ -35,6 +35,8 @@ export class OwnerRestaurantsService {
         contactEmail: dto.contactEmail,
         contactPhone: dto.contactPhone,
         category: dto.category,
+        logoUrl: this.normalizePictureUrl(dto.logoUrl),
+        bannerUrl: this.normalizePictureUrl(dto.bannerUrl),
         status: RestaurantStatus.PENDING,
       },
     });
@@ -54,11 +56,17 @@ export class OwnerRestaurantsService {
       contactEmail?: string;
       contactPhone?: string;
       category?: string;
+      logoUrl?: string | null;
+      bannerUrl?: string | null;
     } = {
       name: dto.name,
       contactEmail: dto.contactEmail,
       contactPhone: dto.contactPhone,
       category: dto.category,
+      logoUrl:
+        dto.logoUrl !== undefined ? this.normalizePictureUrl(dto.logoUrl) : undefined,
+      bannerUrl:
+        dto.bannerUrl !== undefined ? this.normalizePictureUrl(dto.bannerUrl) : undefined,
     };
 
     const hasRestaurantUpdates = Object.values(data).some(

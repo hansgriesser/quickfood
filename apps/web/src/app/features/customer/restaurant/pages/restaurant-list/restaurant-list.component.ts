@@ -1,47 +1,54 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
+
+import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { RestaurantFilterComponent, RestaurantFilter } from '../../components/restaurant-filter/restaurant-filter.component';
+import {
+  RestaurantFilterComponent,
+  RestaurantFilter,
+} from '../../components/restaurant-filter/restaurant-filter.component';
 import { RestaurantService } from '../../restaurant.service';
 import { Restaurant } from '../../restaurant.model';
 
 @Component({
   selector: 'app-restaurant-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, RestaurantFilterComponent],
+  imports: [RouterModule, RestaurantFilterComponent],
   templateUrl: './restaurant-list.component.html',
-  styleUrls: ['./restaurant-list.component.css']
+  styleUrls: ['./restaurant-list.component.css'],
 })
-export class RestaurantListComponent {
-  
+export class RestaurantListComponent implements OnInit, OnDestroy {
+  private restaurantService = inject(RestaurantService);
+  private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
+
   allRestaurants: Restaurant[] = [];
   filteredRestaurants: Restaurant[] = [];
 
+  hasActiveOrder = false;
+
   private sub = new Subscription();
 
-  constructor(
-    private restaurantService: RestaurantService,
-    private cdr: ChangeDetectorRef
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
 
-  ngOnInit(): void{
-    const s = this.restaurantService.getRestaurants().subscribe(restaurants => {
+  constructor() {}
+
+  ngOnInit(): void {
+    const s = this.restaurantService.getRestaurants().subscribe((restaurants) => {
       this.allRestaurants = restaurants || [];
       this.filteredRestaurants = [...this.allRestaurants];
       this.cdr.detectChanges();
     });
     this.sub.add(s);
+    this.checkActiveOrder();
   }
 
-
   onFilterChange(filter: RestaurantFilter): void {
-    this.filteredRestaurants = this.allRestaurants.filter(restaurant => {
-      const matchesSearch = restaurant.name
-        .toLowerCase()
-        .includes(filter.searchTerm.toLowerCase());
-      
-      const matchesCategory = !filter.category || restaurant.category?.toLowerCase() === filter.category.toLowerCase();
+    this.filteredRestaurants = this.allRestaurants.filter((restaurant) => {
+      const matchesSearch = restaurant.name.toLowerCase().includes(filter.searchTerm.toLowerCase());
+
+      const matchesCategory =
+        !filter.category || restaurant.category?.toLowerCase() === filter.category.toLowerCase();
       const matchesRating = restaurant.rating >= filter.minRating;
 
       return matchesSearch && matchesCategory && matchesRating;
@@ -63,5 +70,16 @@ export class RestaurantListComponent {
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
+  }
+
+  private checkActiveOrder() {
+    const activeOrderData = localStorage.getItem('active_order');
+    if (activeOrderData) {
+      this.hasActiveOrder = true;
+    }
+  }
+
+  goToActiveOrder() {
+    this.router.navigate(['/order/confirmation']);
   }
 }

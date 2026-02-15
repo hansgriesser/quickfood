@@ -1,34 +1,46 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, Subscription, timer, exhaustMap, catchError, finalize, of } from 'rxjs';
 import { OwnerOrdersService } from '../../services/owner-orders.service';
 import { OwnerOrder, OrderStatus, OrderStatusLabel } from '../../services/owner-order.model';
+import { ChatService } from '../../../chat/services/chat-service';
+import { AuthService } from '../../../auth/auth.service';
+import { OwnerNavComponent } from '../../components/nav/owner-nav.component';
 
 @Component({
   selector: 'app-owner-orders',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, OwnerNavComponent],
   templateUrl: './owner-orders.component.html',
   styleUrls: ['./owner-orders.component.css'],
 })
 export class OwnerOrdersComponent implements OnInit, OnDestroy {
+  private ownerOrdersService = inject(OwnerOrdersService);
+  private cdr = inject(ChangeDetectorRef);
+  private chatService = inject(ChatService);
+
   orders: OwnerOrder[] = [];
+  orders$!: Observable<OwnerOrder[]>;
   isLoading = false;
   errorMessage = '';
 
   readonly orderStatus = OrderStatus;
   readonly statusLabels = OrderStatusLabel;
+  totalUnreadMessages$: Observable<number>;
 
   private readonly sub = new Subscription();
   private readonly busyOrders = new Set<string>();
 
-  constructor(
-    private ownerOrdersService: OwnerOrdersService,
-    private cdr: ChangeDetectorRef,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    this.totalUnreadMessages$ = this.chatService.totalUnreadMessages$;
+  }
 
   ngOnInit(): void {
     this.startPolling();
+    this.chatService.openChatForOwner();
   }
 
   ngOnDestroy(): void {
@@ -59,6 +71,8 @@ export class OwnerOrdersComponent implements OnInit, OnDestroy {
         return 'rejected';
       case OrderStatus.CANCELLED:
         return 'cancelled';
+      case OrderStatus.COMPLETED:
+        return 'completed';
       default:
         return '';
     }
@@ -81,38 +95,23 @@ export class OwnerOrdersComponent implements OnInit, OnDestroy {
   }
 
   private startPolling(): void {
-    let firstLoad = true;
-
-    const pollingSub = timer(0, 5000)
-      .pipe(
-        exhaustMap(() => {
-          if (firstLoad) {
-            this.isLoading = true;
-          }
-
-          return this.ownerOrdersService.listOrders().pipe(
-            catchError(() => {
-              this.errorMessage = 'Could not load orders.';
-              return of(null);
-            }),
-            finalize(() => {
-              if (firstLoad) {
-                this.isLoading = false;
-                firstLoad = false;
-              }
-            }),
-          );
-        }),
-      )
-      .subscribe((orders) => {
-        if (orders) {
-          this.orders = orders;
-          this.errorMessage = '';
+    this.orders$ = timer(0, 5000).pipe(
+      exhaustMap(() => {
+        if (!this.isLoading) {
+          this.isLoading = true;
         }
-        this.cdr.detectChanges();
-      });
 
-    this.sub.add(pollingSub);
+        return this.ownerOrdersService.listOrders().pipe(
+          catchError(() => {
+            this.errorMessage = 'Could not load orders.';
+            return of([] as OwnerOrder[]);
+          }),
+          finalize(() => {
+            this.isLoading = false;
+          }),
+        );
+      }),
+    );
   }
 
   private runOrderAction(actionOrderId: string, request$: Observable<OwnerOrder>) {
@@ -148,10 +147,16 @@ export class OwnerOrdersComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.orders = [
-      ...this.orders.slice(0, index),
-      updated,
-      ...this.orders.slice(index + 1),
-    ];
+    this.orders = [...this.orders.slice(0, index), updated, ...this.orders.slice(index + 1)];
+  }
+
+  //für Extra Task User: Chat
+
+  openChat(orderId: string) {
+    this.chatService.openChat(orderId);
+  }
+
+  unreadCountForOrder(orderId: string) {
+    return this.chatService.getUnreadCountForOrder(orderId) ?? 0;
   }
 }

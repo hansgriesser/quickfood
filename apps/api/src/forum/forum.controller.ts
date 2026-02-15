@@ -15,6 +15,7 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { CreateThreadDto } from './dto/create-thread.dto';
 import { CreatePostDto } from './dto/create-post.dto';
+import { AuthenticatedRequest } from 'src/auth/requests/auth.requests';
 
 @Controller('forum')
 export class ForumController {
@@ -33,7 +34,7 @@ export class ForumController {
   @Post('restaurants/:restaurantId/threads')
   @UseGuards(JwtAuthGuard)
   createThread(
-    @Req() req: any,
+    @Req() req: AuthenticatedRequest,
     @Param('restaurantId') restaurantId: string,
     @Body() dto: CreateThreadDto,
   ) {
@@ -43,7 +44,7 @@ export class ForumController {
   @Post('threads/:threadId/posts')
   @UseGuards(JwtAuthGuard)
   closePost(
-    @Req() req: any,
+    @Req() req: AuthenticatedRequest,
     @Param('threadId') threadId: string,
     @Body() dto: CreatePostDto,
   ) {
@@ -53,21 +54,30 @@ export class ForumController {
   @Patch('threads/:threadId/close')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('OWNER')
-  closeThread(@Req() req: any, @Param('threadId') threadId: string) {
+  closeThread(
+    @Req() req: AuthenticatedRequest,
+    @Param('threadId') threadId: string,
+  ) {
     return this.service.closeThread(req.user.sub, Number(threadId));
   }
 
   @Delete('threads/:threadId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('OWNER')
-  deletThread(@Req() req: any, @Param('threadId') threadId: string) {
+  deletThread(
+    @Req() req: AuthenticatedRequest,
+    @Param('threadId') threadId: string,
+  ) {
     return this.service.deleteThread(req.user.sub, Number(threadId));
   }
 
   @Delete('posts/:postId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('OWNER')
-  deletePost(@Req() req: any, @Param('postId') postId: string) {
+  deletePost(
+    @Req() req: AuthenticatedRequest,
+    @Param('postId') postId: string,
+  ) {
     return this.service.deletePost(req.user.sub, Number(postId));
   }
 }

@@ -1,29 +1,30 @@
-import { Injectable } from '@angular/core';
-import { OrderService } from './order';
+import { Injectable, inject } from '@angular/core';
 import { CartService } from '../../cart/services/cart';
 import { OrderDraft } from './order-draft';
-import { OrderDraftDto } from '../orderDTO';
 import { tap } from 'rxjs';
+import { ActiveOrderService } from './order-session';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CheckoutService {
-  constructor(
-    private orderService: OrderService,
-    private cartService: CartService,
-    private draftService: OrderDraft
-  ) {}
+  private activeOrderService = inject(ActiveOrderService);
+  private cartService = inject(CartService);
+  private draftService = inject(OrderDraft);
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   placeOrder() {
-
     const draft = this.draftService.getDraft();
 
-    return this.orderService.placeOrder(draft).pipe(
+    return this.activeOrderService.createOrder(draft).pipe(
       tap(() => {
         this.cartService.clearCart();
         this.draftService.clearDraft();
-      })
+      }),
     );
   }
 }

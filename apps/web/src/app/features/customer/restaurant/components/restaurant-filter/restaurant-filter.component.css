@@ -40,7 +40,9 @@
     border-color: #f76707; /* orange Rahmen */
     color: #f76707;
     font-weight: 600;
-    transition: background-color 0.2s, color 0.2s;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
 
     &:hover {
       background-color: #f76707;
@@ -62,12 +64,11 @@
   color: #6b7280; /* leicht grauer Label-Ton */
 }
 
-
 @media (max-width: 768px) {
   .filters {
     flex-direction: column;
   }
-  
+
   .filter-field {
     min-width: auto;
   }

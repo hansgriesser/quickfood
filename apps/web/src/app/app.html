@@ -3,7 +3,10 @@
 
   <main class="main-content">
     <router-outlet></router-outlet>
+    <app-chat-drawer></app-chat-drawer>
   </main>
 
-  <app-footer *ngIf="showFooter"></app-footer>
+  @if (showFooter) {
+    <app-footer></app-footer>
+  }
 </div>

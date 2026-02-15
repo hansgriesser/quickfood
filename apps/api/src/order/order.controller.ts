@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Body,
   Controller,
@@ -11,8 +8,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { OrderDto } from './order.dto';
+import { CreateOrderDto } from './order.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { AuthenticatedRequest } from 'src/auth/requests/auth.requests';
 
 @Controller('order')
 export class OrderController {
@@ -20,10 +18,10 @@ export class OrderController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  placeOrder(@Body() order: OrderDto, @Req() req) {
-    console.log('Received order:', order);
+  placeOrder(@Body() dto: CreateOrderDto, @Req() req: AuthenticatedRequest) {
+    console.log('Received order:', dto);
     const userId = req.user.sub;
-    return this.service.placeOrder(order, userId);
+    return this.service.placeOrder(dto, userId);
   }
 
   @Get('service-fee')

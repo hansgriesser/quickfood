@@ -1,8 +1,27 @@
+import {
+  IsBoolean,
+  IsDateString,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+
 export class VoucherDto {
-  code: string;
-  type: 'FIXED' | 'PERCENT';
-  amount: number;
+  @IsString()
+  @IsNotEmpty()
+  code!: string;
+  type!: 'FIXED' | 'PERCENT';
+  @IsNumber()
+  @IsNotEmpty()
+  amount!: number;
+  @IsOptional()
+  @IsDateString()
   validFrom?: string | null;
+  @IsOptional()
+  @IsDateString()
   validTo?: string | null;
-  active: boolean;
+  @IsBoolean()
+  @IsNotEmpty()
+  active!: boolean;
 }

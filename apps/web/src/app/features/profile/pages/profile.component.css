@@ -1,0 +1,99 @@
+.profile-page {
+  max-width: 600px;
+  margin: 2rem auto;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+}
+
+.profile-page h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.profile-section h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: var(--primary-admin);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+input[type="text"],
+input[type="password"] {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]::focus,
+input[type="password"]:focus {
+  outline: none;
+  border-color: var(--primary-admin);
+  box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.2);
+}
+
+.save-btn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  background-color: #f97316;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.save-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.save-btn:not(:disabled):hover {
+  background-color: #e65c00; /* etwas dunklerer Ton */
+}
+
+.error-text {
+  color: var(--primary-admin);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.suspended {
+  color: var(--primary-admin);
+  font-weight: 600;
+}
+
+.error {
+  text-align: center;
+  color: var(--primary-admin);
+  font-weight: 600;
+}

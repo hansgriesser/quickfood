@@ -1,3 +1,4 @@
+import { OrderStatus, Role } from '@generated/prisma/enums';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -12,19 +13,45 @@ type DailyPoint = {
 export class AdminStatsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private readonly validOrderFilter = {
+    status: { notIn: [OrderStatus.REJECTED, OrderStatus.CANCELLED] },
+  };
+
+  private readonly notAdminUserFilter = {
+    role: { not: Role.ADMIN },
+  };
+
   async getSummary() {
+    const [totals, trendData] = await Promise.all([
+      this.getTotals(),
+      this.get7DayTrend(),
+    ]);
+
+    return {
+      totals,
+      last7Days: trendData.last7Days,
+      trend: trendData.trendArr,
+    };
+  }
+
+  private async getTotals() {
     const [totalOrders, revenueAgg, totalUsers] = await Promise.all([
       this.prisma.order.count(),
       this.prisma.order.aggregate({
         _sum: { totalAmount: true },
-
-        where: { status: { notIn: ['REJECTED', 'CANCELLED'] } },
+        where: this.validOrderFilter,
       }),
-      this.prisma.user.count({ where: { role: { not: 'ADMIN' } } }),
+      this.prisma.user.count({ where: this.notAdminUserFilter }),
     ]);
 
-    const totalRevenueCents = Number(revenueAgg._sum.totalAmount ?? 0n);
+    return {
+      totalOrders,
+      totalRevenueCents: Number(revenueAgg._sum.totalAmount ?? 0n),
+      totalUsers,
+    };
+  }
 
+  private async get7DayTrend() {
     const start = this.startOfDayDaysAgo(6);
     const end = new Date();
 
@@ -32,59 +59,45 @@ export class AdminStatsService {
       this.prisma.order.findMany({
         where: {
           createdAt: { gte: start, lte: end },
-          status: { notIn: ['REJECTED', 'CANCELLED'] },
+          ...this.validOrderFilter,
         },
-        select: {
-          createdAt: true,
-          totalAmount: true,
-        },
+        select: { createdAt: true, totalAmount: true },
       }),
       this.prisma.user.findMany({
         where: {
           createdAt: { gte: start, lte: end },
-          role: { not: 'ADMIN' },
+          ...this.notAdminUserFilter,
         },
-        select: {
-          createdAt: true,
-        },
+        select: { createdAt: true },
       }),
     ]);
 
     const trend = this.buildDailyTrend(start, 7);
 
     for (const o of ordersLast7) {
-      const key = this.toDateKey(o.createdAt);
-      const point = trend.get(key);
-      if (!point) continue;
-      point.orders += 1;
-      point.revenueCents += Number(o.totalAmount);
+      const point = trend.get(this.toDateKey(o.createdAt));
+      if (point) {
+        point.orders += 1;
+        point.revenueCents += Number(o.totalAmount);
+      }
     }
 
     for (const u of newUsersLast7) {
-      const key = this.toDateKey(u.createdAt);
-      const point = trend.get(key);
-      if (!point) continue;
-      point.newUsers += 1;
+      const point = trend.get(this.toDateKey(u.createdAt));
+      if (point) {
+        point.newUsers += 1;
+      }
     }
 
     const trendArr = Array.from(trend.values());
 
-    const last7Orders = trendArr.reduce((s, p) => s + p.orders, 0);
-    const last7RevenueCents = trendArr.reduce((s, p) => s + p.revenueCents, 0);
-    const last7NewUsers = trendArr.reduce((s, p) => s + p.newUsers, 0);
-
     return {
-      totals: {
-        totalOrders,
-        totalRevenueCents,
-        totalUsers,
-      },
       last7Days: {
-        orders: last7Orders,
-        revenueCents: last7RevenueCents,
-        newUsers: last7NewUsers,
+        orders: trendArr.reduce((s, p) => s + p.orders, 0),
+        revenueCents: trendArr.reduce((s, p) => s + p.revenueCents, 0),
+        newUsers: trendArr.reduce((s, p) => s + p.newUsers, 0),
       },
-      trend: trendArr,
+      trendArr,
     };
   }
 

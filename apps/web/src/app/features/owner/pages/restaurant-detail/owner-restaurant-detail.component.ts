@@ -1,9 +1,12 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { forkJoin } from 'rxjs';
 import { OwnerRestaurantsService } from '../../services/owner-restaurants.service';
 import {
+  CreateOwnerRestaurantPayload,
   DeliveryZone,
   OwnerDish,
   OwnerMenuCategory,
@@ -12,6 +15,7 @@ import {
   OwnerRestaurantDeliveryZone,
 } from '../../services/owner-restaurant.model';
 import { OwnerRestaurantFormComponent } from '../../components/restaurant-form/owner-restaurant-form.component';
+import { OwnerNavComponent } from '../../components/nav/owner-nav.component';
 
 interface OpeningHourForm {
   dayOfWeek: number;
@@ -24,17 +28,31 @@ interface OpeningHourForm {
 @Component({
   selector: 'app-owner-restaurant-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, OwnerRestaurantFormComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    DragDropModule,
+    OwnerRestaurantFormComponent,
+    OwnerNavComponent,
+  ],
   templateUrl: './owner-restaurant-detail.component.html',
   styleUrls: ['./owner-restaurant-detail.component.css'],
 })
-export class OwnerRestaurantDetailComponent {
+export class OwnerRestaurantDetailComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private ownerRestaurantsService = inject(OwnerRestaurantsService);
+  private cdr = inject(ChangeDetectorRef);
+
   restaurantId?: string;
   restaurant?: OwnerRestaurant;
   errorMessage = '';
   menuCategories: OwnerMenuCategory[] = [];
+  draggableCategories: OwnerMenuCategory[] = [];
+  uncategorizedCategory: OwnerMenuCategory | null = null;
   menuError = '';
   isMenuLoading = false;
+  isReordering = false;
   deliveryZones: DeliveryZone[] = [];
   selectedZoneIds = new Set<string>();
   zonesError = '';
@@ -53,9 +71,8 @@ export class OwnerRestaurantDetailComponent {
     'Sunday',
   ];
 
-  categoryForm: { name: string; sortOrder: number | null } = {
+  categoryForm: { name: string } = {
     name: '',
-    sortOrder: 0,
   };
 
   dishForm: {
@@ -73,9 +90,8 @@ export class OwnerRestaurantDetailComponent {
   };
 
   editingCategoryId: number | null = null;
-  categoryEditForm: { name: string; sortOrder: number | null } = {
+  categoryEditForm: { name: string } = {
     name: '',
-    sortOrder: 0,
   };
 
   editingDishId: number | null = null;
@@ -93,11 +109,10 @@ export class OwnerRestaurantDetailComponent {
     pictureUrl: '',
   };
 
-  constructor(
-    private route: ActivatedRoute,
-    private ownerRestaurantsService: OwnerRestaurantsService,
-    private cdr: ChangeDetectorRef,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -125,7 +140,7 @@ export class OwnerRestaurantDetailComponent {
     });
   }
 
-  saveRestaurant(payload: { name: string; category?: string; contactEmail?: string; contactPhone?: string }): void {
+  saveRestaurant(payload: CreateOwnerRestaurantPayload): void {
     if (!this.restaurant) return;
 
     this.ownerRestaurantsService.updateRestaurant(this.restaurant.id, payload).subscribe({
@@ -200,8 +215,7 @@ export class OwnerRestaurantDetailComponent {
 
     const invalidEntry = this.openingHoursForm.find(
       (entry) =>
-        !entry.isClosed &&
-        (!this.isValidTime(entry.opensAt) || !this.isValidTime(entry.closesAt)),
+        !entry.isClosed && (!this.isValidTime(entry.opensAt) || !this.isValidTime(entry.closesAt)),
     );
 
     if (invalidEntry) {
@@ -218,23 +232,21 @@ export class OwnerRestaurantDetailComponent {
       isClosed: entry.isClosed,
     }));
 
-    this.ownerRestaurantsService
-      .updateRestaurant(this.restaurant.id, { openingHours })
-      .subscribe({
-        next: (updated) => {
-          this.restaurant = updated;
-          this.initOpeningHours(updated.openingHours);
-        },
-        error: () => {
-          this.hoursError = 'Could not update opening hours.';
-          this.isHoursSaving = false;
-          this.cdr.detectChanges();
-        },
-        complete: () => {
-          this.isHoursSaving = false;
-          this.cdr.detectChanges();
-        },
-      });
+    this.ownerRestaurantsService.updateRestaurant(this.restaurant.id, { openingHours }).subscribe({
+      next: (updated) => {
+        this.restaurant = updated;
+        this.initOpeningHours(updated.openingHours);
+      },
+      error: () => {
+        this.hoursError = 'Could not update opening hours.';
+        this.isHoursSaving = false;
+        this.cdr.detectChanges();
+      },
+      complete: () => {
+        this.isHoursSaving = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   get categoryOptions(): OwnerMenuCategory[] {
@@ -247,7 +259,7 @@ export class OwnerRestaurantDetailComponent {
     this.cdr.detectChanges();
     this.ownerRestaurantsService.getMenu(restaurantId).subscribe({
       next: (categories) => {
-        this.menuCategories = categories ?? [];
+        this.syncMenuCategories(categories ?? []);
         this.cdr.detectChanges();
       },
       error: () => {
@@ -271,11 +283,11 @@ export class OwnerRestaurantDetailComponent {
       return;
     }
 
-    const sortOrder = this.normalizeNumber(this.categoryForm.sortOrder);
+    const sortOrder = this.getNextCategorySortOrder();
     this.ownerRestaurantsService
       .createCategory(this.restaurantId, {
         name,
-        sortOrder: sortOrder ?? undefined,
+        sortOrder,
       })
       .subscribe({
         next: () => {
@@ -292,7 +304,6 @@ export class OwnerRestaurantDetailComponent {
     this.editingCategoryId = category.id;
     this.categoryEditForm = {
       name: category.name,
-      sortOrder: category.sortOrder ?? 0,
     };
   }
 
@@ -310,11 +321,9 @@ export class OwnerRestaurantDetailComponent {
       return;
     }
 
-    const sortOrder = this.normalizeNumber(this.categoryEditForm.sortOrder);
     this.ownerRestaurantsService
       .updateCategory(this.restaurantId, category.id, {
         name,
-        sortOrder: sortOrder ?? undefined,
       })
       .subscribe({
         next: () => {
@@ -335,16 +344,56 @@ export class OwnerRestaurantDetailComponent {
       return;
     }
 
-    this.ownerRestaurantsService
-      .deleteCategory(this.restaurantId, category.id)
-      .subscribe({
-        next: () => {
-          this.loadMenu(this.restaurantId!);
-        },
-        error: () => {
-          this.menuError = 'Could not delete category.';
-        },
-      });
+    this.ownerRestaurantsService.deleteCategory(this.restaurantId, category.id).subscribe({
+      next: () => {
+        this.loadMenu(this.restaurantId!);
+      },
+      error: () => {
+        this.menuError = 'Could not delete category.';
+      },
+    });
+  }
+
+  reorderCategories(event: CdkDragDrop<OwnerMenuCategory[]>): void {
+    if (!this.restaurantId || this.isReordering) return;
+    if (event.previousIndex === event.currentIndex) return;
+    if (this.draggableCategories.length < 2) return;
+
+    moveItemInArray(this.draggableCategories, event.previousIndex, event.currentIndex);
+
+    const reordered = this.draggableCategories.map((category, index) => ({
+      ...category,
+      sortOrder: index,
+    }));
+
+    const updatedMenu = this.uncategorizedCategory
+      ? [...reordered, this.uncategorizedCategory]
+      : reordered;
+    this.syncMenuCategories(updatedMenu);
+
+    this.menuError = '';
+    this.isReordering = true;
+    const updates = reordered.map((category, index) =>
+      this.ownerRestaurantsService.updateCategory(this.restaurantId!, category.id, {
+        sortOrder: index,
+      }),
+    );
+
+    forkJoin(updates).subscribe({
+      next: () => {
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.menuError = 'Could not reorder categories.';
+        this.isReordering = false;
+        this.loadMenu(this.restaurantId!);
+        this.cdr.detectChanges();
+      },
+      complete: () => {
+        this.isReordering = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   createDish(): void {
@@ -443,6 +492,26 @@ export class OwnerRestaurantDetailComponent {
     });
   }
 
+  onDishPhotoSelected(event: Event, mode: 'new' | 'edit'): void {
+    this.readImageFile(event, (url) => {
+      if (mode === 'new') {
+        this.dishForm.pictureUrl = url;
+      } else {
+        this.dishEditForm.pictureUrl = url;
+      }
+      this.cdr.detectChanges();
+    });
+  }
+
+  clearDishPhoto(mode: 'new' | 'edit'): void {
+    if (mode === 'new') {
+      this.dishForm.pictureUrl = '';
+    } else {
+      this.dishEditForm.pictureUrl = '';
+    }
+    this.cdr.detectChanges();
+  }
+
   trackByCategoryId(_: number, category: OwnerMenuCategory): number {
     return category.id;
   }
@@ -463,6 +532,13 @@ export class OwnerRestaurantDetailComponent {
     this.syncSelectedZones(restaurant.deliveryZones);
     this.initOpeningHours(restaurant.openingHours);
     this.cdr.detectChanges();
+  }
+
+  private syncMenuCategories(categories: OwnerMenuCategory[]): void {
+    this.menuCategories = categories;
+    this.draggableCategories = categories.filter((category) => category.id !== 0);
+    this.uncategorizedCategory =
+      categories.find((category) => category.id === 0) ?? null;
   }
 
   private syncSelectedZones(deliveryZones?: OwnerRestaurantDeliveryZone[]): void {
@@ -494,12 +570,21 @@ export class OwnerRestaurantDetailComponent {
     return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
   }
 
+  private getNextCategorySortOrder(): number {
+    const sortable = this.menuCategories.filter((category) => category.id !== 0);
+    if (sortable.length === 0) {
+      return 0;
+    }
+    const max = Math.max(...sortable.map((category) => category.sortOrder ?? 0));
+    return max + 1;
+  }
+
   private resetCategoryForm(): void {
-    this.categoryForm = { name: '', sortOrder: 0 };
+    this.categoryForm = { name: '' };
   }
 
   private resetCategoryEditForm(): void {
-    this.categoryEditForm = { name: '', sortOrder: 0 };
+    this.categoryEditForm = { name: '' };
   }
 
   private resetDishForm(): void {
@@ -533,5 +618,25 @@ export class OwnerRestaurantDetailComponent {
   private normalizeText(value: string): string | null {
     const trimmed = value.trim();
     return trimmed ? trimmed : null;
+  }
+
+  private readImageFile(event: Event, onLoad: (url: string) => void): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (file.type && !file.type.startsWith('image/')) {
+      input.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : '';
+      if (result) {
+        onLoad(result);
+      }
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
   }
 }

@@ -53,6 +53,8 @@ model Restaurant {
   contactEmail String?
   contactPhone String?
   category     String?
+  logoUrl      String?
+  bannerUrl    String?
   rating       Float   @default(0)
 
   ownerId Int
@@ -72,10 +74,10 @@ model Restaurant {
   categories    MenuCategory[]
   orders        Order[]
   openingHours  RestaurantOpeningHour[]
+  forumThreads  ForumThread[]
 
   @@index([status])
   @@index([ownerId])
-  forumThreads ForumThread[]
 }
 
 model Dish {
@@ -241,34 +243,34 @@ model PlatformSetting {
 }
 
 model ForumThread {
-  id  Int @id @default(autoincrement())
-  title String
-  content String
-  isClosed Boolean @default(false)
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  isClosed  Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  restaurantId  String
-  restaurant  Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
 
   authorId Int
-  author User @relation(fields: [authorId], references: [id])
+  author   User @relation(fields: [authorId], references: [id])
 
-  post  ForumPost[]
+  post ForumPost[]
 
   @@index([restaurantId, createdAt])
   @@index([authorId, createdAt])
 }
 
 model ForumPost {
-  id Int  @id @default(autoincrement())
-  content String
+  id        Int      @id @default(autoincrement())
+  content   String
   createdAt DateTime @default(now())
 
-  threadId  Int
-  thread  ForumThread @relation(fields: [threadId], references: [id])
+  threadId Int
+  thread   ForumThread @relation(fields: [threadId], references: [id])
 
   authorId Int
-  author User @relation(fields: [authorId], references: [id])
+  author   User @relation(fields: [authorId], references: [id])
 
   @@index([threadId, createdAt])
   @@index([authorId, createdAt])
@@ -306,6 +308,7 @@ enum OrderStatus {
   DISPATCHED
   REJECTED
   CANCELLED
+  COMPLETED
 }
 
 enum ActivityType {

@@ -1,13 +1,23 @@
-import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Subject, from, of } from 'rxjs';
-import { catchError, distinctUntilChanged, finalize, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { EMPTY, Subject, from } from 'rxjs';
+import {
+  catchError,
+  distinctUntilChanged,
+  filter,
+  finalize,
+  map,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 
 import { ForumService } from '../../forum.service';
 import { ForumThreadDetail } from '../../forum.model';
 import { AuthService } from '../../../auth/auth.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-forum-thread-detail',
@@ -16,9 +26,15 @@ import { AuthService } from '../../../auth/auth.service';
   imports: [CommonModule, FormsModule, RouterModule],
 })
 export class ForumThreadDetailComponent implements OnInit, OnDestroy {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly forum = inject(ForumService);
+  private readonly auth = inject(AuthService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
   private readonly destroy$ = new Subject<void>();
 
-  threadId!: number;
+  threadId: number | null = null;
 
   canModerate = false;
 
@@ -28,19 +44,19 @@ export class ForumThreadDetailComponent implements OnInit, OnDestroy {
   thread: ForumThreadDetail | null = null;
   reply = '';
 
-  constructor(
-    private readonly route: ActivatedRoute,
-    private readonly router: Router,
-    private readonly forum: ForumService,
-    private readonly auth: AuthService,
-    private readonly cdr: ChangeDetectorRef,
-  ) {}
-
   get isLoggedIn(): boolean {
     return !!this.auth.getToken();
   }
 
+  get isOwner(): boolean {
+    return this.auth.getUserRole() === 'OWNER';
+  }
+
   private recomputeModerationRights(thread: ForumThreadDetail | null) {
+    if (!thread) {
+      this.canModerate = false;
+      return;
+    }
     const role = this.auth.getUserRole();
     const userId = this.auth.getUserId();
     const ownerId = thread?.restaurant?.ownerId;
@@ -48,52 +64,54 @@ export class ForumThreadDetailComponent implements OnInit, OnDestroy {
     this.canModerate = role === 'OWNER' && !!userId && !!ownerId && userId === ownerId;
   }
 
-  get isOwner(): boolean {
-    return this.auth.getUserRole() === 'OWNER';
-  }
+  // Hilfsfunktion (kann auch private Methode sein)
+  private parseThreadId = (rawId: string | null): number | null => {
+    const num = Number(rawId);
+    return !rawId || Number.isNaN(num) || num <= 0 ? null : num;
+  };
 
   ngOnInit() {
     this.route.paramMap
       .pipe(
-        map(pm => pm.get('id')),
+        map((params) => this.parseThreadId(params.get('id'))),
         distinctUntilChanged(),
-        switchMap((id) => {
-          const num = Number(id);
-          if (!id || Number.isNaN(num) || num <= 0) {
-            this.threadId = NaN as any;
-            this.thread = null;
-            this.canModerate = false;
+        tap((id) => {
+          this.error = null;
+          this.loading = true;
+          this.thread = null;
+
+          this.threadId = id;
+
+          if (!id) {
             this.error = 'Ungültige Thread-ID in der URL.';
             this.loading = false;
-            this.cdr.detectChanges();
-            return of(null);
+            this.canModerate = false;
           }
-
-          this.threadId = num;
-          this.loading = true;
-          this.error = null;
-          this.thread = null;
           this.cdr.detectChanges();
-
-          return from(this.forum.getThread(this.threadId)).pipe(
-            catchError((e: any) => {
+        }),
+        filter((id): id is number => id !== null),
+        switchMap((id) =>
+          from(this.forum.getThread(id)).pipe(
+            tap((thread) => {
+              this.thread = thread;
+              this.recomputeModerationRights(thread);
+            }),
+            catchError((e: HttpErrorResponse) => {
               console.error('[Forum] getThread ERROR', e);
               this.error = e?.error?.message ?? 'Fehler beim Laden des Threads';
-              return of(null);
+              this.loading = false;
+              this.cdr.detectChanges();
+              return EMPTY;
             }),
             finalize(() => {
               this.loading = false;
               this.cdr.detectChanges();
             }),
-          );
-        }),
+          ),
+        ),
         takeUntil(this.destroy$),
       )
-      .subscribe((thread) => {
-        this.thread = thread;
-        this.recomputeModerationRights(thread);
-        this.cdr.detectChanges();
-      });
+      .subscribe();
   }
 
   ngOnDestroy() {
@@ -102,20 +120,23 @@ export class ForumThreadDetailComponent implements OnInit, OnDestroy {
   }
 
   async sendReply() {
-    this.thread = await this.forum.getThread(this.threadId);
-    this.recomputeModerationRights(this.thread);
-    if (!this.reply.trim() || !this.threadId || Number.isNaN(this.threadId)) return;
+    if (!this.reply.trim()) return;
+    if (!this.threadId) return;
 
     try {
-      this.error = null;
-      await this.forum.createPost(this.threadId, this.reply);
-      this.reply = '';
-      // neu laden:
       this.loading = true;
+      this.error = null;
       this.cdr.detectChanges();
+
+      await this.forum.createPost(this.threadId, this.reply);
+
+      this.reply = '';
+
       this.thread = await this.forum.getThread(this.threadId);
-    } catch (e: any) {
-      this.error = e?.error?.message ?? 'Fehler beim Posten';
+      this.recomputeModerationRights(this.thread);
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err?.error?.message ?? 'Fehler beim Posten';
     } finally {
       this.loading = false;
       this.cdr.detectChanges();
@@ -123,16 +144,20 @@ export class ForumThreadDetailComponent implements OnInit, OnDestroy {
   }
 
   async closeThread() {
-    this.thread = await this.forum.getThread(this.threadId);
-    this.recomputeModerationRights(this.thread);
+    if (!this.threadId) return;
+
     try {
-      this.error = null;
-      await this.forum.closeThread(this.threadId);
       this.loading = true;
+      this.error = null;
       this.cdr.detectChanges();
+
+      await this.forum.closeThread(this.threadId);
+
       this.thread = await this.forum.getThread(this.threadId);
-    } catch (e: any) {
-      this.error = e?.error?.message ?? 'Fehler beim Schließen';
+      this.recomputeModerationRights(this.thread);
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err?.error?.message ?? 'Fehler beim Schließen';
     } finally {
       this.loading = false;
       this.cdr.detectChanges();
@@ -140,35 +165,42 @@ export class ForumThreadDetailComponent implements OnInit, OnDestroy {
   }
 
   async deleteThread() {
-    this.thread = await this.forum.getThread(this.threadId);
-    this.recomputeModerationRights(this.thread);
+    if (!this.threadId) return;
+    const restaurantId = this.thread?.restaurantId;
+
     try {
+      this.loading = true;
       this.error = null;
+      this.cdr.detectChanges();
+
       await this.forum.deleteThread(this.threadId);
 
-      // statt location.href (Full reload) sauber per Router navigieren
-      if (this.thread) {
-        await this.router.navigate(['/forum/restaurant', this.thread.restaurantId]);
+      if (restaurantId) {
+        await this.router.navigate(['/forum/restaurant', restaurantId]);
       } else {
         await this.router.navigate(['/restaurants']);
       }
-    } catch (e: any) {
-      this.error = e?.error?.message ?? 'Fehler beim Löschen';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err?.error?.message ?? 'Fehler beim Löschen';
+      this.loading = false;
       this.cdr.detectChanges();
     }
   }
 
   async deletePost(postId: number) {
-    this.thread = await this.forum.getThread(this.threadId);
-    this.recomputeModerationRights(this.thread);
+    if (!this.threadId) return;
+
     try {
-      this.error = null;
-      await this.forum.deletePost(postId);
       this.loading = true;
+      this.error = null;
       this.cdr.detectChanges();
+
+      await this.forum.deletePost(postId);
       this.thread = await this.forum.getThread(this.threadId);
-    } catch (e: any) {
-      this.error = e?.error?.message ?? 'Fehler beim Löschen des Posts';
+    } catch (e) {
+      const err = e as HttpErrorResponse;
+      this.error = err?.error?.message ?? 'Fehler beim Löschen des Posts';
     } finally {
       this.loading = false;
       this.cdr.detectChanges();

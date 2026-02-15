@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { map, Observable, combineLatest, startWith, switchMap, of} from 'rxjs';
+import { Component, inject } from '@angular/core';
+import { map, Observable, combineLatest, startWith, switchMap, of } from 'rxjs';
 import { CartService } from '../../services/cart';
 import { Dish, Restaurant } from '../../../restaurant/restaurant.model';
 import { CartItemDto } from '../../cartDTO';
@@ -13,10 +13,13 @@ import { RestaurantService } from '../../../restaurant/restaurant.service';
   imports: [CommonModule, RestaurantHeader],
   templateUrl: './cart-page.html',
   styleUrl: './cart-page.css',
-  standalone: true
+  standalone: true,
 })
 export class CartPage {
-  
+  cartService = inject(CartService);
+  private router = inject(Router);
+  private restaurantService = inject(RestaurantService);
+
   totalPrice$: Observable<number>;
   subtotal$: Observable<number>;
   cartItems$: Observable<CartItemDto[]>;
@@ -25,37 +28,34 @@ export class CartPage {
     subtotal: number;
     fee: number;
     total: number;
-  }>
+  }>;
 
-  restaurant$ : Observable<Restaurant | null>;
+  restaurant$: Observable<Restaurant | null>;
 
-  constructor(public cartService: CartService, private router: Router, private restaurantService: RestaurantService) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.totalPrice$ = this.cartService.totalPrice$;
     this.subtotal$ = this.cartService.cartItems$.pipe(
-      map(items => items.reduce((sum, i) => sum + i.price * i.quantity, 0)), startWith(0)
+      map((items) => items.reduce((sum, i) => sum + i.price * i.quantity, 0)),
+      startWith(0),
     );
     this.serviceFee$ = this.cartService.serviceFee$;
     this.cartItems$ = this.cartService.cartItems$;
-    this.serviceFee$ = combineLatest([
-      this.subtotal$,     
-      this.serviceFee$    
-    ]).pipe(
-      map(([subtotal, serviceFeePercent]) => Math.round(subtotal * (serviceFeePercent / 100)))
+    this.serviceFee$ = combineLatest([this.subtotal$, this.serviceFee$]).pipe(
+      map(([subtotal, serviceFeePercent]) => Math.round(subtotal * (serviceFeePercent / 100))),
     );
     this.cartSummary$ = combineLatest([this.subtotal$, this.serviceFee$, this.totalPrice$]).pipe(
-      map(([subtotal, fee, total]) => ({ subtotal, fee, total }))
+      map(([subtotal, fee, total]) => ({ subtotal, fee, total })),
     );
-
 
     this.restaurant$ = this.cartService.restaurantId$.pipe(
-      switchMap(id =>
-        id ? this.restaurantService.getRestaurantById(id) : of(null)
-      )
+      switchMap((id) => (id ? this.restaurantService.getRestaurantById(id) : of(null))),
     );
-
   }
 
-  placeOrder(){
+  placeOrder() {
     console.log('Preparing order...');
     this.cartService.prepareOrder();
     this.router.navigate(['/order/review']);
@@ -65,7 +65,7 @@ export class CartPage {
     this.cartService.addDish(dish, undefined);
   }
 
-  increaseQuantityInCart(item: CartItemDto){
+  increaseQuantityInCart(item: CartItemDto) {
     this.cartService.addItem(item);
   }
 
@@ -76,5 +76,4 @@ export class CartPage {
   removeItem(dishId: number) {
     this.cartService.removeItem(dishId);
   }
-
 }

@@ -1,9 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { RestaurantStatus } from '../../generated/prisma/client';
+import { Dish, RestaurantStatus } from '../../generated/prisma/client';
 
 @Injectable()
 export class RestaurantsService {
@@ -44,7 +41,7 @@ export class RestaurantsService {
 
     const mappedCategories = categories.map((cat) => ({
       ...cat,
-      dishes: cat.dishes.map(this.mapDish.bind(this)),
+      dishes: cat.dishes.map((dish) => this.mapDish(dish)),
     }));
 
     const uncategorizedDishes = await this.prisma.dish.findMany({
@@ -65,7 +62,7 @@ export class RestaurantsService {
         name: 'Sonstiges',
         sortOrder: 999,
         restaurantId: id,
-        dishes: uncategorizedDishes.map(this.mapDish.bind(this)),
+        dishes: uncategorizedDishes.map((dish) => this.mapDish(dish)),
         createdAt: new Date(0),
         updatedAt: new Date(0),
       });
@@ -73,10 +70,10 @@ export class RestaurantsService {
     return result;
   }
 
-  mapDish(dish: any) {
+  mapDish(dish: Dish) {
     return {
       ...dish,
-      price: Number(dish.price), // oder .toString()
+      price: Number(dish.price),
     };
   }
 }

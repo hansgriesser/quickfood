@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { OrderDraft } from '../../services/order-draft';
 import { Router } from '@angular/router';
 import { CheckoutService } from '../../services/checkout-service';
@@ -10,9 +10,14 @@ import { CheckoutService } from '../../services/checkout-service';
   styleUrl: './payment.css',
 })
 export class Payment {
+  private checkoutService = inject(CheckoutService);
+  private router = inject(Router);
 
-  constructor(private checkoutService: CheckoutService, private router : Router) {}
-  
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
+
   placeOrder() {
     this.checkoutService.placeOrder().subscribe({
       next: (response) => {
@@ -22,7 +27,7 @@ export class Payment {
       error: (error) => {
         console.error('Error placing order:', error);
         // Handle error
-      }
+      },
     });
   }
 }

@@ -1,0 +1,6 @@
+<button class="chat-button" (click)="openChatButton()">
+  <span class="chat-icon">💬</span>
+  @if (unreadCount && unreadCount > 0) {
+    <span class="badge">{{ unreadCount }}</span>
+  }
+</button>

@@ -108,6 +108,11 @@
   color: #166534;
 }
 
+.badge.completed {
+  background: #e0f2fe;
+  color: #075985;
+}
+
 .badge.rejected {
   background: #fee2e2;
   color: #991b1b;
@@ -142,6 +147,16 @@
 .order-actions button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.chat-actions {
+  display: flex;
+
+  p {
+    padding-left: 1em;
+    color: #f76707;
+    font-weight: bold;
+  }
 }
 
 @media (max-width: 900px) {

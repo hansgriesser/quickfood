@@ -8,15 +8,16 @@
     </div>
 
     <div class="admin-actions">
-      <button class="btn primary" (click)="openCreate()">+ New Zone</button>
+      <a class="admin-link" routerLink="/admin">← Zur Übersicht</a>
+      <button class="admin-btn admin-btn-primary" (click)="openCreate()">+ New Zone</button>
     </div>
   </header>
 
   <section class="admin-panel">
-    <div class="filters">
-      <label class="filter">
+    <div class="admin-filters">
+      <label class="admin-filter">
         Status:
-        <select [(ngModel)]="filter" (ngModelChange)="onFilterChange($event)">
+        <select class="admin-select" [(ngModel)]="filter" (ngModelChange)="onFilterChange($event)">
           <option value="ALL">All</option>
           <option value="ACTIVE">Active</option>
           <option value="INACTIVE">Inactive</option>
@@ -24,98 +25,96 @@
       </label>
     </div>
 
-    <div class="loading" *ngIf="loading">Lade Delivery Zones…</div>
-    <div class="alert" *ngIf="error">{{ error }}</div>
+    @if (loading) {
+      <div class="loading">Lade Delivery Zones…</div>
+    }
+    @if (error) {
+      <div class="alert">{{ error }}</div>
+    }
 
-    <div class="table" *ngIf="!loading && zones.length">
-      <div class="row head">
-        <div class="cell code">Zone</div>
-        <div class="cell name">Name/Stadt</div>
-        <div class="cell time">Typical Time</div>
-        <div class="cell status">Status</div>
-        <div class="cell actions">Actions</div>
+    @if (!loading && zones.length) {
+      <div class="admin-table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th class="code" style="width: 180px">Zone</th>
+              <th class="name" style="width: 180px">Name/Stadt</th>
+              <th class="time" style="width: 150px">Typical Time</th>
+              <th class="status" style="width: 200px">Status</th>
+              <th class="actions" style="width: 200px">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (z of zones; track z.id || z.code) {
+              <tr>
+                <td class="code">{{ z.code }}</td>
+                <td class="name">{{ z.name }}</td>
+                <td class="time">{{ z.typicalDeliveryMin }}–{{ z.typicalDeliveryMax }} min</td>
+                <td class="status">
+                  <span class="admin-badge" [class.inactive]="!z.active">
+                    {{ z.active ? 'ACTIVE' : 'INACTIVE' }}
+                  </span>
+                </td>
+                <td class="admin-actions">
+                  <button class="admin-btn" (click)="openEdit(z)">Edit</button>
+                  <button class="admin-btn" (click)="toggleActive(z)">
+                    {{ z.active ? 'Deactivate' : 'Activate' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
+    }
 
-      <div class="row" *ngFor="let z of zones">
-        <div class="cell code">{{ z.code }}</div>
-        <div class="cell name">{{ z.name }}</div>
-        <div class="cell time">
-          {{ z.typicalDeliveryMin }}–{{ z.typicalDeliveryMax }} min
+    @if (!loading && !zones.length) {
+      <div class="empty">Keine Delivery Zones gefunden.</div>
+    }
+  </section>
+
+  <!-- Modal -->
+  @if (modalOpen) {
+    <div class="modal-backdrop">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>{{ modalMode === 'CREATE' ? 'Create Zone' : 'Edit Zone' }}</h2>
+          <button class="icon-btn" (click)="closeModal()">×</button>
         </div>
-        <div class="cell status">
-          <span class="badge" [class.inactive]="!z.active">
-            {{ z.active ? 'ACTIVE' : 'INACTIVE' }}
-          </span>
+        <div class="modal-body">
+          @if (modalErrors) {
+            <div class="alert">{{ modalErrors }}</div>
+          }
+          <label class="field">
+            Code (z.B. NORTH):
+            <input [(ngModel)]="formCode" placeholder="NORTH" />
+          </label>
+          <label class="field">
+            Name:
+            <input [(ngModel)]="formName" placeholder="North Area" />
+          </label>
+          <label class="field">
+            Typical Delivery Time Min (minutes):
+            <input type="number" [(ngModel)]="formTypicalMin" placeholder="20" />
+          </label>
+          <label class="field">
+            Typical Delivery Time Max (minutes):
+            <input type="number" [(ngModel)]="formTypicalMax" placeholder="40" />
+          </label>
+          <label class="field checkbox">
+            <input type="checkbox" [(ngModel)]="formActive" />
+            Active
+          </label>
         </div>
-        <div class="cell actions">
-          <button class="btn" (click)="openEdit(z)">Edit</button>
-          <!-- angepasst: toogleActive statt toggleActive -->
-          <button class="btn" (click)="toogleActive(z)">
-            {{ z.active ? 'Deactivate' : 'Activate' }}
+        <div class="modal-footer">
+          <button class="admin-btn" (click)="closeModal()" [disabled]="modalSubmitting">
+            Cancel
+          </button>
+          <button class="admin-btn-primary" (click)="submitModal()" [disabled]="modalSubmitting">
+            {{ modalSubmitting ? 'Saving…' : 'Save' }}
           </button>
         </div>
       </div>
     </div>
-
-    <div class="empty" *ngIf="!loading && !zones.length">
-      Keine Delivery Zones gefunden.
-    </div>
-  </section>
-
-  <!-- Modal -->
-  <div class="modal-backdrop" *ngIf="modalOpen">
-    <div class="modal">
-      <div class="modal-header">
-        <h2>{{ modalMode === 'CREATE' ? 'Create Zone' : 'Edit Zone' }}</h2>
-        <button class="icon-btn" (click)="closeModal()">×</button>
-      </div>
-
-      <div class="modal-body">
-        <!-- angepasst: modalErrors statt modalError -->
-        <div class="alert" *ngIf="modalErrors">{{ modalErrors }}</div>
-
-        <label class="field">
-          Code (z.B. NORTH):
-          <input [(ngModel)]="formCode" placeholder="NORTH" />
-        </label>
-
-        <label class="field">
-          Name:
-          <input [(ngModel)]="formName" placeholder="North Area" />
-        </label>
-
-        <label class="field">
-          Typical Delivery Time Min (minutes):
-          <input
-            type="number"
-            [(ngModel)]="formTypicalMin"
-            placeholder="20"
-          />
-        </label>
-
-        <label class="field">
-          Typical Delivery Time Max (minutes):
-          <input
-            type="number"
-            [(ngModel)]="formTypicalMax"
-            placeholder="40"
-          />
-        </label>
-
-        <label class="field checkbox">
-          <input type="checkbox" [(ngModel)]="formActive" />
-          Active
-        </label>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn" (click)="closeModal()" [disabled]="modalSubmitting">
-          Cancel
-        </button>
-        <button class="btn primary" (click)="submitModal()" [disabled]="modalSubmitting">
-          {{ modalSubmitting ? 'Saving…' : 'Save' }}
-        </button>
-      </div>
-    </div>
-  </div>
+  }
 </div>

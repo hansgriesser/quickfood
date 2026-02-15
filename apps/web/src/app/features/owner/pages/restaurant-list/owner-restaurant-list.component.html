@@ -1,26 +1,40 @@
 <section class="owner-restaurant-list">
+  <app-owner-nav></app-owner-nav>
   <header>
     <h1>My Restaurants</h1>
     <p>Create and manage your restaurants.</p>
-    <p *ngIf="!isLoading">Showing {{ restaurants.length }} restaurants</p>
+    @if (!isLoading) {
+      <p>Showing {{ restaurants.length }} restaurants</p>
+    }
   </header>
 
-  <div class="status" *ngIf="isLoading">Loading...</div>
-  <div class="status error" *ngIf="errorMessage">{{ errorMessage }}</div>
-  <div class="status" *ngIf="!isLoading && !errorMessage && restaurants.length === 0">
-    No restaurants found yet.
-  </div>
+  @if (isLoading) {
+    <div class="status">Loading...</div>
+  }
+  @if (errorMessage) {
+    <div class="status error">{{ errorMessage }}</div>
+  }
+  @if (!isLoading && !errorMessage && restaurants.length === 0) {
+    <div class="status">No restaurants found yet.</div>
+  }
 
   <div class="content">
     <div class="list">
-      <div class="card" *ngFor="let restaurant of restaurants; trackBy: trackByRestaurantId">
-        <div>
-          <h3>{{ restaurant.name }}</h3>
-          <p>Status: {{ restaurant.status }}</p>
-          <p *ngIf="restaurant.category">Category: {{ restaurant.category }}</p>
+      @for (restaurant of restaurants; track trackByRestaurantId($index, restaurant)) {
+        <div class="card">
+          <div>
+            <h3>{{ restaurant.name }}</h3>
+            <p>Status: {{ restaurant.status }}</p>
+            @if (restaurant.category) {
+              <p>Category: {{ restaurant.category }}</p>
+            }
+          </div>
+          <div class="card-actions">
+            <a class="forum-link" [routerLink]="['/forum/restaurant', restaurant.id]"> Forum </a>
+            <a [routerLink]="['/owner/restaurants', restaurant.id]">Manage</a>
+          </div>
         </div>
-        <a [routerLink]="['/owner/restaurants', restaurant.id]">Manage</a>
-      </div>
+      }
     </div>
 
     <div class="form">

@@ -1,0 +1,23 @@
+.owner-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.owner-nav a {
+  text-decoration: none;
+  padding: 10px 14px;
+  border: 1px solid #e5e5e5;
+  border-radius: 999px;
+  background: #f9fafb;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.owner-nav a.active {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+}

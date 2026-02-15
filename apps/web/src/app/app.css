@@ -9,7 +9,8 @@
   flex: 1; /* nimmt den ganzen Platz zwischen Header und Footer */
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -17,6 +18,8 @@ html, body {
   overflow-x: hidden;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }

@@ -1,20 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-
-export type ReportGroupBy = 'day' | 'restaurant';
-
-export type DailyOrdersRevenuePoint = {
-  date: string;
-  orders: number;
-  revenueCents: number;
-};
-
-export type RestaurantOrdersRevenuePoint = {
-  restaurantId: string;
-  restaurantName: string;
-  orders: number;
-  revenueCents: number;
-};
+import {
+  ReportGroupBy,
+  DailyOrdersRevenuePoint,
+  RestaurantOrdersRevenuePoint,
+} from './dto/admin-reports.dto';
+import { OrderStatus } from '@generated/prisma/enums';
+import { Prisma } from '@generated/prisma/client';
 
 @Injectable()
 export class AdminReportsService {
@@ -47,12 +39,13 @@ export class AdminReportsService {
       args.groupBy === 'restaurant' ? 'restaurant' : 'day';
 
     const now = new Date();
-    const defaultTo = new Date(now);
-    defaultTo.setHours(23, 59, 59, 999);
 
     const defaultFrom = new Date(now);
     defaultFrom.setDate(defaultFrom.getDate() - 29);
     defaultFrom.setHours(0, 0, 0, 0);
+
+    const defaultTo = new Date(now);
+    defaultTo.setHours(23, 59, 59, 999);
 
     const from = args.from ? this.parseDateOnly(args.from, true) : defaultFrom;
     const to = args.to ? this.parseDateOnly(args.to, false) : defaultTo;
@@ -66,10 +59,11 @@ export class AdminReportsService {
 
   private parseDateOnly(value: string, startOfDay: boolean): Date {
     const m = /^\d{4}-\d{2}-\d{2}$/.exec(value);
-    if (!m)
+    if (!m) {
       throw new BadRequestException(
         'Invalid date format (expected YYYY-MM-DD)',
       );
+    }
 
     const [y, mo, d] = value.split('-').map((x) => Number(x));
     const dt = new Date(y, mo - 1, d);
@@ -88,7 +82,7 @@ export class AdminReportsService {
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, '0');
     const d = String(date.getDate()).padStart(2, '0');
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
     return `${y}-${m}-${d}`;
   }
 
@@ -138,54 +132,62 @@ export class AdminReportsService {
   }) {
     const where = {
       createdAt: { gte: params.from, lte: params.to },
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      status: { notIn: ['REJECTED', 'CANCELLED'] as any },
+      status: { notIn: [OrderStatus.REJECTED, OrderStatus.CANCELLED] },
+    };
+
+    const range = {
+      from: this.toDateKey(params.from),
+      to: this.toDateKey(params.to),
     };
 
     if (params.groupBy === 'restaurant') {
-      const grouped = await this.prisma.order.groupBy({
-        by: ['restaurantId'],
-        where,
-        _count: { _all: true },
-        _sum: { totalAmount: true },
-      });
-
-      const ids = grouped.map((g) => g.restaurantId);
-      const restaurants = await this.prisma.restaurant.findMany({
-        where: { id: { in: ids } },
-        select: { id: true, name: true },
-      });
-
-      const nameById = new Map(restaurants.map((r) => [r.id, r.name] as const));
-
-      const points: RestaurantOrdersRevenuePoint[] = grouped
-        .map((g) => ({
-          restaurantId: g.restaurantId,
-          restaurantName: nameById.get(g.restaurantId) ?? g.restaurantId,
-          orders: g._count._all,
-          revenueCents: Number(g._sum.totalAmount ?? 0n),
-        }))
-        .sort((a, b) => b.revenueCents - a.revenueCents);
-
-      const totals = points.reduce(
-        (acc, p) => ({
-          orders: acc.orders + p.orders,
-          revenueCents: acc.revenueCents + p.revenueCents,
-        }),
-        { orders: 0, revenueCents: 0 },
-      );
-
-      return {
-        range: {
-          from: this.toDateKey(params.from),
-          to: this.toDateKey(params.to),
-        },
-        groupBy: 'restaurant' as const,
-        totals,
-        points,
-      };
+      return this.buildRestaurantReport(where, range);
     }
 
+    return this.buildDailyReport(where, params, range);
+  }
+
+  private async buildRestaurantReport(
+    where: Prisma.OrderWhereInput,
+    range: { from: string; to: string },
+  ) {
+    const grouped = await this.prisma.order.groupBy({
+      by: ['restaurantId'],
+      where,
+      _count: { _all: true },
+      _sum: { totalAmount: true },
+    });
+
+    const ids = grouped.map((g) => g.restaurantId);
+    const restaurants = await this.prisma.restaurant.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, name: true },
+    });
+
+    const nameById = new Map(restaurants.map((r) => [r.id, r.name]));
+
+    const points: RestaurantOrdersRevenuePoint[] = grouped
+      .map((g) => ({
+        restaurantId: g.restaurantId,
+        restaurantName: nameById.get(g.restaurantId) ?? g.restaurantId,
+        orders: g._count._all,
+        revenueCents: Number(g._sum.totalAmount ?? 0n),
+      }))
+      .sort((a, b) => b.revenueCents - a.revenueCents);
+
+    return {
+      range,
+      groupBy: 'restaurant' as const,
+      totals: this.calculateTotals(points),
+      points,
+    };
+  }
+
+  private async buildDailyReport(
+    where: Prisma.OrderWhereInput,
+    params: { from: Date; to: Date },
+    range: { from: string; to: string },
+  ) {
     const orders = await this.prisma.order.findMany({
       where,
       select: { createdAt: true, totalAmount: true },
@@ -197,27 +199,28 @@ export class AdminReportsService {
       const key = this.toDateKey(o.createdAt);
       const p = daily.get(key);
       if (!p) continue;
+
       p.orders += 1;
       p.revenueCents += Number(o.totalAmount);
     }
 
     const points = Array.from(daily.values());
-    const totals = points.reduce(
+
+    return {
+      range,
+      groupBy: 'day' as const,
+      totals: this.calculateTotals(points),
+      points,
+    };
+  }
+
+  private calculateTotals(points: { orders: number; revenueCents: number }[]) {
+    return points.reduce(
       (acc, p) => ({
         orders: acc.orders + p.orders,
         revenueCents: acc.revenueCents + p.revenueCents,
       }),
       { orders: 0, revenueCents: 0 },
     );
-
-    return {
-      range: {
-        from: this.toDateKey(params.from),
-        to: this.toDateKey(params.to),
-      },
-      groupBy: 'day' as const,
-      totals,
-      points,
-    };
   }
 }

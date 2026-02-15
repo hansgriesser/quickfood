@@ -1,5 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { Role } from '@generated/prisma/enums';
 
 @Controller('auth')
 export class AuthController {
@@ -16,11 +17,9 @@ export class AuthController {
     body: {
       username: string;
       password: string;
-      // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-      role: 'USER' | 'OWNER' | string;
+      role: Role;
     },
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.auth.register(body.username, body.password, body.role);
   }
 }
