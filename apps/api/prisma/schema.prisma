@@ -53,6 +53,8 @@ model Restaurant {
   contactEmail String?
   contactPhone String?
   category     String?
+  logoUrl      String?
+  bannerUrl    String?
   rating       Float   @default(0)
 
   ownerId Int

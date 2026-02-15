@@ -1,4 +1,5 @@
 <section class="owner-orders">
+  <app-owner-nav></app-owner-nav>
   <header class="header">
     @if (orders$ | async; as orders) {
       <div>
@@ -107,6 +108,15 @@
               [disabled]="isBusy(order.id)"
               >
               Mark dispatched
+            </button>
+          }
+          @if (order.status === orderStatus.DISPATCHED) {
+            <button
+              type="button"
+              (click)="updateStatus(order, orderStatus.COMPLETED)"
+              [disabled]="isBusy(order.id)"
+              >
+              Mark completed
             </button>
           }
           <div class="chat-actions">

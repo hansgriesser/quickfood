@@ -7,6 +7,7 @@ import { OwnerRestaurantListComponent } from './pages/restaurant-list/owner-rest
 import { OwnerRestaurantDetailComponent } from './pages/restaurant-detail/owner-restaurant-detail.component';
 import { OwnerOrdersComponent } from './pages/orders/owner-orders.component';
 import { OwnerRestaurantFormComponent } from './components/restaurant-form/owner-restaurant-form.component';
+import { OwnerAnalyticsComponent } from './pages/analytics/owner-analytics.component';
 
 @NgModule({
   imports: [
@@ -17,6 +18,7 @@ import { OwnerRestaurantFormComponent } from './components/restaurant-form/owner
     OwnerRestaurantDetailComponent,
     OwnerOrdersComponent,
     OwnerRestaurantFormComponent,
+    OwnerAnalyticsComponent,
   ],
 })
 export class OwnerModule {}

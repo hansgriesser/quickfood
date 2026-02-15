@@ -5,6 +5,8 @@ export interface OwnerRestaurant {
   category?: string;
   contactEmail?: string;
   contactPhone?: string;
+  logoUrl?: string | null;
+  bannerUrl?: string | null;
   openingHours?: OwnerOpeningHour[];
   deliveryZones?: OwnerRestaurantDeliveryZone[];
 }
@@ -55,6 +57,8 @@ export interface CreateOwnerRestaurantPayload {
   category?: string;
   contactEmail?: string;
   contactPhone?: string;
+  logoUrl?: string | null;
+  bannerUrl?: string | null;
 }
 
 export interface UpdateOwnerRestaurantPayload {
@@ -62,6 +66,8 @@ export interface UpdateOwnerRestaurantPayload {
   category?: string;
   contactEmail?: string;
   contactPhone?: string;
+  logoUrl?: string | null;
+  bannerUrl?: string | null;
   openingHours?: OwnerOpeningHourInput[];
   deliveryZoneIds?: string[];
 }
