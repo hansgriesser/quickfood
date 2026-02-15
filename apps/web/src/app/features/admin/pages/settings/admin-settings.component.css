@@ -1,15 +1,13 @@
 @import '../../admin-ui.css';
 
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+.admin-panel-header-text {
+  justify-items: left;
+  display: flex;
+  flex-direction: column;
 }
 
-.grid-3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
+.admin-panel-header-btn {
+  justify-items: flex-end
 }
 
 @media (max-width: 900px) {
@@ -17,142 +15,4 @@
   .grid-3 {
     grid-template-columns: 1fr;
   }
-}
-
-.section {
-  padding: 16px;
-  border-bottom: 1px solid var(--admin-border);
-}
-
-.section:last-child {
-  border-bottom: none;
-}
-
-.section-title {
-  margin: 0 0 4px 0;
-  font-size: 16px;
-  font-weight: 800;
-}
-
-.section-subtitle {
-  margin: 0 0 12px 0;
-  color: var(--admin-muted);
-  font-size: 13px;
-}
-
-.form-row {
-  display: flex;
-  gap: 12px;
-  align-items: flex-end;
-  flex-wrap: wrap;
-}
-
-.w-240 {
-  width: 240px;
-}
-.w-200 {
-  width: 200px;
-}
-.w-full {
-  width: 100%;
-}
-
-.actions-right {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-input[type='number']::-webkit-inner-spin-button,
-input[type='number']::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input[type='datetime-local'] {
-  position: relative;
-}
-
-input[type='datetime-local']::-webkit-clear-button,
-input[type='datetime-local']::-webkit-inner-spin-button {
-  display: none;
-}
-
-.admin-btn {
-  background: var(--admin-primary);
-  color: white;
-  border: none;
-}
-
-.admin-btn:hover {
-  background: var(--admin-primary-hover);
-}
-
-.admin-btn-danger {
-  background: #dc2626;
-}
-
-.admin-btn-danger:hover {
-  background: #b91c1c;
-}
-
-.admin-input,
-.admin-select {
-  height: 38px;
-}
-
-.admin-page .admin-btn {
-  background: #000000 !important;
-  color: #fff !important;
-  border: 1px solid #000000 !important;
-  opacity: 1 !important;
-  filter: none !important;
-}
-
-.admin-page .admin-btn:hover {
-  background: #000000 !important;
-  border-color: #000000 !important;
-}
-
-.admin-page .admin-btn:disabled {
-  background: #000000 !important;
-  border-color: #000000 !important;
-  color: #000000 !important;
-  cursor: not-allowed !important;
-  opacity: 1 !important;
-}
-
-.admin-page .admin-btn.admin-btn-danger,
-.admin-page .admin-btn-danger {
-  background: #dc2626 !important;
-  border-color: #dc2626 !important;
-}
-
-.admin-page .admin-btn.admin-btn-danger:hover,
-.admin-page .admin-btn-danger:hover {
-  background: #b91c1c !important;
-  border-color: #b91c1c !important;
-}
-
-.dt-row {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 10px !important;
-  align-items: center;
-}
-
-.dt-row .admin-input {
-  width: 100% !important;
-  display: block;
-}
-
-@media (max-width: 600px) {
-  .dt-row {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-.dt-row input[type='time'] {
-  max-width: 160px;
 }

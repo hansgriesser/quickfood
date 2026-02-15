@@ -27,3 +27,17 @@ body {
 .main-content {
   padding-top: 70px; /* gleiche Höhe wie Header */
 }
+
+
+:root {
+  --admin-primary: #f97316;
+  --admin-primary-hover: #ea580c;
+  --admin-bg: #f8fafc;
+  --admin-surface: #ffffff;
+  --admin-text: #0f172a;
+  --admin-text-muted: #64748b;
+  --admin-border: #e2e8f0;
+  --admin-danger: #ef4444;
+  --admin-radius: 12px;
+  --admin-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}

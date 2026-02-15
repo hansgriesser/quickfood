@@ -4,40 +4,50 @@
       <h1 class="admin-title">Reporting</h1>
       <p class="admin-subtitle">Platform-wide Reports für Orders und Revenue.</p>
     </div>
-    <a class="back-link" routerLink="/admin">Zurück zum Dashboard</a>
+    <a class="admin-link" routerLink="/admin">← Zur Übersicht</a>
   </header>
 
-  <section class="admin-panel">
-    <div class="controls">
-      <div class="control">
-        <label for="filterType">Report</label>
-        <select id="filterType" [(ngModel)]="kind" (change)="load()">
-          <option value="revenue">Revenue</option>
-          <option value="orders">Orders</option>
-        </select>
-      </div>
+  <section class="admin-filters" style="border-bottom: none; padding: 1.5rem 0">
+    <div class="controls-wrapper">
+      <div class="controls">
+        <div class="control">
+          <label for="filterType">Report</label>
+          <select class="admin-select" id="filterType" [(ngModel)]="kind" (change)="load()">
+            <option value="revenue">Revenue</option>
+            <option value="orders">Orders</option>
+          </select>
+        </div>
 
-      <div class="control">
-        <label for="groupBy">Group by</label>
-        <select id="groupBy" [(ngModel)]="groupBy" (change)="load()">
-          <option value="day">Day</option>
-          <option value="restaurant">Restaurant</option>
-        </select>
-      </div>
+        <div class="control">
+          <label for="groupBy">Group by</label>
+          <select class="admin-select" id="groupBy" [(ngModel)]="groupBy" (change)="load()">
+            <option value="day">Day</option>
+            <option value="restaurant">Restaurant</option>
+          </select>
+        </div>
 
-      <div class="control">
-        <label for="fromDate">From</label>
-        <input id="fromDate" type="date" [(ngModel)]="from" />
-      </div>
+        <div class="control">
+          <label for="fromDate">From</label>
+          <input class="admin-select" id="fromDate" type="date" [(ngModel)]="from" />
+        </div>
 
-      <div class="control">
-        <label for="toDate">To</label>
-        <input id="toDate" type="date" [(ngModel)]="to" />
+        <div class="control">
+          <label for="toDate">To</label>
+          <input class="admin-select" id="toDate" type="date" [(ngModel)]="to" />
+        </div>
       </div>
-
-      <button class="btn" (click)="load()" [disabled]="loading">Generate</button>
+      <button
+        class="admin-btn admin-btn-primary"
+        style="margin-left: auto"
+        (click)="load()"
+        [disabled]="loading"
+      >
+        Generate
+      </button>
     </div>
+  </section>
 
+  <section class="admin-panel">
     @if (loading) {
       <div class="loading">Lade Report…</div>
     }
@@ -61,11 +71,12 @@
         </div>
       </div>
     }
-
+  </section>
+  <section class="admin-panel">
     @if (report) {
-      <div class="table-wrap">
+      <div class="admin-table-container">
         @if (report.groupBy === 'day') {
-          <table class="table">
+          <table class="admin-table">
             <thead>
               <tr>
                 <th>Date</th>
@@ -85,7 +96,7 @@
           </table>
         }
         @if (report.groupBy === 'restaurant') {
-          <table class="table">
+          <table class="admin-table">
             <thead>
               <tr>
                 <th>Restaurant</th>

@@ -20,7 +20,7 @@
   color: #6b7280;
 }
 
-.admin-panel {
+.admin-overview-container {
   display: grid;
   gap: 24px;
 }

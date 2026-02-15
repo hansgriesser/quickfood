@@ -55,10 +55,14 @@
                   <td>{{ r.id }}</td>
                   <td>
                     <div class="cell-title">{{ r.name }}</div>
-                    <div class="cell-sub admin-muted">Restaurant #{{ r.id }}</div>
                   </td>
                   <td>
-                    <span class="admin-badge" [class.admin-badge-danger]="r.status === 'REJECTED'">
+                    <span
+                      class="admin-badge"
+                      [class.admin-badge-danger]="r.status === 'REJECTED'"
+                      [class.badge-pending]="r.status === 'PENDING'"
+                      [class.badge-active]="r.status === 'ACTIVE'"
+                    >
                       {{ r.status }}
                     </span>
                   </td>
