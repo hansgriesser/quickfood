@@ -100,7 +100,7 @@ export class AdminZonesComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  async toogleActive(z: DeliveryZone): Promise<void> {
+  async toggleActive(z: DeliveryZone): Promise<void> {
     if (this.rowBusy.has(z.id)) return;
 
     this.rowBusy.add(z.id);

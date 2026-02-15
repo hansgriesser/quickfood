@@ -1,4 +1,5 @@
 <section class="owner-restaurant-list">
+  <app-owner-nav></app-owner-nav>
   <header>
     <h1>My Restaurants</h1>
     <p>Create and manage your restaurants.</p>
@@ -28,7 +29,10 @@
               <p>Category: {{ restaurant.category }}</p>
             }
           </div>
-          <a [routerLink]="['/owner/restaurants', restaurant.id]">Manage</a>
+          <div class="card-actions">
+            <a class="forum-link" [routerLink]="['/forum/restaurant', restaurant.id]"> Forum </a>
+            <a [routerLink]="['/owner/restaurants', restaurant.id]">Manage</a>
+          </div>
         </div>
       }
     </div>

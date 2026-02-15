@@ -4,152 +4,149 @@
       <h1 class="admin-title">Global Settings</h1>
       <p class="admin-subtitle">Plattformweite Einstellungen: Service Fee und Voucher Codes.</p>
     </div>
+    <div class="admin-actions">
+      <a class="admin-link" routerLink="/admin">← Zur Übersicht</a>
+    </div>
   </div>
 
   <div class="admin-panel">
-    <div class="admin-panel-inner">
-      @if (error) {
-        <div class="admin-alert admin-alert-error">
-          {{ error }}
-        </div>
-      }
-
-      <!-- Service Fee -->
-      <div class="section">
-        <h2 class="section-title">Service Fee</h2>
-        <p class="section-subtitle">Globaler Prozentsatz (0–100).</p>
-
-        <div class="form-row">
-          <label class="admin-filter">
-            Percent:
-            <input
-              class="admin-input w-200"
-              type="number"
-              min="0"
-              max="100"
-              [(ngModel)]="serviceFeePercent"
-            />
-          </label>
-
-          <button
-            class="admin-btn admin-btn-primary"
-            (click)="saveServiceFee()"
-            [disabled]="savingFee"
-          >
-            {{ savingFee ? 'Saving…' : 'Save' }}
-          </button>
-        </div>
+    @if (error) {
+      <div class="admin-error">
+        {{ error }}
       </div>
+    }
 
-      <!-- Vouchers -->
-      <div class="section">
-        <h2 class="section-title">Vouchers</h2>
-        <p class="section-subtitle">Neue Voucher anlegen und bestehende aktivieren/deaktivieren.</p>
+    <!-- Service Fee -->
+    <div class="admin-panel-header" style="flex-direction: column; align-items: flex-start">
+      <h2>Service Fee</h2>
+      <p class="admin-subtitle">Globaler Prozentsatz (0–100).</p>
+    </div>
+    <div class="admin-filters">
+      <label class="admin-filter">
+        Percent:
+        <input
+          class="admin-input"
+          type="number"
+          min="0"
+          max="100"
+          [(ngModel)]="serviceFeePercent"
+        />
+      </label>
 
-        <div class="grid-3">
-          <label class="admin-filter">
-            Code:
-            <input
-              class="admin-input w-full"
-              [(ngModel)]="newVoucher.code"
-              placeholder="FOOD2026"
-            />
-          </label>
+      <button class="admin-btn admin-btn-primary" (click)="saveServiceFee()" [disabled]="savingFee">
+        {{ savingFee ? 'Saving…' : 'Save' }}
+      </button>
+    </div>
+  </div>
 
-          <label class="admin-filter">
-            Type:
-            <select class="admin-select w-full" [(ngModel)]="newVoucher.type">
-              <option value="PERCENT">PERCENT</option>
-              <option value="FIXED">FIXED</option>
-            </select>
-          </label>
-
-          <label class="admin-filter">
-            Value:
-            <input class="admin-input w-full" type="number" [(ngModel)]="newVoucher.value" />
-          </label>
-        </div>
-
-        <div class="grid-3" style="margin-top: 12px">
-          <label class="admin-filter">
-            Valid From (optional):
-            <input class="admin-input w-full" type="date" [(ngModel)]="validFromDate" />
-          </label>
-
-          <label class="admin-filter">
-            Valid To (optional):
-            <input class="admin-input w-full" type="date" [(ngModel)]="validToDate" />
-          </label>
-
-          <label class="admin-filter">
-            Usage Limit (optional):
-            <input class="admin-input w-full" type="number" [(ngModel)]="newVoucher.usageLimit" />
-          </label>
-        </div>
-
-        <div class="actions-right">
-          <button
-            class="admin-btn admin-btn-primary"
-            (click)="createVoucher()"
-            [disabled]="creatingVoucher"
-          >
-            {{ creatingVoucher ? 'Creating…' : 'Add Voucher' }}
-          </button>
-        </div>
-
-        <!-- Table -->
-        @if (vouchers.length) {
-          <div class="admin-table-wrap" style="margin-top: 14px">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Type</th>
-                  <th>Value</th>
-                  <th>Status</th>
-                  <th style="width: 180px">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (v of vouchers; track v) {
-                  <tr>
-                    <td class="cell-title">{{ v.code }}</td>
-                    <td>{{ v.type }}</td>
-                    <td>{{ v.value }}</td>
-                    <td>
-                      <span class="admin-badge" [class.admin-badge-danger]="!v.active">
-                        {{ v.active ? 'ACTIVE' : 'INACTIVE' }}
-                      </span>
-                    </td>
-                    <td>
-                      <button
-                        class="admin-btn"
-                        [class.admin-btn-danger]="v.active"
-                        (click)="toggleVoucher(v)"
-                        [disabled]="updatingVoucherIds.has(v.id)"
-                      >
-                        {{
-                          updatingVoucherIds.has(v.id)
-                            ? v.active
-                              ? 'Deactivating…'
-                              : 'Activating…'
-                            : v.active
-                              ? 'Deactivate'
-                              : 'Activate'
-                        }}
-                      </button>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        }
-
-        @if (!vouchers.length) {
-          <div class="admin-muted" style="margin-top: 12px">Keine Vouchers vorhanden.</div>
-        }
+  <div class="admin-panel">
+    <!-- Vouchers -->
+    <div class="admin-panel-header">
+      <div class="admin-panel-header-text">
+        <h2>Vouchers</h2>
+        <p class="admin-subtitle">Neue Voucher anlegen und bestehende aktivieren/deaktivieren.</p>
+      </div>
+      <div class="admin-panel-header-btn">
+        <button
+          class="admin-btn admin-btn-primary"
+          (click)="createVoucher()"
+          [disabled]="creatingVoucher"
+        >
+          {{ creatingVoucher ? 'Creating…' : 'Add Voucher' }}
+        </button>
       </div>
     </div>
+
+    <div class="admin-filters">
+      <label class="admin-filter">
+        Code:
+        <input class="admin-input" [(ngModel)]="newVoucher.code" placeholder="FOOD2026" />
+      </label>
+
+      <label class="admin-filter">
+        Type:
+        <select class="admin-select" [(ngModel)]="newVoucher.type">
+          <option value="PERCENT">PERCENT</option>
+          <option value="FIXED">FIXED</option>
+        </select>
+      </label>
+
+      <label class="admin-filter">
+        Value:
+        <input class="admin-input" type="number" [(ngModel)]="newVoucher.value" />
+      </label>
+    </div>
+
+    <div class="admin-filters">
+      <label class="admin-filter">
+        Valid From (optional):
+        <input class="admin-input" type="date" [(ngModel)]="validFromDate" />
+      </label>
+
+      <label class="admin-filter">
+        Valid To (optional):
+        <input class="admin-input" type="date" [(ngModel)]="validToDate" />
+      </label>
+
+      <label class="admin-filter">
+        Usage Limit (optional):
+        <input class="admin-input" type="number" [(ngModel)]="newVoucher.usageLimit" />
+      </label>
+    </div>
+
+    <div class="actions-right"></div>
+
+    <!-- Table -->
+    @if (vouchers.length) {
+      <div class="admin-table-wrap" style="margin-top: 14px">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Type</th>
+              <th>Value</th>
+              <th>Status</th>
+              <th style="width: 180px">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (v of vouchers; track v) {
+              <tr>
+                <td class="cell-title">{{ v.code }}</td>
+                <td>{{ v.type }}</td>
+                <td>{{ v.value }}</td>
+                <td>
+                  <span class="admin-badge" [class.admin-badge-danger]="!v.active">
+                    {{ v.active ? 'ACTIVE' : 'INACTIVE' }}
+                  </span>
+                </td>
+                <td>
+                  <button
+                    class="admin-btn"
+                    [class.admin-btn-danger]="v.active"
+                    (click)="toggleVoucher(v)"
+                    [disabled]="updatingVoucherIds.has(v.id)"
+                  >
+                    {{
+                      updatingVoucherIds.has(v.id)
+                        ? v.active
+                          ? 'Deactivating…'
+                          : 'Activating…'
+                        : v.active
+                          ? 'Deactivate'
+                          : 'Activate'
+                    }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (!vouchers.length) {
+      <div class="admin-muted" style="margin-top: 12px">Keine Vouchers vorhanden.</div>
+    }
   </div>
 </div>

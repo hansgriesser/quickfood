@@ -183,6 +183,10 @@
   gap: 16px;
 }
 
+.menu-list + .menu-list {
+  margin-top: 16px;
+}
+
 .category-card {
   border: 1px solid #e5e5e5;
   border-radius: 12px;
@@ -208,7 +212,7 @@
 .category-edit {
   display: grid;
   gap: 8px;
-  grid-template-columns: minmax(0, 1fr) 120px auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
 }
 
@@ -222,6 +226,20 @@
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
+}
+
+.drag-handle {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px dashed #94a3b8;
+  background: #f8fafc;
+  color: #475569;
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 .dish-list {
@@ -296,6 +314,91 @@
   font-family: inherit;
 }
 
+.photo-uploader {
+  display: grid;
+  gap: 10px;
+}
+
+.photo-preview {
+  height: 140px;
+  border-radius: 10px;
+  border: 1px dashed #d0d0d0;
+  background: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 0.9rem;
+  overflow: hidden;
+}
+
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-preview.empty {
+  color: #9ca3af;
+}
+
+.photo-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.photo-actions .ghost {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #d0d0d0;
+  background: #fff;
+  color: #111827;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.photo-actions .ghost[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.menu-form .upload-button,
+.dish-edit .upload-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #d0d0d0;
+  background: #fff;
+  color: #111827;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.menu-form .upload-button input,
+.dish-edit .upload-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.menu-list.cdk-drop-list-dragging .category-card {
+  border-color: #c7d2fe;
+  background: #f8faff;
+}
+
+.cdk-drag-preview.category-card {
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+}
+
+.cdk-drag-placeholder.category-card {
+  opacity: 0.4;
+}
+
 .actions {
   display: flex;
   gap: 8px;
@@ -310,6 +413,12 @@
   cursor: pointer;
   background: #1f6feb;
   color: #fff;
+}
+
+.category-actions .drag-handle {
+  border: 1px dashed #94a3b8;
+  background: #f8fafc;
+  color: #475569;
 }
 
 .actions button.ghost,

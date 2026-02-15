@@ -42,12 +42,14 @@ export class AdminUsersComponent implements OnInit {
   modalUntil = ''; // datetime-local
   modalSubmitting = false;
   modalError: string | null = null;
+  minSuspendDate = '';
 
   ngOnInit(): void {
     void this.load();
   }
 
   async onFilterChange(): Promise<void> {
+    this.minSuspendDate = new Date().toISOString().slice(0, 10);
     await this.load();
   }
 
@@ -98,6 +100,21 @@ export class AdminUsersComponent implements OnInit {
     this.modalSubmitting = true;
     this.modalError = null;
     this.cdr.detectChanges();
+
+    const untilLocal = this.modalUntil.trim();
+
+    if (untilLocal) {
+      const picked = new Date(untilLocal);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (picked < today) {
+        this.modalError = 'Suspend until date cannot be in the past';
+        this.modalSubmitting = false;
+        this.cdr.detectChanges();
+        return;
+      }
+    }
 
     try {
       const reason = this.modalReason.trim() || undefined;

@@ -35,6 +35,12 @@
   color: #b91c1c;
 }
 
+.card-actions {
+  display: flex;
+  gap: 12px;
+  flex-direction: column;
+}
+
 @media (max-width: 900px) {
   .content {
     grid-template-columns: 1fr;

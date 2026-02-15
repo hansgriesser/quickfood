@@ -1,4 +1,5 @@
 <section class="owner-restaurant-detail">
+  <app-owner-nav></app-owner-nav>
   <a routerLink="/owner/restaurants">Back to restaurants</a>
   <h1>Restaurant Profile</h1>
 
@@ -96,7 +97,7 @@
     <div class="panel">
       <div class="panel-header">
         <h2>Menu</h2>
-        <p class="hint">Prices are in cents.</p>
+        <p class="hint">Prices are in cents. Drag categories to reorder.</p>
       </div>
 
       @if (isMenuLoading) {
@@ -105,6 +106,9 @@
       @if (menuError) {
         <div class="status error">{{ menuError }}</div>
       }
+      @if (isReordering) {
+        <div class="status">Saving category order...</div>
+      }
 
       <div class="menu-forms">
         <form class="menu-form" (ngSubmit)="createCategory()">
@@ -112,15 +116,6 @@
           <label>
             Name
             <input type="text" [(ngModel)]="categoryForm.name" name="newCategoryName" required />
-          </label>
-          <label>
-            Sort order
-            <input
-              type="number"
-              [(ngModel)]="categoryForm.sortOrder"
-              name="newCategorySort"
-              min="0"
-            />
           </label>
           <button type="submit">Add Category</button>
         </form>
@@ -170,6 +165,33 @@
               placeholder="https://example.com/photo.jpg"
             />
           </label>
+          <div class="photo-uploader">
+            <div class="photo-preview" [class.empty]="!dishForm.pictureUrl">
+              @if (dishForm.pictureUrl) {
+                <img [src]="dishForm.pictureUrl" alt="Dish preview" />
+              } @else {
+                <span>No photo selected</span>
+              }
+            </div>
+            <div class="photo-actions">
+              <label class="upload-button">
+                Upload photo
+                <input
+                  type="file"
+                  accept="image/*"
+                  (change)="onDishPhotoSelected($event, 'new')"
+                  />
+              </label>
+              <button
+                type="button"
+                class="ghost"
+                (click)="clearDishPhoto('new')"
+                [disabled]="!dishForm.pictureUrl"
+                >
+                Remove
+              </button>
+            </div>
+          </div>
           <button type="submit">Add Dish</button>
         </form>
       </div>
@@ -178,151 +200,192 @@
         <div class="menu-empty">No menu items yet.</div>
       }
 
-      <div class="menu-list">
-        @for (category of menuCategories; track trackByCategoryId($index, category)) {
-          <div class="category-card">
-            <div class="category-header">
-              @if (editingCategoryId !== category.id) {
-                <div class="category-meta">
-                  <h3>{{ category.name }}</h3>
-                  <span class="muted">Sort: {{ category.sortOrder }}</span>
-                </div>
-              }
-              @if (editingCategoryId === category.id) {
-                <form class="category-edit" (ngSubmit)="saveCategoryEdit(category)">
-                  <input
-                    type="text"
-                    [(ngModel)]="categoryEditForm.name"
-                    name="categoryEditName{{ category.id }}"
-                    required
-                  />
-                  <input
-                    type="number"
-                    [(ngModel)]="categoryEditForm.sortOrder"
-                    name="categoryEditSort{{ category.id }}"
-                    min="0"
-                  />
-                  <div class="actions">
-                    <button type="submit">Save</button>
-                    <button type="button" class="ghost" (click)="cancelCategoryEdit()">
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              }
-              @if (category.id !== 0 && editingCategoryId !== category.id) {
-                <div class="category-actions">
-                  <button type="button" (click)="startCategoryEdit(category)">Edit</button>
-                  <button type="button" class="danger" (click)="deleteCategory(category)">
-                    Delete
-                  </button>
-                </div>
-              }
-              @if (category.id === 0) {
-                <div class="category-actions">
-                  <span class="muted">Uncategorized</span>
-                </div>
+      <ng-template #categoryContent let-category="category" let-draggable="draggable">
+        <div class="category-header">
+          @if (editingCategoryId !== category.id) {
+            <div class="category-meta">
+              <h3>{{ category.name }}</h3>
+              @if (draggable) {
+                <span class="muted">Drag to reorder</span>
               }
             </div>
-            @if (category.dishes.length > 0) {
-              <div class="dish-list">
-                @for (dish of category.dishes; track trackByDishId($index, dish)) {
-                  <div class="dish-card">
-                    @if (editingDishId !== dish.id) {
-                      <div class="dish-view">
-                        <div class="dish-info">
-                          <h4>{{ dish.name }}</h4>
-                          @if (dish.description) {
-                            <p class="dish-description">
-                              {{ dish.description }}
-                            </p>
-                          }
-                          <p class="dish-price">{{ dish.price / 100 | currency: 'EUR' }}</p>
-                          @if (dish.pictureUrl) {
-                            <p class="dish-meta">Photo attached</p>
-                          }
-                        </div>
-                        @if (dish.pictureUrl) {
-                          <img [src]="dish.pictureUrl" [alt]="dish.name" class="dish-photo" />
-                        }
-                        <div class="dish-actions">
-                          <button type="button" (click)="startDishEdit(dish)">Edit</button>
-                          <button type="button" class="danger" (click)="deleteDish(dish)">
-                            Delete
-                          </button>
-                        </div>
-                      </div>
+          }
+          @if (editingCategoryId === category.id) {
+            <form class="category-edit" (ngSubmit)="saveCategoryEdit(category)">
+              <input
+                type="text"
+                [(ngModel)]="categoryEditForm.name"
+                name="categoryEditName{{ category.id }}"
+                required
+                />
+              <div class="actions">
+                <button type="submit">Save</button>
+                <button type="button" class="ghost" (click)="cancelCategoryEdit()">Cancel</button>
+              </div>
+            </form>
+          }
+          @if (category.id !== 0 && editingCategoryId !== category.id) {
+            <div class="category-actions">
+              <button type="button" class="drag-handle" cdkDragHandle>Drag</button>
+              <button type="button" (click)="startCategoryEdit(category)">Edit</button>
+              <button type="button" class="danger" (click)="deleteCategory(category)">
+                Delete
+              </button>
+            </div>
+          }
+          @if (category.id === 0) {
+            <div class="category-actions">
+              <span class="muted">Uncategorized</span>
+            </div>
+          }
+        </div>
+        @if (category.dishes.length > 0) {
+          <div class="dish-list">
+            @for (dish of category.dishes; track trackByDishId($index, dish)) {
+              <div class="dish-card">
+                @if (editingDishId !== dish.id) {
+                  <div class="dish-view">
+                    <div class="dish-info">
+                      <h4>{{ dish.name }}</h4>
+                      @if (dish.description) {
+                        <p class="dish-description">
+                          {{ dish.description }}
+                        </p>
+                      }
+                      <p class="dish-price">{{ dish.price / 100 | currency: 'EUR' }}</p>
+                      @if (dish.pictureUrl) {
+                        <p class="dish-meta">Photo attached</p>
+                      }
+                    </div>
+                    @if (dish.pictureUrl) {
+                      <img [src]="dish.pictureUrl" [alt]="dish.name" class="dish-photo" />
                     }
-                    @if (editingDishId === dish.id) {
-                      <form class="dish-edit" (ngSubmit)="saveDishEdit(dish)">
-                        <label>
-                          Name
-                          <input
-                            type="text"
-                            [(ngModel)]="dishEditForm.name"
-                            name="dishEditName{{ dish.id }}"
-                            required
-                          />
-                        </label>
-                        <label>
-                          Description
-                          <textarea
-                            rows="3"
-                            [(ngModel)]="dishEditForm.description"
-                            name="dishEditDescription{{ dish.id }}"
-                            required
-                          ></textarea>
-                        </label>
-                        <label>
-                          Price (cents)
-                          <input
-                            type="number"
-                            [(ngModel)]="dishEditForm.price"
-                            name="dishEditPrice{{ dish.id }}"
-                            min="1"
-                            required
-                          />
-                        </label>
-                        <label>
-                          Category
-                          <select
-                            [(ngModel)]="dishEditForm.categoryId"
-                            name="dishEditCategory{{ dish.id }}"
-                          >
-                            <option [ngValue]="null">Uncategorized</option>
-                            @for (option of categoryOptions; track option) {
-                              <option [ngValue]="option.id">
-                                {{ option.name }}
-                              </option>
-                            }
-                          </select>
-                        </label>
-                        <label>
-                          Photo URL
-                          <input
-                            type="url"
-                            [(ngModel)]="dishEditForm.pictureUrl"
-                            name="dishEditPhoto{{ dish.id }}"
-                            placeholder="https://example.com/photo.jpg"
-                          />
-                        </label>
-                        <div class="actions">
-                          <button type="submit">Save</button>
-                          <button type="button" class="ghost" (click)="cancelDishEdit()">
-                            Cancel
-                          </button>
-                        </div>
-                      </form>
-                    }
+                    <div class="dish-actions">
+                      <button type="button" (click)="startDishEdit(dish)">Edit</button>
+                      <button type="button" class="danger" (click)="deleteDish(dish)">Delete</button>
+                    </div>
                   </div>
                 }
+                @if (editingDishId === dish.id) {
+                  <form class="dish-edit" (ngSubmit)="saveDishEdit(dish)">
+                    <label>
+                      Name
+                      <input
+                        type="text"
+                        [(ngModel)]="dishEditForm.name"
+                        name="dishEditName{{ dish.id }}"
+                        required
+                        />
+                    </label>
+                    <label>
+                      Description
+                      <textarea
+                        rows="3"
+                        [(ngModel)]="dishEditForm.description"
+                        name="dishEditDescription{{ dish.id }}"
+                        required
+                      ></textarea>
+                    </label>
+                    <label>
+                      Price (cents)
+                      <input
+                        type="number"
+                        [(ngModel)]="dishEditForm.price"
+                        name="dishEditPrice{{ dish.id }}"
+                        min="1"
+                        required
+                        />
+                    </label>
+                    <label>
+                      Category
+                      <select [(ngModel)]="dishEditForm.categoryId" name="dishEditCategory{{ dish.id }}">
+                        <option [ngValue]="null">Uncategorized</option>
+                        @for (option of categoryOptions; track option) {
+                          <option [ngValue]="option.id">
+                            {{ option.name }}
+                          </option>
+                        }
+                      </select>
+                    </label>
+                    <label>
+                      Photo URL
+                      <input
+                        type="url"
+                        [(ngModel)]="dishEditForm.pictureUrl"
+                        name="dishEditPhoto{{ dish.id }}"
+                        placeholder="https://example.com/photo.jpg"
+                        />
+                    </label>
+                    <div class="photo-uploader">
+                      <div class="photo-preview" [class.empty]="!dishEditForm.pictureUrl">
+                        @if (dishEditForm.pictureUrl) {
+                          <img [src]="dishEditForm.pictureUrl" alt="Dish preview" />
+                        } @else {
+                          <span>No photo selected</span>
+                        }
+                      </div>
+                      <div class="photo-actions">
+                        <label class="upload-button">
+                          Upload photo
+                          <input
+                            type="file"
+                            accept="image/*"
+                            (change)="onDishPhotoSelected($event, 'edit')"
+                            />
+                        </label>
+                        <button
+                          type="button"
+                          class="ghost"
+                          (click)="clearDishPhoto('edit')"
+                          [disabled]="!dishEditForm.pictureUrl"
+                          >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                    <div class="actions">
+                      <button type="submit">Save</button>
+                      <button type="button" class="ghost" (click)="cancelDishEdit()">Cancel</button>
+                    </div>
+                  </form>
+                }
               </div>
-            } @else {
-              <p class="muted">No dishes in this category yet.</p>
             }
+          </div>
+        } @else {
+          <p class="muted">No dishes in this category yet.</p>
+        }
+      </ng-template>
+
+      <div
+        class="menu-list"
+        cdkDropList
+        [cdkDropListData]="draggableCategories"
+        [cdkDropListDisabled]="isMenuLoading || isReordering || editingCategoryId !== null"
+        (cdkDropListDropped)="reorderCategories($event)"
+        >
+        @for (category of draggableCategories; track trackByCategoryId($index, category)) {
+          <div
+            class="category-card"
+            cdkDrag
+            [cdkDragDisabled]="editingCategoryId === category.id || isReordering"
+            >
+            <ng-container
+              *ngTemplateOutlet="categoryContent; context: { category: category, draggable: true }"
+            ></ng-container>
           </div>
         }
       </div>
+
+      @if (uncategorizedCategory) {
+        <div class="menu-list">
+          <div class="category-card">
+            <ng-container
+              *ngTemplateOutlet="categoryContent; context: { category: uncategorizedCategory, draggable: false }"
+            ></ng-container>
+          </div>
+        </div>
+      }
     </div>
   </div>
 </section>

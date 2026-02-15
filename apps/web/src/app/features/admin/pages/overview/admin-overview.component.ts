@@ -85,6 +85,8 @@ export class AdminOverviewComponent implements OnInit {
         return `Restaurant approved (${a.meta?.name ?? a.targetId})`;
       case 'ADMIN_RESTAURANT_REJECT':
         return `Restaurant rejected (${a.meta?.name ?? a.targetId})`;
+      case 'AUTH_REGISTER':
+        return `New ${String(a.meta?.role).toLowerCase()} registered: ${a.meta?.username}`;
       default:
         return a.type;
     }

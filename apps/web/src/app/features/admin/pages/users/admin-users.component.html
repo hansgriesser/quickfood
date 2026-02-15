@@ -71,7 +71,12 @@
                     <div class="cell-sub">User #{{ u.id }}</div>
                   </td>
                   <td>
-                    <span class="admin-badge">{{ u.role }}</span>
+                    <span
+                      class="admin-badge"
+                      [class.badge-admin]="u.role === 'ADMIN'"
+                      [class.badge-owner]="u.role === 'OWNER'"
+                      >{{ u.role }}</span
+                    >
                   </td>
                   <td>
                     <span class="admin-badge" [class.admin-badge-danger]="u.isSuspended">
@@ -82,10 +87,9 @@
                     {{ u.suspendedUntil ? (u.suspendedUntil | date: 'short') : '—' }}
                   </td>
                   <td>
-                    <div class="action-row">
+                    <div class="admin-actions">
                       <button
                         class="admin-btn admin-btn-primary"
-                        type="button"
                         (click)="openUserActionModal(u)"
                         [disabled]="u.role === 'ADMIN'"
                         [title]="
@@ -98,7 +102,6 @@
                       </button>
                       <button
                         class="admin-btn admin-btn-danger"
-                        type="button"
                         (click)="unsuspend(u)"
                         [disabled]="u.role === 'ADMIN' || !u.isSuspended"
                         [title]="
@@ -112,12 +115,6 @@
                         Unsuspend
                       </button>
                     </div>
-                    @if (u.role !== 'ADMIN') {
-                      <div class="cell-sub admin-muted">Moderate öffnet Warn/Suspend Dialog.</div>
-                    }
-                    @if (u.role === 'ADMIN') {
-                      <div class="cell-sub admin-muted">Admin-Account ist geschützt.</div>
-                    }
                   </td>
                 </tr>
               }
@@ -171,7 +168,12 @@
           @if (modalAction === 'SUSPEND') {
             <label class="admin-field">
               <div class="admin-field-label">Suspend until (optional)</div>
-              <input class="admin-input" type="date" [(ngModel)]="modalUntil" />
+              <input
+                class="admin-input date-input-fixed"
+                type="date"
+                [(ngModel)]="modalUntil"
+                [min]="minSuspendDate"
+              />
             </label>
           }
           @if (modalError) {

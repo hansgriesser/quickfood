@@ -1,39 +1,58 @@
 @import '../../admin-ui.css';
 
-.actions-col {
-  width: 560px;
-}
-.action-row {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
+.admin-segment {
+  display: flex !important;
+  background: #f1f5f9 !important;
+  padding: 4px !important;
+  border-radius: 12px !important;
+  margin-bottom: 24px !important;
 }
 
-:host .admin-btn,
-:host button.admin-btn {
-  background-color: #ffffff !important;
-  border-color: #e5e7eb !important;
-  color: #111827 !important;
+.admin-seg-btn {
+  flex: 1 !important;
+  padding: 10px !important;
+  border-radius: 9px !important;
+  font-weight: 700 !important;
+  color: #64748b !important;
+  background: transparent !important;
+  border: none !important;
 }
 
-:host .admin-btn-primary,
-:host button.admin-btn-primary {
-  background-color: #111827 !important;
-  border-color: #111827 !important;
-  color: #ffffff !important;
+.admin-seg-btn.active {
+  background: #ffffff !important;
+  color: #f97316 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
 }
 
-:host .admin-btn-danger,
-:host button.admin-btn-danger {
-  background-color: #b91c1c !important;
-  border-color: #b91c1c !important;
-  color: #ffffff !important;
+.admin-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  resize: vertical;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
 }
 
-/* Disabled should still be readable */
-:host .admin-btn:disabled,
-:host button.admin-btn:disabled {
-  opacity: 0.75 !important;
-  filter: grayscale(0.1);
+.admin-textarea:focus {
+  outline: none;
+  border-color: #f97316;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
 }
+
+.admin-textarea::placeholder {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.badge-admin { background: #fee2e2; color: #991b1b; }
+.badge-owner { background: #e0f2fe; color: #075985; }
+.admin-badge-danger { background: #fee2e2; color: #ef4444; }
+

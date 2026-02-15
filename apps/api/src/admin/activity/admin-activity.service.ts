@@ -7,6 +7,19 @@ export class AdminActivityService {
   constructor(private readonly prisma: PrismaService) {}
 
   async list(q: ListActivityQuery) {
+    const now = new Date();
+
+    await this.prisma.user.updateMany({
+      where: {
+        isSuspended: true,
+        suspendedUntil: { not: null, lte: now },
+      },
+      data: {
+        isSuspended: false,
+        suspendedUntil: null,
+      },
+    });
+
     const from = q.from ? new Date(q.from) : undefined;
     const to = q.to ? new Date(q.to) : undefined;
     const actorId = q.actorId ? Number(q.actorId) : undefined;

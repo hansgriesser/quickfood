@@ -5,11 +5,12 @@ import { OwnerOrdersService } from '../../services/owner-orders.service';
 import { OwnerOrder, OrderStatus, OrderStatusLabel } from '../../services/owner-order.model';
 import { ChatService } from '../../../chat/services/chat-service';
 import { AuthService } from '../../../auth/auth.service';
+import { OwnerNavComponent } from '../../components/nav/owner-nav.component';
 
 @Component({
   selector: 'app-owner-orders',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, OwnerNavComponent],
   templateUrl: './owner-orders.component.html',
   styleUrls: ['./owner-orders.component.css'],
 })
