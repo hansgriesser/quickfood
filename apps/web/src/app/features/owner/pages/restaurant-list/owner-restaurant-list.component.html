@@ -15,9 +15,7 @@
     <div class="status error">{{ errorMessage }}</div>
   }
   @if (!isLoading && !errorMessage && restaurants.length === 0) {
-    <div class="status">
-      No restaurants found yet.
-    </div>
+    <div class="status">No restaurants found yet.</div>
   }
 
   <div class="content">
@@ -31,7 +29,10 @@
               <p>Category: {{ restaurant.category }}</p>
             }
           </div>
-          <a [routerLink]="['/owner/restaurants', restaurant.id]">Manage</a>
+          <div class="card-actions">
+            <a class="forum-link" [routerLink]="['/forum/restaurant', restaurant.id]"> Forum </a>
+            <a [routerLink]="['/owner/restaurants', restaurant.id]">Manage</a>
+          </div>
         </div>
       }
     </div>
