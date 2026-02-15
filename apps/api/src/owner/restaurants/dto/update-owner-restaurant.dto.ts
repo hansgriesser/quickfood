@@ -18,6 +18,14 @@ export class UpdateOwnerRestaurantDto {
   category?: string;
 
   @IsOptional()
+  @IsString()
+  logoUrl?: string | null;
+
+  @IsOptional()
+  @IsString()
+  bannerUrl?: string | null;
+
+  @IsOptional()
   @IsArray()
   openingHours?: OwnerOpeningHourInput[];
 

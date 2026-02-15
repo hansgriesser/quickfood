@@ -2,7 +2,10 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 
 import { RouterModule } from '@angular/router';
 import { OwnerRestaurantsService } from '../../services/owner-restaurants.service';
-import { OwnerRestaurant } from '../../services/owner-restaurant.model';
+import {
+  CreateOwnerRestaurantPayload,
+  OwnerRestaurant,
+} from '../../services/owner-restaurant.model';
 import { OwnerRestaurantFormComponent } from '../../components/restaurant-form/owner-restaurant-form.component';
 import { OwnerNavComponent } from '../../components/nav/owner-nav.component';
 import { catchError, finalize, of, take } from 'rxjs';
@@ -55,12 +58,7 @@ export class OwnerRestaurantListComponent implements OnInit {
       });
   }
 
-  createRestaurant(payload: {
-    name: string;
-    category?: string;
-    contactEmail?: string;
-    contactPhone?: string;
-  }): void {
+  createRestaurant(payload: CreateOwnerRestaurantPayload): void {
     this.isSubmitting = true;
     this.errorMessage = '';
 

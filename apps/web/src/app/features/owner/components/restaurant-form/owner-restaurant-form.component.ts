@@ -23,6 +23,8 @@ export class OwnerRestaurantFormComponent implements OnInit {
     category: '',
     contactEmail: '',
     contactPhone: '',
+    logoUrl: '',
+    bannerUrl: '',
   };
 
   ngOnInit(): void {
@@ -32,6 +34,8 @@ export class OwnerRestaurantFormComponent implements OnInit {
         category: this.restaurant.category ?? '',
         contactEmail: this.restaurant.contactEmail ?? '',
         contactPhone: this.restaurant.contactPhone ?? '',
+        logoUrl: this.restaurant.logoUrl ?? '',
+        bannerUrl: this.restaurant.bannerUrl ?? '',
       };
     }
   }
@@ -42,8 +46,58 @@ export class OwnerRestaurantFormComponent implements OnInit {
       category: this.form.category || undefined,
       contactEmail: this.form.contactEmail || undefined,
       contactPhone: this.form.contactPhone || undefined,
+      logoUrl: this.normalizeImageValue(this.form.logoUrl),
+      bannerUrl: this.normalizeImageValue(this.form.bannerUrl),
     };
 
     this.submitForm.emit(payload);
+  }
+
+  onLogoSelected(event: Event): void {
+    this.readImageFile(event, (url) => {
+      this.form.logoUrl = url;
+    });
+  }
+
+  onBannerSelected(event: Event): void {
+    this.readImageFile(event, (url) => {
+      this.form.bannerUrl = url;
+    });
+  }
+
+  clearLogo(): void {
+    this.form.logoUrl = '';
+  }
+
+  clearBanner(): void {
+    this.form.bannerUrl = '';
+  }
+
+  private readImageFile(event: Event, onLoad: (url: string) => void): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (file.type && !file.type.startsWith('image/')) {
+      input.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : '';
+      if (result) {
+        onLoad(result);
+      }
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+  }
+
+  private normalizeImageValue(value?: string | null): string | null | undefined {
+    if (value === undefined) {
+      return undefined;
+    }
+    const trimmed = value?.trim() ?? '';
+    return trimmed ? trimmed : null;
   }
 }

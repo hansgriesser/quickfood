@@ -15,4 +15,12 @@ export class CreateOwnerRestaurantDto {
   @IsOptional()
   @IsString()
   category?: string;
+
+  @IsOptional()
+  @IsString()
+  logoUrl?: string | null;
+
+  @IsOptional()
+  @IsString()
+  bannerUrl?: string | null;
 }
