@@ -1,4 +1,5 @@
 <section class="owner-restaurant-detail">
+  <app-owner-nav></app-owner-nav>
   <a routerLink="/owner/restaurants">Back to restaurants</a>
   <h1>Restaurant Profile</h1>
 
@@ -96,7 +97,7 @@
     <div class="panel">
       <div class="panel-header">
         <h2>Menu</h2>
-        <p class="hint">Prices are in cents.</p>
+        <p class="hint">Prices are in cents. Drag categories to reorder.</p>
       </div>
 
       @if (isMenuLoading) {
@@ -104,6 +105,9 @@
       }
       @if (menuError) {
         <div class="status error">{{ menuError }}</div>
+      }
+      @if (isReordering) {
+        <div class="status">Saving category order...</div>
       }
 
       <div class="menu-forms">
@@ -170,6 +174,33 @@
               placeholder="https://example.com/photo.jpg"
             />
           </label>
+          <div class="photo-uploader">
+            <div class="photo-preview" [class.empty]="!dishForm.pictureUrl">
+              @if (dishForm.pictureUrl) {
+                <img [src]="dishForm.pictureUrl" alt="Dish preview" />
+              } @else {
+                <span>No photo selected</span>
+              }
+            </div>
+            <div class="photo-actions">
+              <label class="upload-button">
+                Upload photo
+                <input
+                  type="file"
+                  accept="image/*"
+                  (change)="onDishPhotoSelected($event, 'new')"
+                  />
+              </label>
+              <button
+                type="button"
+                class="ghost"
+                (click)="clearDishPhoto('new')"
+                [disabled]="!dishForm.pictureUrl"
+                >
+                Remove
+              </button>
+            </div>
+          </div>
           <button type="submit">Add Dish</button>
         </form>
       </div>
@@ -317,12 +348,42 @@
                   </div>
                 }
               </div>
-            } @else {
-              <p class="muted">No dishes in this category yet.</p>
             }
+          </div>
+        } @else {
+          <p class="muted">No dishes in this category yet.</p>
+        }
+      </ng-template>
+
+      <div
+        class="menu-list"
+        cdkDropList
+        [cdkDropListData]="draggableCategories"
+        [cdkDropListDisabled]="isMenuLoading || isReordering || editingCategoryId !== null"
+        (cdkDropListDropped)="reorderCategories($event)"
+        >
+        @for (category of draggableCategories; track trackByCategoryId($index, category)) {
+          <div
+            class="category-card"
+            cdkDrag
+            [cdkDragDisabled]="editingCategoryId === category.id || isReordering"
+            >
+            <ng-container
+              *ngTemplateOutlet="categoryContent; context: { category: category, draggable: true }"
+            ></ng-container>
           </div>
         }
       </div>
+
+      @if (uncategorizedCategory) {
+        <div class="menu-list">
+          <div class="category-card">
+            <ng-container
+              *ngTemplateOutlet="categoryContent; context: { category: uncategorizedCategory, draggable: false }"
+            ></ng-container>
+          </div>
+        </div>
+      }
     </div>
   </div>
 </section>

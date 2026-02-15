@@ -1,20 +1,19 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { OwnerNavComponent } from '../../components/nav/owner-nav.component';
 import {
   OwnerAnalyticsService,
   OwnerAnalyticsSummary,
 } from '../../services/owner-analytics.service';
+import { OwnerNavComponent } from '../../components/nav/owner-nav.component';
 
 @Component({
-  selector: 'app-owner-dashboard',
+  selector: 'app-owner-analytics',
   standalone: true,
-  imports: [CommonModule,RouterModule, OwnerNavComponent],
-  templateUrl: './owner-dashboard.component.html',
-  styleUrls: ['./owner-dashboard.component.css'],
+  imports: [CommonModule, OwnerNavComponent],
+  templateUrl: './owner-analytics.component.html',
+  styleUrls: ['./owner-analytics.component.css'],
 })
-export class OwnerDashboardComponent implements OnInit {
+export class OwnerAnalyticsComponent implements OnInit {
   summary: OwnerAnalyticsSummary | null = null;
   isLoading = true;
   errorMessage = '';
@@ -31,7 +30,7 @@ export class OwnerDashboardComponent implements OnInit {
     try {
       this.summary = await this.analyticsService.getSummary();
     } catch (e: any) {
-      this.errorMessage = e?.error?.message ?? e?.message ?? 'Could not load overview.';
+      this.errorMessage = e?.error?.message ?? e?.message ?? 'Could not load analytics.';
       this.summary = null;
     } finally {
       this.isLoading = false;
@@ -45,8 +44,8 @@ export class OwnerDashboardComponent implements OnInit {
     return this.summary.dailyOrders.find((p) => p.date === todayKey)?.orders ?? 0;
   }
 
-  get topDishesPreview() {
-    return this.summary?.topDishes.slice(0, 3) ?? [];
+  trackByDate(_: number, point: { date: string }): string {
+    return point.date;
   }
 
   trackByDishId(_: number, dish: { dishId: number }): number {
