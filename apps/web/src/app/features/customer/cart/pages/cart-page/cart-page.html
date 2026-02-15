@@ -1,10 +1,7 @@
 @if (cartItems$ | async; as items) {
   <section class="cart-page">
     @if (restaurant$ | async; as restaurant) {
-      <app-restaurant-header
-        class="restaurant-header"
-        [restaurant]="restaurant"
-        >
+      <app-restaurant-header class="restaurant-header" [restaurant]="restaurant">
       </app-restaurant-header>
     }
     <h2>Dein Warenkorb</h2>
@@ -38,7 +35,6 @@
 } @else {
   <p>Dein Warenkorb ist leer.</p>
 }
-
 
 <!-- Fixierter Bestellen-Button -->
 <button class="checkout-button" (click)="placeOrder()">Bestellen</button>

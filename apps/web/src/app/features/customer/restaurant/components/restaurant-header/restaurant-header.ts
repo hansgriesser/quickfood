@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Restaurant } from '../../restaurant.model';
 
-
 @Component({
   selector: 'app-restaurant-header',
   imports: [],

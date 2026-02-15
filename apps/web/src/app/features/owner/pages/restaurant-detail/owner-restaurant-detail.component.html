@@ -32,7 +32,7 @@
                     type="checkbox"
                     [(ngModel)]="entry.isClosed"
                     name="closed{{ entry.dayOfWeek }}"
-                    />
+                  />
                   Closed
                 </label>
                 <input
@@ -40,14 +40,14 @@
                   [(ngModel)]="entry.opensAt"
                   name="opens{{ entry.dayOfWeek }}"
                   [disabled]="entry.isClosed"
-                  />
+                />
                 <span class="hours-divider">to</span>
                 <input
                   type="time"
                   [(ngModel)]="entry.closesAt"
                   name="closes{{ entry.dayOfWeek }}"
                   [disabled]="entry.isClosed"
-                  />
+                />
               </div>
             }
             <button type="submit" [disabled]="isHoursSaving">Save Opening Hours</button>
@@ -63,10 +63,7 @@
             <div class="status error">{{ zonesError }}</div>
           }
           @if (!isZonesLoading && deliveryZones.length > 0) {
-            <form
-              class="zone-form"
-              (ngSubmit)="saveDeliveryZones()"
-              >
+            <form class="zone-form" (ngSubmit)="saveDeliveryZones()">
               <div class="zone-list">
                 @for (zone of deliveryZones; track trackByZoneId($index, zone)) {
                   <label class="zone-option">
@@ -74,11 +71,14 @@
                       type="checkbox"
                       [checked]="isZoneSelected(zone.id)"
                       (change)="toggleZoneSelection(zone.id, $event)"
-                      />
+                    />
                     <div class="zone-meta">
                       <span class="zone-name">{{ zone.name }}</span>
                       <span class="muted">
-                        {{ zone.code }} - {{ zone.typicalDeliveryMin }}-{{ zone.typicalDeliveryMax }} min
+                        {{ zone.code }} - {{ zone.typicalDeliveryMin }}-{{
+                          zone.typicalDeliveryMax
+                        }}
+                        min
                       </span>
                     </div>
                   </label>
@@ -88,9 +88,7 @@
             </form>
           }
           @if (!isZonesLoading && deliveryZones.length === 0) {
-            <div class="status">
-              No delivery zones configured.
-            </div>
+            <div class="status">No delivery zones configured.</div>
           }
         </div>
       </div>
@@ -145,7 +143,7 @@
               name="newDishPrice"
               min="1"
               required
-              />
+            />
           </label>
           <label>
             Category
@@ -165,7 +163,7 @@
               [(ngModel)]="dishForm.pictureUrl"
               name="newDishPhoto"
               placeholder="https://example.com/photo.jpg"
-              />
+            />
           </label>
           <div class="photo-uploader">
             <div class="photo-preview" [class.empty]="!dishForm.pictureUrl">
@@ -199,9 +197,7 @@
       </div>
 
       @if (!isMenuLoading && !menuError && menuCategories.length === 0) {
-        <div class="menu-empty">
-          No menu items yet.
-        </div>
+        <div class="menu-empty">No menu items yet.</div>
       }
 
       <ng-template #categoryContent let-category="category" let-draggable="draggable">

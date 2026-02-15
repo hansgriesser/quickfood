@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from './core/guards/admin.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { ProfileComponent } from './features/profile/pages/profile.component';
 
 export const routes: Routes = [
   {
@@ -48,6 +49,11 @@ export const routes: Routes = [
     path: 'owner',
     loadChildren: () => import('./features/owner/owner.module').then((m) => m.OwnerModule),
     data: { footer: true },
+  },
+  {
+    path: 'profile',
+    component: ProfileComponent,
+    data: { footer: false },
   },
   {
     path: '**',

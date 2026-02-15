@@ -1,10 +1,7 @@
 @if (draft$ | async; as draft) {
   <section class="review-page">
     @if (restaurant$ | async; as restaurant) {
-      <app-restaurant-header
-        class="restaurant-header"
-        [restaurant]="restaurant"
-        >
+      <app-restaurant-header class="restaurant-header" [restaurant]="restaurant">
       </app-restaurant-header>
     }
     <h2>Bestellung prüfen</h2>
@@ -32,15 +29,15 @@
             placeholder="z.B. FOOD10"
             (input)="onInputChange()"
             (keyup.enter)="checkVoucher()"
-            />
+          />
           <button
             (click)="checkVoucher()"
-        [ngClass]="{
-          success: voucherState === 'valid',
-          error: voucherState === 'invalid',
-        }"
+            [ngClass]="{
+              success: voucherState === 'valid',
+              error: voucherState === 'invalid',
+            }"
             [disabled]="voucherState === 'valid'"
-            >
+          >
             Prüfen
           </button>
         </div>
@@ -63,9 +60,7 @@
           </p>
         }
         @if (orderDraftService.feeAmount$ | async; as fee) {
-          <p>
-            Service Fees: {{ fee / 100 | currency: 'EUR' }}
-          </p>
+          <p>Service Fees: {{ fee / 100 | currency: 'EUR' }}</p>
         }
         @if (orderDraftService.totalAmount$ | async; as total) {
           <p>

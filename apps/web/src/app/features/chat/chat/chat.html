@@ -2,9 +2,9 @@
   <div class="chat-header">
     <h3>
       {{
-      role === 'OWNER'
-      ? 'Chat mit Kunde #' + (orderId | slice: 0 : 8)
-      : 'Chat mit Restaurant #' + (orderId | slice: 0 : 8)
+        role === 'OWNER'
+          ? 'Chat mit Kunde #' + (orderId | slice: 0 : 8)
+          : 'Chat mit Restaurant #' + (orderId | slice: 0 : 8)
       }}
     </h3>
     <button class="close-btn" (click)="toggleChat()">✕</button>
@@ -26,7 +26,7 @@
       placeholder="Nachricht schreiben..."
       (keyup.enter)="sendMessage()"
       [disabled]="!isOpen"
-      />
+    />
     <button (click)="sendMessage()" [disabled]="!isOpen || !newMessage.trim()">Senden</button>
   </div>
 </div>

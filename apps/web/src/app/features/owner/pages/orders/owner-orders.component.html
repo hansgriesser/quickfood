@@ -19,14 +19,10 @@
     <div class="status error">{{ errorMessage }}</div>
   }
   @if (!isLoading && !errorMessage && orders.length === 0) {
-    <div class="status">
-      No orders yet.
-    </div>
+    <div class="status">No orders yet.</div>
   }
   @if (totalUnreadMessages$ | async; as totalUnreadMessages) {
-    <div class="status">
-      {{ totalUnreadMessages }} ungelesene Nachrichten von Kunden.
-    </div>
+    <div class="status">{{ totalUnreadMessages }} ungelesene Nachrichten von Kunden.</div>
   }
 
   <div class="orders-grid">
@@ -56,20 +52,14 @@
           <div class="totals">
             <div>Subtotal: {{ order.subtotalAmount / 100 | currency: 'EUR' }}</div>
             @if (order.discountAmount > 0) {
-              <div>
-                Discount: -{{ order.discountAmount / 100 | currency: 'EUR' }}
-              </div>
+              <div>Discount: -{{ order.discountAmount / 100 | currency: 'EUR' }}</div>
             }
             <div class="total">Total: {{ order.totalAmount / 100 | currency: 'EUR' }}</div>
           </div>
         </div>
         <div class="order-actions">
           @if (order.status === orderStatus.PENDING) {
-            <button
-              type="button"
-              (click)="acceptOrder(order)"
-              [disabled]="isBusy(order.id)"
-              >
+            <button type="button" (click)="acceptOrder(order)" [disabled]="isBusy(order.id)">
               Accept
             </button>
           }
@@ -79,7 +69,7 @@
               class="secondary"
               (click)="rejectOrder(order)"
               [disabled]="isBusy(order.id)"
-              >
+            >
               Reject
             </button>
           }
@@ -88,7 +78,7 @@
               type="button"
               (click)="updateStatus(order, orderStatus.PREPARING)"
               [disabled]="isBusy(order.id)"
-              >
+            >
               Mark preparing
             </button>
           }
@@ -97,7 +87,7 @@
               type="button"
               (click)="updateStatus(order, orderStatus.READY)"
               [disabled]="isBusy(order.id)"
-              >
+            >
               Mark ready
             </button>
           }
@@ -106,7 +96,7 @@
               type="button"
               (click)="updateStatus(order, orderStatus.DISPATCHED)"
               [disabled]="isBusy(order.id)"
-              >
+            >
               Mark dispatched
             </button>
           }
@@ -120,7 +110,9 @@
             </button>
           }
           <div class="chat-actions">
-            <button type="button" class="secondary chat-btn" (click)="openChat(order.id)">💬</button>
+            <button type="button" class="secondary chat-btn" (click)="openChat(order.id)">
+              💬
+            </button>
             @if (unreadCountForOrder(order.id) > 0) {
               <p>
                 {{ unreadCountForOrder(order.id) }}
