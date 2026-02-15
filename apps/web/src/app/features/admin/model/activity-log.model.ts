@@ -30,7 +30,22 @@ export interface DefaultLog extends BaseActivityLog {
   meta?: never; // kommt eigentlich eh nie vor, nur default case
 }
 
-export type ActivityLog = UserModerationLog | RestaurantModerationLog | AuthLoginLog | DefaultLog;
+export interface AuthRegisterLog extends BaseActivityLog {
+  type: 'AUTH_REGISTER';
+  meta: RegisterMeta;
+}
+
+export interface RegisterMeta {
+  username: string;
+  role: string;
+}
+
+export type ActivityLog =
+  | UserModerationLog
+  | RestaurantModerationLog
+  | AuthLoginLog
+  | AuthRegisterLog
+  | DefaultLog;
 
 export interface UserModerationMeta {
   reason?: string;
