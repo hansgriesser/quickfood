@@ -42,14 +42,16 @@ Create two `.env` files: one in apps/api and one in apps/web with following cont
 Backend (.env in apps/api):
 
 ```bash
-DATABASE_URL=postgresql://user:password@localhost:5432/quickfood
+DATABASE_URL=postgresql://quickfood:quickfood@localhost:5432/quickfood?schema=public
 JWT_SECRET=your_jwt_secret
 PORT=3000
 ```
 
 Frontend (.env in apps/web):
 
+```bash
 API_URL=http://localhost:3000
+```
 
 ### Install dependencies (once)
 
